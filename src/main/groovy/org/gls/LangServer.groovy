@@ -21,6 +21,15 @@ import groovy.util.logging.Slf4j
 @TypeChecked
 class LangServer implements LanguageServer, LanguageClientAware {
 
+    private LanguageClient client
+    private WorkspaceService workspaceService
+    private TextDocumentService textDocumentService
+
+    public LangServer() {
+        this.workspaceService = new GroovyWorkspaceService()
+        this.textDocumentService = new GroovyTextDocumentService()
+    }
+
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
         ServerCapabilities capabilities = new ServerCapabilities()
@@ -38,17 +47,17 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
     @Override
     WorkspaceService getWorkspaceService() {
-        return new GroovyWorkspaceService()
+        return workspaceService
     }
 
     @Override
     TextDocumentService getTextDocumentService() {
-        return new GroovyTextDocumentService()
+        return textDocumentService
     }
 
     @Override
     void connect(LanguageClient client) {
-
+        this.client = client
     }
 
     static void main(String[] args) {
