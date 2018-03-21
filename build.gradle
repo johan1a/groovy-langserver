@@ -30,4 +30,5 @@ mainClassName = 'org.gls.LangServer'
 
 run {
    standardInput = System.in
+   standardOutput = System.out
 }
