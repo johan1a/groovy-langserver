@@ -20,41 +20,43 @@ import groovy.util.logging.Slf4j
 @TypeChecked
 class LangServer implements LanguageServer, LanguageClientAware {
 
-  @Override
-  CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-    return CompletableFuture.completedFuture(new InitializeResult());
-  }
+    @Override
+    CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
+        return CompletableFuture.completedFuture(new InitializeResult());
+    }
 
-  @Override
-  CompletableFuture shutdown(){
-    CompletableFuture.completedFuture("")
-  }
+    @Override
+    CompletableFuture shutdown(){
+        CompletableFuture.completedFuture("")
+    }
 
-  @Override
-  void exit(){
-  }
+    @Override
+    void exit(){
+    }
 
-  @Override
-  WorkspaceService getWorkspaceService() {
-    return new GroovyWorkspaceService()
-  }
+    @Override
+    WorkspaceService getWorkspaceService() {
+        return new GroovyWorkspaceService()
+    }
 
-  @Override
-  TextDocumentService getTextDocumentService() {
-    return new GroovyTextDocumentService()
-  }
+    @Override
+    TextDocumentService getTextDocumentService() {
+        return new GroovyTextDocumentService()
+    }
 
-  @Override
-  void connect(LanguageClient client) {
+    @Override
+    void connect(LanguageClient client) {
 
-  }
+    }
 
-  static void main(String[] args) {
-    log.info "Starting langserver"
-    LanguageServer server = new LangServer()
-    Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
-                                       System.out)
-    launcher.startListening();
-  }
+    static void main(String[] args) {
+        log.info "Starting langserver"
+        LanguageServer server = new LangServer()
+        Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
+                    System.out)
+        LanguageClient client = launcher.getRemoteProxy();
+        ((LanguageClientAware)myImpl).connect(client);
+        launcher.startListening();
+    }
 
 }
