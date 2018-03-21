@@ -17,6 +17,7 @@ class GroovyWorkspaceService implements WorkspaceService {
     @Override
         CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
         log.info "symbol"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override

@@ -66,31 +66,37 @@ class GroovyTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
         log.info "definition"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         log.info "references: ${params}"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
         log.info "documentHighlight"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
         log.info "documentSymbol"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         log.info "codeAction"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         log.info "codeLens"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
@@ -101,16 +107,19 @@ class GroovyTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
         log.info "formatting"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
         log.info "rangeFormatting"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
     public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
         log.info "onTypeFormatting"
+        return CompletableFuture.completedFuture([])
     }
 
     @Override
