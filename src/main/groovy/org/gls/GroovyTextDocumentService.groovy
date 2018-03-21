@@ -36,88 +36,108 @@ import org.eclipse.lsp4j.services.TextDocumentService
 import org.eclipse.lsp4j.DidChangeConfigurationParams
 import org.eclipse.lsp4j.WorkspaceSymbolParams
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 
 
+@Slf4j
 @TypeChecked
 class GroovyTextDocumentService implements TextDocumentService {
 
 
   @Override
   CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams completionRequest) {
-
+      log.info "completion"
   }
 
 
   @Override
   public CompletableFuture<CompletionItem> resolveCompletionItem(CompletionItem unresolved) {
+      log.info "resolveCompletionItem"
   }
 
   @Override
   public CompletableFuture<Hover> hover(TextDocumentPositionParams position) {
+      log.info "hover"
   }
 
   @Override
   public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
+      log.info "signatureHelp"
   }
 
   @Override
   public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
+      log.info "definition"
   }
 
   @Override
   public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+      log.info "references"
   }
 
   @Override
   public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(TextDocumentPositionParams position) {
+      log.info "documentHighlight"
   }
 
   @Override
   public CompletableFuture<List<? extends SymbolInformation>> documentSymbol(DocumentSymbolParams params) {
+      log.info "documentSymbol"
   }
 
   @Override
   public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
+      log.info "codeAction"
   }
 
   @Override
   public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
+      log.info "codeLens"
   }
 
   @Override
   public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
+      log.info "resolveCodeLens"
   }
 
   @Override
   public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
+      log.info "formatting"
   }
 
   @Override
   public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
+      log.info "rangeFormatting"
   }
 
   @Override
   public CompletableFuture<List<? extends TextEdit>> onTypeFormatting(DocumentOnTypeFormattingParams params) {
+      log.info "onTypeFormatting"
   }
 
   @Override
   public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
+      log.info "rename"
   }
 
   @Override
   public void didOpen(DidOpenTextDocumentParams params) {
+      log.info "didOpen"
   }
 
   @Override
   public void didChange(DidChangeTextDocumentParams params) {
+      log.info "didChange"
   }
 
   @Override
   public void didClose(DidCloseTextDocumentParams params) {
+      log.info "didClose"
   }
 
   @Override
   public void didSave(DidSaveTextDocumentParams params) {
+      log.info "didSave"
   }
 
 

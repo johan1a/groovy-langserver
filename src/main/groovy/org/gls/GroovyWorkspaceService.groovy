@@ -7,24 +7,28 @@ import org.eclipse.lsp4j.WorkspaceSymbolParams
 import org.eclipse.lsp4j.services.WorkspaceService
 import org.eclipse.lsp4j.SymbolInformation
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 
 
+@Slf4j
 @TypeChecked
 class GroovyWorkspaceService implements WorkspaceService {
 
 
   @Override
   CompletableFuture<List<? extends SymbolInformation>> symbol(WorkspaceSymbolParams params) {
+      log.info "symbol"
   }
 
   @Override
   void didChangeConfiguration(DidChangeConfigurationParams params) {
+      log.info "didChangeConfiguration"
 
   }
 
   @Override
   void didChangeWatchedFiles(DidChangeWatchedFilesParams params) {
-
+      log.info "didChangeWatchedFiles"
   }
 
 }
