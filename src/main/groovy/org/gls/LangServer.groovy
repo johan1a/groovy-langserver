@@ -11,11 +11,14 @@ import org.eclipse.lsp4j.services.WorkspaceService
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.jsonrpc.Launcher
+import org.eclipse.lsp4j.services.LanguageClientAware
+import org.eclipse.lsp4j.services.LanguageClient
+
 import groovy.util.logging.*
 
 @Log
 @TypeChecked
-class LangServer implements LanguageServer {
+class LangServer implements LanguageServer, LanguageClientAware {
 
   @Override
   CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
@@ -39,6 +42,11 @@ class LangServer implements LanguageServer {
   @Override
   TextDocumentService getTextDocumentService() {
     return new GroovyTextDocumentService()
+  }
+
+  @Override
+  void connect(LanguageClient client) {
+
   }
 
   static void main(String[] args) {
