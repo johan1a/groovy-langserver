@@ -11,3 +11,7 @@ dependencies {
 }
 
 mainClassName = 'org.gls.LangServer'
+
+run {
+   standardInput = System.in
+}
