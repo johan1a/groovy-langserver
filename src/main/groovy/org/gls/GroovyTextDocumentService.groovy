@@ -70,7 +70,7 @@ class GroovyTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        log.info "references"
+        log.info "references: ${params}"
     }
 
     @Override

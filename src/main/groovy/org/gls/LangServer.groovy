@@ -13,6 +13,7 @@ import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.jsonrpc.Launcher
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.LanguageClient
+import org.eclipse.lsp4j.ServerCapabilities
 
 import groovy.util.logging.Slf4j
 
@@ -22,7 +23,8 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-        return CompletableFuture.completedFuture(new InitializeResult());
+        ServerCapabilities capabilities = new ServerCapabilities()
+        return CompletableFuture.completedFuture(new InitializeResult(capabilities))
     }
 
     @Override
@@ -55,7 +57,7 @@ class LangServer implements LanguageServer, LanguageClientAware {
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
                     System.out)
         LanguageClient client = launcher.getRemoteProxy();
-        ((LanguageClientAware)myImpl).connect(client);
+        server.connect(client);
         launcher.startListening();
     }
 
