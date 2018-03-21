@@ -14,9 +14,9 @@ import org.eclipse.lsp4j.jsonrpc.Launcher
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.LanguageClient
 
-import groovy.util.logging.*
+import groovy.util.logging.Slf4j
 
-@Log
+@Slf4j
 @TypeChecked
 class LangServer implements LanguageServer, LanguageClientAware {
 
@@ -55,7 +55,6 @@ class LangServer implements LanguageServer, LanguageClientAware {
     Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
                                        System.out)
     launcher.startListening();
-    log.info "Exiting langserver"
   }
 
 }

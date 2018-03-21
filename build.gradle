@@ -1,5 +1,16 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
 
 repositories {
    mavenCentral()
@@ -9,6 +20,8 @@ dependencies {
    compile 'org.codehaus.groovy:groovy-all:2.4.14'
    compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.4.0.M6'
    compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.jsonrpc', version: '0.4.0.M6'
+   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+   compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.25'
 
    testCompile 'junit:junit:4.12'
 }
