@@ -35,8 +35,10 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.TextDocumentService
 import org.eclipse.lsp4j.DidChangeConfigurationParams
 import org.eclipse.lsp4j.WorkspaceSymbolParams
+import groovy.transform.TypeChecked
 
 
+@TypeChecked
 class GroovyTextDocumentService implements TextDocumentService {
 
 

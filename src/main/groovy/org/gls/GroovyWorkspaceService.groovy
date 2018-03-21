@@ -6,7 +6,10 @@ import org.eclipse.lsp4j.DidChangeConfigurationParams
 import org.eclipse.lsp4j.WorkspaceSymbolParams
 import org.eclipse.lsp4j.services.WorkspaceService
 import org.eclipse.lsp4j.SymbolInformation
+import groovy.transform.TypeChecked
 
+
+@TypeChecked
 class GroovyWorkspaceService implements WorkspaceService {
 
 
