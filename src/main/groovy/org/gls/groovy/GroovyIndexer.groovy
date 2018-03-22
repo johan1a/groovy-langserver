@@ -2,12 +2,22 @@ package org.gls.groovy
 
 import groovy.util.logging.Slf4j
 import groovy.transform.TypeChecked
+import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.expr.BinaryExpression
+import org.codehaus.groovy.ast.expr.ClosureExpression
+import org.codehaus.groovy.ast.expr.MethodCallExpression
+import org.codehaus.groovy.ast.stmt.*
+import org.codehaus.groovy.control.CompilePhase
+import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.ASTNode
 
 @Slf4j
 @TypeChecked
 class GroovyIndexer {
 
-  String rootUri
+    String rootUri
+
+    CompilePhase phase = CompilePhase.CLASS_GENERATION
 
     def startIndexing() {
       try {
@@ -17,7 +27,7 @@ class GroovyIndexer {
         log.info "baseDir: ${basedir}"
         basedir.eachFileRecurse {
           if (it.name =~ /.*\.groovy/) {
-            log.info it.name
+            indexFile(it)
           }
         }
         long elapsed = System.currentTimeMillis() - start
@@ -27,4 +37,15 @@ class GroovyIndexer {
       }
     }
 
+    def indexFile(File file) {
+        log.info file.name
+        def astBuilder = new AstBuilder()
+        log.info("${astBuilder}")
+        List<ASTNode> astNodes = astBuilder.buildFromString( phase, false, file.text )
+        astNodes.each { node ->
+            log.info("node: ${node}")
+            // log.info("statements: ${ast.getStatements()}")
+            // log.info("methods: ${ast.getmethods()}")
+        }
+    }
 }
