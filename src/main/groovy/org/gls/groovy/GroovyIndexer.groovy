@@ -22,7 +22,12 @@ class GroovyIndexer {
 
     CompilePhase phase = CompilePhase.CLASS_GENERATION
     ClassVisitor classVisitor = new ClassVisitor()
-    ReferenceStorage storage = new ReferenceStorage()
+    ReferenceStorage storage
+
+    GroovyIndexer(String rootUri, ReferenceStorage storage) {
+        this.rootUri = rootUri
+        this.storage = storage
+    }
 
     def startIndexing() {
       try {

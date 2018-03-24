@@ -28,7 +28,7 @@ class ClassDefinition {
     ClassDefinition(ClassNode node, String sourceFileURI) {
         columnNumber = node.getColumnNumber()
         lastColumnNumber = node.getLastColumnNumber()
-        lineNumber = node.getLineNumber()
+        lineNumber = node.getLineNumber() + node.getAnnotations().size()
         lastLineNumber = node.getLastLineNumber()
         className = node.getNameWithoutPackage()
         packageName = node.getPackageName()

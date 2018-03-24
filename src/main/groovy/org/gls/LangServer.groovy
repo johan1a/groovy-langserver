@@ -19,6 +19,7 @@ import org.eclipse.lsp4j.services.LanguageServer
 import org.eclipse.lsp4j.services.TextDocumentService
 import org.eclipse.lsp4j.services.WorkspaceService
 import org.gls.groovy.GroovyIndexer
+import org.gls.lang.ReferenceStorage
 
 @Slf4j
 @TypeChecked
@@ -26,7 +27,7 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
     private LanguageClient client
     private WorkspaceService workspaceService
-    private TextDocumentService textDocumentService
+    private GroovyTextDocumentService textDocumentService
     private GroovyIndexer indexer
 
     public LangServer() {
@@ -41,8 +42,10 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
         String rootUri = initializeParams.getRootUri()
         log.info "rootUri: " + rootUri
-        indexer = new GroovyIndexer(rootUri: rootUri)
+        ReferenceStorage storage = new ReferenceStorage()
+        indexer = new GroovyIndexer(rootUri, storage)
         indexer.startIndexing()
+        textDocumentService.setReferenceStorage(storage)
 
         ServerCapabilities capabilities = new ServerCapabilities()
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))

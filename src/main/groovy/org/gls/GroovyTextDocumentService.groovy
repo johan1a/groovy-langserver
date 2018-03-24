@@ -37,11 +37,18 @@ import org.eclipse.lsp4j.DidChangeConfigurationParams
 import org.eclipse.lsp4j.WorkspaceSymbolParams
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.gls.lang.ReferenceStorage
 
 
 @Slf4j
 @TypeChecked
 class GroovyTextDocumentService implements TextDocumentService {
+
+    private ReferenceStorage storage
+
+    void setReferenceStorage(ReferenceStorage storage) {
+        this.storage = storage
+    }
 
     @Override
     CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams completionRequest) {
