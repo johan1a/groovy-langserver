@@ -11,6 +11,7 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.control.CompilationUnit
+import org.codehaus.groovy.ast.ClassNode
 
 @Slf4j
 @TypeChecked
@@ -19,19 +20,33 @@ class GroovyIndexer {
     String rootUri
 
     CompilePhase phase = CompilePhase.CLASS_GENERATION
-    ASTNodeVisitor visitor = new ASTNodeVisitor()
+    ClassVisitor visitor = new ClassVisitor()
 
     def startIndexing() {
       try {
         log.info "Indexing..."
+        CompilationUnit unit = new CompilationUnit()
         long start = System.currentTimeMillis()
         File basedir = new File(new URL(rootUri).toURI())
         log.info "baseDir: ${basedir}"
         basedir.eachFileRecurse {
           if (it.name =~ /.*\.groovy/) {
-            indexFile(it)
+              unit.addSource(it)
           }
         }
+        unit.compile()
+
+        List<ClassNode> classes = unit.getClasses()
+        log.info "Classes: ${classes}"
+
+        unit.iterator().each { sourceUnit ->
+            log.info "sourceUnit: $sourceUnit"
+            sourceUnit.getAST().getClasses().each { classNode ->
+                log.info("classNode: $classNode")
+                visitor.visitClass(classNode)
+            }
+        }
+
         long elapsed = System.currentTimeMillis() - start
         log.info("Elapsed: ${elapsed / 1000}s")
       } catch(Exception e) {
@@ -39,15 +54,7 @@ class GroovyIndexer {
       }
     }
 
-    def indexFile(File file) {
+    def indexFile(File file, CompilationUnit unit) {
         log.info file.name
-        CompilationUnit unit = new CompilationUnit()
-        unit.addSource(file)
-        unit.compile()
-        log.info "Compiled $file"
-        log.info "${unit.getClasses()}"
-        unit.getClasses().each {
-          visitor.visit(it)
-        }
     }
 }
