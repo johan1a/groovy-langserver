@@ -11,7 +11,8 @@ import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.*
+import org.gls.lang.ReferenceStorage
 
 @Slf4j
 @TypeChecked
@@ -20,7 +21,8 @@ class GroovyIndexer {
     String rootUri
 
     CompilePhase phase = CompilePhase.CLASS_GENERATION
-    ClassVisitor visitor = new ClassVisitor()
+    ClassVisitor classVisitor = new ClassVisitor()
+    ReferenceStorage storage = new ReferenceStorage()
 
     def startIndexing() {
       try {
@@ -40,10 +42,12 @@ class GroovyIndexer {
         log.info "Classes: ${classes}"
 
         unit.iterator().each { sourceUnit ->
-            log.info "sourceUnit: $sourceUnit"
-            sourceUnit.getAST().getClasses().each { classNode ->
-                log.info("classNode: $classNode")
-                visitor.visitClass(classNode)
+            ModuleNode moduleNode = sourceUnit.getAST()
+            log.info("SourceUnit name: ${sourceUnit.getName()}")
+            CodeVisitor codeVisitor = new CodeVisitor(storage, sourceUnit.getName())
+            moduleNode.visit(codeVisitor)
+            moduleNode.getClasses().each { classNode ->
+                codeVisitor.visit(classNode)
             }
         }
 

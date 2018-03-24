@@ -64,8 +64,8 @@ class GroovyTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams position) {
-        log.info "definition"
+    public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
+        log.info "definition: ${params}"
         return CompletableFuture.completedFuture([])
     }
 
