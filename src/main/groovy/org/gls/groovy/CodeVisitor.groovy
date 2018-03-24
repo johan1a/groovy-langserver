@@ -17,7 +17,7 @@ import groovy.transform.TypeChecked
 
 @Slf4j
 @TypeChecked
-class CodeVisitor implements GroovyCodeVisitor {
+class CodeVisitor implements GroovyCodeVisitor, GroovyClassVisitor{
 
     private ReferenceStorage storage
     private String sourceFileURI
@@ -27,9 +27,30 @@ class CodeVisitor implements GroovyCodeVisitor {
         this.sourceFileURI = sourceFileURI
     }
 
-    void visit(ClassNode node) {
-        log.info "Visiting class $node"
+    void visitClass(ClassNode node) {
+        log.info "Visiting ClassNode $node"
         storage.addClassDefinition(new ClassDefinition(node, sourceFileURI))
+        node.visitContents(this)
+    }
+
+    @Override
+    void visitConstructor(ConstructorNode node){
+        log.info "Visiting ConstructorNode $node"
+    }
+
+    @Override
+    void visitField(FieldNode node){
+        log.info "visiting FieldNode $node"
+    }
+
+    @Override
+    void visitMethod(MethodNode node){
+        log.info "visiting MethodNode $node"
+    }
+
+    @Override
+    void visitProperty(PropertyNode node){
+        log.info "visiting PropertyNode $node"
     }
 
     @Override

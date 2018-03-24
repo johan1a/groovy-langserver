@@ -52,7 +52,7 @@ class GroovyIndexer {
             CodeVisitor codeVisitor = new CodeVisitor(storage, sourceUnit.getName())
             moduleNode.visit(codeVisitor)
             moduleNode.getClasses().each { classNode ->
-                codeVisitor.visit(classNode)
+                codeVisitor.visitClass(classNode)
             }
         }
 
