@@ -1,11 +1,23 @@
 package org.gls.groovy
 
+import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
+import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.GroovyCodeVisitor
+import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
+import org.codehaus.groovy.control.CompilationUnit
+import org.codehaus.groovy.ast.ClassNode
 
+@Slf4j
 class ASTNodeVisitor implements GroovyCodeVisitor {
+
+    void visit(ClassNode node) {
+        log.debug "Visiting $node"
+
+    }
 
     @Override
     void visitArgumentlistExpression(ArgumentListExpression expression){
@@ -39,7 +51,7 @@ class ASTNodeVisitor implements GroovyCodeVisitor {
 
     @Override
     void visitBlockStatement(BlockStatement statement){
-
+        log.debug "Visiting blockStatement: ${statement}"
     }
 
     @Override

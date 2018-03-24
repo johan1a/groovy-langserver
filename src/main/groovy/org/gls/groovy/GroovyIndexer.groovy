@@ -10,6 +10,7 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.control.CompilePhase
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.control.CompilationUnit
 
 @Slf4j
 @TypeChecked
@@ -18,6 +19,7 @@ class GroovyIndexer {
     String rootUri
 
     CompilePhase phase = CompilePhase.CLASS_GENERATION
+    ASTNodeVisitor visitor = new ASTNodeVisitor()
 
     def startIndexing() {
       try {
@@ -39,13 +41,13 @@ class GroovyIndexer {
 
     def indexFile(File file) {
         log.info file.name
-        def astBuilder = new AstBuilder()
-        log.info("${astBuilder}")
-        List<ASTNode> astNodes = astBuilder.buildFromString( phase, false, file.text )
-        astNodes.each { node ->
-            log.info("node: ${node}")
-            // log.info("statements: ${ast.getStatements()}")
-            // log.info("methods: ${ast.getmethods()}")
+        CompilationUnit unit = new CompilationUnit()
+        unit.addSource(file)
+        unit.compile()
+        log.info "Compiled $file"
+        log.info "${unit.getClasses()}"
+        unit.getClasses().each {
+          visitor.visit(it)
         }
     }
 }
