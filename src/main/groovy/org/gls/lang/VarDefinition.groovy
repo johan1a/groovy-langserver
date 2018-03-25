@@ -10,6 +10,7 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.*
 
 @Slf4j
 class VarDefinition implements Definition {
@@ -21,6 +22,16 @@ class VarDefinition implements Definition {
     int lastLineNumber
     String typeName
     String varName
+
+    VarDefinition(String sourceFileURI, FieldNode node) {
+        this.sourceFileURI = sourceFileURI
+        columnNumber = node.columnNumber - 1
+        lastColumnNumber = node.lastColumnNumber - 1
+        lineNumber = node.lineNumber - 1
+        lastLineNumber = node.lastLineNumber - 1
+        typeName = node.getType().getName()
+        varName = node.getName()
+    }
 
     String getSourceFileURI() {
         return sourceFileURI

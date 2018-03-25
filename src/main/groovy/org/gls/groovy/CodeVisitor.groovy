@@ -45,13 +45,7 @@ class CodeVisitor implements GroovyCodeVisitor, GroovyClassVisitor{
         storage.addClassReference(classReference)
         log.info "Added classReference: $classReference"
 
-        storage.addVarDefinition(new VarDefinition(sourceFileURI: sourceFileURI,
-            columnNumber: node.columnNumber - 1,
-            lastColumnNumber: node.lastColumnNumber - 1,
-            lineNumber: node.lineNumber - 1,
-            lastLineNumber: node.lastLineNumber - 1,
-            typeName: node.getType().getName(),
-            varName: node.getName()))
+        storage.addVarDefinition(new VarDefinition(sourceFileURI, node))
     }
 
     @Override
