@@ -31,7 +31,7 @@ class ClassReference implements Reference {
         this.lastColumnNumber = node.lastColumnNumber - 1
         this.lineNumber = node.lineNumber - 1
         this.lastLineNumber = node.lastLineNumber - 1
-        this.referencedClassName = node.getType().getName() - 1
+        this.referencedClassName = node.getType().getName()
     }
 
     public String toString() {

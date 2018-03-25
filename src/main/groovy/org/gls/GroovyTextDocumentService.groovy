@@ -74,7 +74,7 @@ class GroovyTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
         try {
             log.info "definition: ${params}"
-            def definition = storage.getClassDefinition(params)
+            def definition = storage.getDefinition(params)
             log.info "found definition: ${definition}"
             return CompletableFuture.completedFuture(definition)
         } catch (Exception e) {

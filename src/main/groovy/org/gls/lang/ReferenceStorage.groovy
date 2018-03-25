@@ -65,29 +65,39 @@ class ReferenceStorage {
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
         List<Location> classDefinition = getClassDefinition(params)
-        if(classDefinition == null) {
+        if(classDefinition.isEmpty()) {
+            log.info "getVarDefinition"
             return getVarDefinition(params)
         }
+        return classDefinition
     }
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
+        log.info "path: $path"
+        log.info "varReferences: $varReferences"
         Set<VarReference> references = varReferences.get(path)
-        log.info "references: $references"
         VarReference matchingReference = findMatchingReference(references, params) as VarReference
         if (matchingReference == null) {
             return Collections.emptyList()
         }
         log.info "matchingReference: $matchingReference"
         Set<VarDefinition> definitions = varDefinitions.get(matchingReference.sourceFileURI)
+        log.info "ALL DEFINITIONS: ${definitions}"
+        log.info "matchingReference: $matchingReference"
         VarDefinition definition = findMatchingDefinition(definitions, matchingReference) as VarDefinition
+        log.info "params: $params"
+        log.info "definition: $definition"
+        if (definition == null) {
+            return Collections.emptyList()
+        }
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
     }
 
     VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarReference reference) {
-        definitions.find {
+        return definitions.find {
             it.typeName == reference.definitionClassName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }
 
@@ -96,7 +106,7 @@ class ReferenceStorage {
     List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<ClassReference> references = classReferences.get(path)
-        log.info "references: $references"
+        //log.info "references: $references"
         ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
         if (matchingReference == null) {
             return Collections.emptyList()
