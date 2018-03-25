@@ -10,27 +10,16 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
-import groovy.transform.TypeChecked
 
 @Slf4j
-@TypeChecked
-class ClassReference {
+class VarDefinition {
 
     String sourceFileURI
     int columnNumber
     int lastColumnNumber
     int lineNumber
     int lastLineNumber
-    String referencedClassName
-
-    public String toString() {
-        return """ClassReference[
-                sourceFileURI=$sourceFileURI,
-                columnNumber=$columnNumber,
-                lastColumnNumber=$lastColumnNumber,
-                lineNumber=$lineNumber,
-                referencedClassName=$referencedClassName,
-                lastLineNumber=$lastLineNumber]"""
-    }
+    String typeName
+    String varName
 
 }

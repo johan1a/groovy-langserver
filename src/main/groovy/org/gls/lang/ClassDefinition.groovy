@@ -25,11 +25,17 @@ class ClassDefinition {
     private int lineNumber
     private int lastLineNumber
 
+    private String getURI() {
+        return "file://$sourceFileURI"
+
+    }
+
+
     ClassDefinition(ClassNode node, String sourceFileURI) {
-        columnNumber = node.getColumnNumber()
-        lastColumnNumber = node.getLastColumnNumber()
-        lineNumber = node.getLineNumber() + node.getAnnotations().size()
-        lastLineNumber = node.getLastLineNumber()
+        columnNumber = node.getColumnNumber() - 1
+        lastColumnNumber = node.getLastColumnNumber() - 1
+        lineNumber = node.getLineNumber() + node.getAnnotations().size() - 1
+        lastLineNumber = node.getLastLineNumber() - 1
         className = node.getNameWithoutPackage()
         packageName = node.getPackageName()
         this.sourceFileURI = sourceFileURI

@@ -12,7 +12,7 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
 import org.gls.lang.ReferenceStorage
 import org.codehaus.groovy.ast.*
-import org.gls.lang.ClassDefinition
+import org.gls.lang.*
 import groovy.transform.TypeChecked
 
 @Slf4j
@@ -40,7 +40,23 @@ class CodeVisitor implements GroovyCodeVisitor, GroovyClassVisitor{
 
     @Override
     void visitField(FieldNode node){
-        log.info "visiting FieldNode $node"
+        log.info "Visiting field: $node"
+        ClassReference classReference = new ClassReference(sourceFileURI: sourceFileURI,
+            columnNumber: node.columnNumber - 1,
+            lastColumnNumber: node.lastColumnNumber - 1,
+            lineNumber: node.lineNumber - 1,
+            lastLineNumber: node.lastLineNumber - 1,
+            referencedClassName: node.getType().getName() - 1)
+        storage.addClassReference(classReference)
+        log.info "Added classReference: $classReference"
+
+        storage.addVarDefinition(new VarDefinition(sourceFileURI: sourceFileURI,
+            columnNumber: node.columnNumber - 1,
+            lastColumnNumber: node.lastColumnNumber - 1,
+            lineNumber: node.lineNumber - 1,
+            lastLineNumber: node.lastLineNumber - 1,
+            typeName: node.getType().getName(),
+            varName: node.getName()))
     }
 
     @Override

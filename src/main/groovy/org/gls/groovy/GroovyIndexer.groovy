@@ -21,7 +21,6 @@ class GroovyIndexer {
     String rootUri
 
     CompilePhase phase = CompilePhase.CLASS_GENERATION
-    ClassVisitor classVisitor = new ClassVisitor()
     ReferenceStorage storage
 
     GroovyIndexer(String rootUri, ReferenceStorage storage) {
