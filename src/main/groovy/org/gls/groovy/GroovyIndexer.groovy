@@ -30,11 +30,9 @@ class GroovyIndexer {
 
     def startIndexing() {
       try {
-        log.info "Indexing..."
         CompilationUnit unit = new CompilationUnit()
         long start = System.currentTimeMillis()
         File basedir = new File(new URL(rootUri).toURI())
-        log.info "baseDir: ${basedir}"
         basedir.eachFileRecurse {
           if (it.name =~ /.*\.groovy/) {
               unit.addSource(it)
@@ -43,11 +41,9 @@ class GroovyIndexer {
         unit.compile()
 
         List<ClassNode> classes = unit.getClasses()
-        log.info "Classes: ${classes}"
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
-            log.info("SourceUnit name: ${sourceUnit.getName()}")
             CodeVisitor codeVisitor = new CodeVisitor(storage, sourceUnit.getName())
             moduleNode.visit(codeVisitor)
             moduleNode.getClasses().each { classNode ->
@@ -60,9 +56,5 @@ class GroovyIndexer {
       } catch(Exception e) {
         log.error("error", e)
       }
-    }
-
-    def indexFile(File file, CompilationUnit unit) {
-        log.info file.name
     }
 }

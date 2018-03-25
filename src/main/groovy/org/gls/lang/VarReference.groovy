@@ -36,19 +36,14 @@ class VarReference implements Reference {
 
         varName = expression.getName()
         this.definitionClassName = expression.getType().getName()
-        log.info ""
         if(expression.isThisExpression()) {
             this.definitionLineNumber = expression.getType().getLineNumber() - 1
         } else if (expression.isSuperExpression() ) {
             this.definitionLineNumber = currentClassNode.getLineNumber()
         } else {
             ASTNode variable = expression.getAccessedVariable() as ASTNode
-            log.info "variable1: ${variable}"
-            log.info "lineNumber: ${variable.getLineNumber()}"
-            log.info "columnNumber: ${variable.getColumnNumber()}"
             this.definitionLineNumber = variable.getLineNumber() - 1
         }
-        log.info "varName: $varName, definitionLineNumber: $definitionLineNumber"
     }
 
     @Override

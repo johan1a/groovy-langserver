@@ -51,9 +51,6 @@ class LangServer implements LanguageServer, LanguageClientAware {
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))
     }
 
-    def startIndexing() {
-    }
-
     @Override
     CompletableFuture shutdown(){
         CompletableFuture.completedFuture("")

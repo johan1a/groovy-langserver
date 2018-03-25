@@ -32,7 +32,6 @@ class ReferenceStorage {
 
     void addClassDefinition(ClassDefinition definition) {
         classDefinitions.put(definition.getFullClassName(), definition)
-        log.info "Added $definition"
     }
 
     void addClassReference(ClassReference reference) {
@@ -73,7 +72,6 @@ class ReferenceStorage {
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        log.info "path: $path"
         Set<VarReference> references = varReferences.get(path)
         VarReference matchingReference = findMatchingReference(references, params) as VarReference
         if (matchingReference == null) {
@@ -125,10 +123,4 @@ class ReferenceStorage {
     Set<ClassReference> getClassReferences(String fullClassName) {
         return classReferences.get(fullClassName)
     }
-
-    VarDefinition getVarDefinition(ReferenceParams params) {
-
-
-    }
-
 }
