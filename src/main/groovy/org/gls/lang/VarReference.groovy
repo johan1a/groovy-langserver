@@ -12,14 +12,16 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
 
 @Slf4j
-class VarReference {
+class VarReference implements Reference {
 
     String sourceFileURI
     int columnNumber
     int lastColumnNumber
     int lineNumber
     int lastLineNumber
-    String referencedClassName
+
     String varName
+    String definitionClassName
+    String definitionLineNumber
 
 }

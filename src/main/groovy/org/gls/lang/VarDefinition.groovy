@@ -12,7 +12,7 @@ import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
 
 @Slf4j
-class VarDefinition {
+class VarDefinition implements Definition {
 
     String sourceFileURI
     int columnNumber
@@ -21,5 +21,9 @@ class VarDefinition {
     int lastLineNumber
     String typeName
     String varName
+
+    String getSourceFileURI() {
+        return sourceFileURI
+    }
 
 }

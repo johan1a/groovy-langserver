@@ -14,7 +14,7 @@ import groovy.transform.TypeChecked
 
 @Slf4j
 @TypeChecked
-class ClassDefinition {
+class ClassDefinition implements Definition {
 
     private String packageName
     private String className
@@ -25,11 +25,9 @@ class ClassDefinition {
     private int lineNumber
     private int lastLineNumber
 
-    private String getURI() {
-        return "file://$sourceFileURI"
-
+    String getSourceFileURI() {
+        return sourceFileURI
     }
-
 
     ClassDefinition(ClassNode node, String sourceFileURI) {
         columnNumber = node.getColumnNumber() - 1

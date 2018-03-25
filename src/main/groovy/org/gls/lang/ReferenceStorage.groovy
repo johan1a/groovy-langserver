@@ -22,7 +22,10 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 @TypeChecked
 class ReferenceStorage {
 
+    // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
+
+    // Key is soure file uri
     private Map<String, Set<ClassReference> > classReferences = new HashMap<>()
     private Map<String, Set<VarReference> > varReferences = new HashMap<>()
     private Map<String, Set<VarDefinition> > varDefinitions = new HashMap<>()
@@ -59,13 +62,42 @@ class ReferenceStorage {
         definitions.add(definition)
     }
 
-    // Fully qualified class name
+
+    List<Location> getDefinition(TextDocumentPositionParams params) {
+        List<Location> classDefinition = getClassDefinition(params)
+        if(classDefinition == null) {
+            return getVarDefinition(params)
+        }
+    }
+
+    List<Location> getVarDefinition(TextDocumentPositionParams params) {
+        String path = params.textDocument.uri.replace("file://", "")
+        Set<VarReference> references = varReferences.get(path)
+        log.info "references: $references"
+        VarReference matchingReference = findMatchingReference(references, params) as VarReference
+        if (matchingReference == null) {
+            return Collections.emptyList()
+        }
+        log.info "matchingReference: $matchingReference"
+        Set<VarDefinition> definitions = varDefinitions.get(matchingReference.sourceFileURI)
+        VarDefinition definition = findMatchingDefinition(definitions, matchingReference) as VarDefinition
+        def start = new Position(definition.lineNumber, definition.columnNumber)
+        def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
+        return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
+    }
+
+    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarReference reference) {
+        definitions.find {
+            it.typeName == reference.definitionClassName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+        }
+
+    }
+
     List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        log.info "path: $path"
         Set<ClassReference> references = classReferences.get(path)
         log.info "references: $references"
-        ClassReference matchingReference = findMatchingReference(references, params)
+        ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
         if (matchingReference == null) {
             return Collections.emptyList()
         }
@@ -77,7 +109,7 @@ class ReferenceStorage {
     }
 
 
-    ClassReference findMatchingReference(Set<ClassReference> references, TextDocumentPositionParams params) {
+    Reference findMatchingReference(Set<? extends Reference> references, TextDocumentPositionParams params) {
         return references.find {
             it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }

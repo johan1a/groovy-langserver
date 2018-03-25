@@ -41,12 +41,7 @@ class CodeVisitor implements GroovyCodeVisitor, GroovyClassVisitor{
     @Override
     void visitField(FieldNode node){
         log.info "Visiting field: $node"
-        ClassReference classReference = new ClassReference(sourceFileURI: sourceFileURI,
-            columnNumber: node.columnNumber - 1,
-            lastColumnNumber: node.lastColumnNumber - 1,
-            lineNumber: node.lineNumber - 1,
-            lastLineNumber: node.lastLineNumber - 1,
-            referencedClassName: node.getType().getName() - 1)
+        ClassReference classReference = new ClassReference(sourceFileURI, node)
         storage.addClassReference(classReference)
         log.info "Added classReference: $classReference"
 
