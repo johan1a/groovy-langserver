@@ -316,6 +316,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression){
+        storage.addClassReference(new ClassReference(sourceFileURI, expression))
         storage.addVarReference(new VarReference(sourceFileURI, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }

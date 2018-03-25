@@ -64,18 +64,16 @@ class ReferenceStorage {
 
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
-        List<Location> classDefinition = getClassDefinition(params)
-        if(classDefinition.isEmpty()) {
-            log.info "getVarDefinition"
-            return getVarDefinition(params)
+        List<Location> varDefinitions = getVarDefinition(params)
+        if(varDefinitions.isEmpty()) {
+            return getClassDefinition(params)
         }
-        return classDefinition
+        return varDefinitions
     }
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         log.info "path: $path"
-        log.info "varReferences: $varReferences"
         Set<VarReference> references = varReferences.get(path)
         VarReference matchingReference = findMatchingReference(references, params) as VarReference
         if (matchingReference == null) {
@@ -83,8 +81,6 @@ class ReferenceStorage {
         }
         log.info "matchingReference: $matchingReference"
         Set<VarDefinition> definitions = varDefinitions.get(matchingReference.sourceFileURI)
-        log.info "ALL DEFINITIONS: ${definitions}"
-        log.info "matchingReference: $matchingReference"
         VarDefinition definition = findMatchingDefinition(definitions, matchingReference) as VarDefinition
         log.info "params: $params"
         log.info "definition: $definition"

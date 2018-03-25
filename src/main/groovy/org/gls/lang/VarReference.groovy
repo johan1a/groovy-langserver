@@ -40,7 +40,7 @@ class VarReference implements Reference {
         if(expression.isThisExpression()) {
             this.definitionLineNumber = expression.getType().getLineNumber() - 1
         } else if (expression.isSuperExpression() ) {
-                this.definitionLineNumber = currentClassNode.getLineNumber()
+            this.definitionLineNumber = currentClassNode.getLineNumber()
         } else {
             ASTNode variable = expression.getAccessedVariable() as ASTNode
             log.info "variable1: ${variable}"

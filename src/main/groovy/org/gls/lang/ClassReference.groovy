@@ -34,6 +34,15 @@ class ClassReference implements Reference {
         this.referencedClassName = node.getType().getName()
     }
 
+    ClassReference(String sourceFileURI, VariableExpression expression) {
+        this.sourceFileURI = sourceFileURI
+        this.columnNumber = expression.columnNumber - 1
+        this.lastColumnNumber = expression.lastColumnNumber - 1
+        this.lineNumber = expression.lineNumber - 1
+        this.lastLineNumber = expression.lastLineNumber - 1
+        this.referencedClassName = expression.getType().getName()
+    }
+
     public String toString() {
         return """ClassReference[
                 sourceFileURI=$sourceFileURI,
