@@ -28,18 +28,18 @@ class GroovyIndexer {
         this.storage = storage
     }
 
-    def startIndexing() {
+    void startIndexing() {
       try {
-        CompilationUnit unit = new CompilationUnit()
         long start = System.currentTimeMillis()
         File basedir = new File(new URL(rootUri).toURI())
+        CompilationUnit unit = new CompilationUnit()
         basedir.eachFileRecurse {
           if (it.name =~ /.*\.groovy/) {
               unit.addSource(it)
           }
         }
-        unit.compile()
 
+        unit.compile()
         List<ClassNode> classes = unit.getClasses()
 
         unit.iterator().each { sourceUnit ->
