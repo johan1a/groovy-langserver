@@ -22,6 +22,10 @@ class ReferenceStorage {
     Map<String, ClassDefinition> getClassDefinitions() {
         return classDefinitions
     }
+    Map<String, Set<VarReference>> getVarReferences() {
+        return varReferences
+    }
+
 
 
     void addClassDefinition(ClassDefinition definition) {

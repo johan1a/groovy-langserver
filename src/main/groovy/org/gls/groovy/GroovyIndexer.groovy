@@ -48,7 +48,7 @@ class GroovyIndexer {
         CompilationUnit unit = new CompilationUnit()
         files.each { unit.addSource(it) }
 
-        unit.compile(Phases.CONVERSION)
+        unit.compile(Phases.CANONICALIZATION)
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
