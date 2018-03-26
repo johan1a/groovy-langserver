@@ -27,9 +27,11 @@ class IndexerSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uri, storage)
         indexer.indexRecursive()
 
-        VarUsage reference = storage.getVarUsages().values().first().first()
+        Set<VarUsage> usages = storage.getVarUsages().values().first()
+        VarUsage reference = usages.find { it.varName == 'theString' }
 
         expect:
+        usages.size() == 2
         reference.definitionLineNumber == 3
     }
 
