@@ -161,6 +161,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
         } else {
             VariableExpression left = expression.getVariableExpression()
             storage.addVarDefinition(new VarDefinition(sourceFileURI, left))
+            storage.addClassUsage(new ClassUsage(sourceFileURI, expression))
         }
         super.visitDeclarationExpression(expression)
     }
@@ -312,7 +313,6 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression){
-        storage.addClassUsage(new ClassUsage(sourceFileURI, expression))
         storage.addVarUsage(new VarUsage(sourceFileURI, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }

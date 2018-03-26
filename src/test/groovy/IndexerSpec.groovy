@@ -54,4 +54,20 @@ class IndexerSpec extends Specification {
         definition.lineNumber == 0
         usage.lineNumber == 3
     }
+
+    def "test Vardecl class usage"() {
+        ReferenceStorage storage = new ReferenceStorage()
+        String path = "src/test/test-files/4"
+        URI uri = Paths.get(path).toUri()
+
+        GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+        indexer.indexRecursive()
+
+        String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
+        ClassUsage usage = storage.getClassUsages(testFilePath).first()
+
+        expect:
+        usage.lineNumber == 7
+    }
+
 }

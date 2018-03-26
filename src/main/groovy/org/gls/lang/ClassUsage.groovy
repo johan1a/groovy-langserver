@@ -23,7 +23,7 @@ class ClassUsage implements Reference {
         initPosition(node)
     }
 
-    ClassUsage(String sourceFileURI, VariableExpression expression) {
+    ClassUsage(String sourceFileURI, DeclarationExpression expression) {
         this.sourceFileURI = sourceFileURI
         this.referencedClassName = expression.getType().getName()
         initPosition(expression)
