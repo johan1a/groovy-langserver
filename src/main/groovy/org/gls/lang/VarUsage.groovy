@@ -15,7 +15,7 @@ import groovy.transform.TypeChecked
 
 @Slf4j
 @TypeChecked
-class VarReference implements Reference {
+class VarUsage implements Reference {
 
     String sourceFileURI
     int columnNumber
@@ -27,7 +27,7 @@ class VarReference implements Reference {
     String definitionClassName
     int definitionLineNumber
 
-    VarReference(String sourceFileURI, ASTNode currentClassNode, VariableExpression expression) {
+    VarUsage(String sourceFileURI, ASTNode currentClassNode, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
         this.columnNumber = expression.columnNumber - 1
         this.lastColumnNumber = expression.lastColumnNumber - 1
@@ -52,7 +52,7 @@ class VarReference implements Reference {
 
     @Override
     public String toString() {
-        return """VarReference[
+        return """VarUsage[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,

@@ -1,17 +1,12 @@
 package org.gls.groovy
 
 import groovy.transform.TypeChecked
-import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.SourceUnit
 import org.gls.lang.*
 import org.gls.lang.ReferenceStorage
@@ -48,13 +43,14 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitField(FieldNode node){
-        storage.addClassReference(new ClassReference(sourceFileURI, node))
+        storage.addClassUsage(new ClassUsage(sourceFileURI, node))
         storage.addVarDefinition(new VarDefinition(sourceFileURI, node))
         super.visitField(node)
     }
 
     @Override
     void visitMethod(MethodNode node){
+        storage.addClassUsage(new ClassUsage(sourceFileURI, node))
         super.visitMethod(node)
     }
 
@@ -316,8 +312,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression){
-        storage.addClassReference(new ClassReference(sourceFileURI, expression))
-        storage.addVarReference(new VarReference(sourceFileURI, currentClassNode, expression))
+        storage.addClassUsage(new ClassUsage(sourceFileURI, expression))
+        storage.addVarUsage(new VarUsage(sourceFileURI, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }
 

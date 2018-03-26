@@ -15,37 +15,39 @@ class ReferenceStorage {
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
 
     // Key is soure file uri
-    private Map<String, Set<ClassReference> > classReferences = new HashMap<>()
-    private Map<String, Set<VarReference> > varReferences = new HashMap<>()
+    private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
+    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
     private Map<String, Set<VarDefinition> > varDefinitions = new HashMap<>()
 
     Map<String, ClassDefinition> getClassDefinitions() {
         return classDefinitions
     }
-    Map<String, Set<VarReference>> getVarReferences() {
-        return varReferences
+    Map<String, Set<VarUsage>> getVarUsages() {
+        return varUsages
     }
 
-
+    Set<ClassUsage> getClassUsages(String fileUri) {
+        return classUsages.get(fileUri)
+    }
 
     void addClassDefinition(ClassDefinition definition) {
         classDefinitions.put(definition.getFullClassName(), definition)
     }
 
-    void addClassReference(ClassReference reference) {
-        Set<ClassReference> references = classReferences.get(reference.sourceFileURI)
+    void addClassUsage(ClassUsage reference) {
+        Set<ClassUsage> references = classUsages.get(reference.sourceFileURI)
         if(references == null) {
             references = new HashSet<>()
-            classReferences.put(reference.sourceFileURI, references)
+            classUsages.put(reference.sourceFileURI, references)
         }
         references.add(reference)
     }
 
-    void addVarReference(VarReference reference) {
-        Set<VarReference> references = varReferences.get(reference.sourceFileURI)
+    void addVarUsage(VarUsage reference) {
+        Set<VarUsage> references = varUsages.get(reference.sourceFileURI)
         if(references == null) {
             references = new HashSet<>()
-            varReferences.put(reference.sourceFileURI, references)
+            varUsages.put(reference.sourceFileURI, references)
         }
         references.add(reference)
     }
@@ -70,15 +72,15 @@ class ReferenceStorage {
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<VarReference> references = varReferences.get(path)
-        VarReference matchingReference = findMatchingReference(references, params) as VarReference
-        if (matchingReference == null) {
+        Set<VarUsage> references = varUsages.get(path)
+        VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
+        if (matchingUsage == null) {
             return Collections.emptyList()
         }
-        log.info "matchingReference: $matchingReference"
-        Set<VarDefinition> definitions = varDefinitions.get(matchingReference.sourceFileURI)
+        log.info "matchingReference: $matchingUsage"
+        Set<VarDefinition> definitions = varDefinitions.get(matchingUsage.sourceFileURI)
         log.info "definitions: $definitions"
-        VarDefinition definition = findMatchingDefinition(definitions, matchingReference) as VarDefinition
+        VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
         log.info "params: $params"
         log.info "definition: $definition"
         if (definition == null) {
@@ -89,7 +91,7 @@ class ReferenceStorage {
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
     }
 
-    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarReference reference) {
+    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
         return definitions.find {
             it.typeName == reference.definitionClassName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }
@@ -98,9 +100,8 @@ class ReferenceStorage {
 
     List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassReference> references = classReferences.get(path)
-        //log.info "references: $references"
-        ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
+        Set<ClassUsage> references = classUsages.get(path)
+        ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         if (matchingReference == null) {
             return Collections.emptyList()
         }
@@ -116,10 +117,5 @@ class ReferenceStorage {
         return references.find {
             it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }
-    }
-
-    // Fully qualified class name
-    Set<ClassReference> getClassReferences(String fullClassName) {
-        return classReferences.get(fullClassName)
     }
 }

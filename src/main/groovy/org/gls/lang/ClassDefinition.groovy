@@ -20,10 +20,10 @@ class ClassDefinition implements Definition {
     private String className
     private String sourceFileURI
 
-    private int columnNumber
-    private int lastColumnNumber
-    private int lineNumber
-    private int lastLineNumber
+    int columnNumber
+    int lastColumnNumber
+    int lineNumber
+    int lastLineNumber
 
     String getSourceFileURI() {
         return sourceFileURI
@@ -40,7 +40,10 @@ class ClassDefinition implements Definition {
     }
 
     String getFullClassName() {
-        return packageName + "." + className
+        if(packageName != null) {
+            return packageName + "." + className
+        }
+        return className
     }
 
     @Override
