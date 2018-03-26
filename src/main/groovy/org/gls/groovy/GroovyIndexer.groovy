@@ -1,47 +1,50 @@
 package org.gls.groovy
 
-import groovy.util.logging.Slf4j
 import groovy.transform.TypeChecked
-import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.BinaryExpression
-import org.codehaus.groovy.ast.expr.ClosureExpression
-import org.codehaus.groovy.ast.expr.MethodCallExpression
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.control.*
-import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.ASTNode
+import groovy.util.logging.Slf4j
+import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.control.Phases
 import org.gls.lang.ReferenceStorage
 
 @Slf4j
 @TypeChecked
 class GroovyIndexer {
 
-    String rootUri
-
-    CompilePhase phase = CompilePhase.CLASS_GENERATION
+    URI rootUri
     ReferenceStorage storage
 
-    GroovyIndexer(String rootUri, ReferenceStorage storage) {
+    GroovyIndexer(URI rootUri, ReferenceStorage storage) {
         this.rootUri = rootUri
         this.storage = storage
     }
 
-    void startIndexing() {
-      try {
-        long start = System.currentTimeMillis()
-        File basedir = new File(new URL(rootUri).toURI())
-        CompilationUnit unit = new CompilationUnit()
+    void indexRecursive() {
+        try {
+            long start = System.currentTimeMillis()
+            File basedir = new File(rootUri)
 
-        basedir.eachFileRecurse {
-          if (it.name =~ /.*\.groovy/) {
-              unit.addSource(it)
-          }
+            List<File> files = new LinkedList<>()
+            basedir.eachFileRecurse {
+                if (it.name =~ /.*\.groovy/) {
+                    files.add(it)
+                }
+            }
+
+            īndexFiles(files)
+
+            long elapsed = System.currentTimeMillis() - start
+            log.info("Elapsed: ${elapsed / 1000}s")
+        } catch (Exception e) {
+            log.error("error", e)
         }
+    }
+
+    private void īndexFiles(List<File> files) {
+        CompilationUnit unit = new CompilationUnit()
+        files.each { unit.addSource(it) }
 
         unit.compile(Phases.CONVERSION)
-        List<ClassNode> classes = unit.getClasses()
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
@@ -51,11 +54,5 @@ class GroovyIndexer {
                 codeVisitor.visitClass(classNode)
             }
         }
-
-        long elapsed = System.currentTimeMillis() - start
-        log.info("Elapsed: ${elapsed / 1000}s")
-      } catch(Exception e) {
-        log.error("error", e)
-      }
     }
 }

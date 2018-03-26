@@ -2,20 +2,9 @@ package org.gls.lang
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.ClassNode
-import java.util.Map
-import groovy.transform.TypeChecked
-import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.TextDocumentPositionParams
 
 @Slf4j
@@ -29,6 +18,11 @@ class ReferenceStorage {
     private Map<String, Set<ClassReference> > classReferences = new HashMap<>()
     private Map<String, Set<VarReference> > varReferences = new HashMap<>()
     private Map<String, Set<VarDefinition> > varDefinitions = new HashMap<>()
+
+    Map<String, ClassDefinition> getClassDefinitions() {
+        return classDefinitions
+    }
+
 
     void addClassDefinition(ClassDefinition definition) {
         classDefinitions.put(definition.getFullClassName(), definition)

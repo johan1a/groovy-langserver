@@ -4,7 +4,7 @@ package org.gls
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import java.util.concurrent.CompletableFuture
-import org.eclipse.lsp4j.InitializeParams
+
 import org.eclipse.lsp4j.InitializeParams
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.MessageParams;
@@ -12,7 +12,6 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ServerCapabilities
 import org.eclipse.lsp4j.jsonrpc.Launcher
 import org.eclipse.lsp4j.launch.LSPLauncher
-import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.LanguageServer
@@ -40,11 +39,11 @@ class LangServer implements LanguageServer, LanguageClientAware {
         log.info "initialize: ${initializeParams}"
         client.showMessage(new MessageParams(MessageType.Info, "Initializing langserver capabilities..."))
 
-        String rootUri = initializeParams.getRootUri()
+        URI rootUri = new URI(initializeParams.getRootUri())
         log.info "rootUri: " + rootUri
         ReferenceStorage storage = new ReferenceStorage()
         indexer = new GroovyIndexer(rootUri, storage)
-        indexer.startIndexing()
+        indexer.indexRecursive()
         textDocumentService.setReferenceStorage(storage)
 
         ServerCapabilities capabilities = new ServerCapabilities()
