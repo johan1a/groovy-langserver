@@ -36,14 +36,13 @@ class VarReference implements Reference {
 
         varName = expression.getName()
         this.definitionClassName = expression.getType().getName()
-        if(expression.isThisExpression()) {
-            this.definitionLineNumber = expression.getType().getLineNumber() - 1
-        } else if (expression.isSuperExpression() ) {
-            this.definitionLineNumber = currentClassNode.getLineNumber()
-        } else if (expression.getAccessedVariable() != null){
+        if (expression.getAccessedVariable() != null) {
             ASTNode varDeclaration = expression.getAccessedVariable() as ASTNode
             this.definitionLineNumber = varDeclaration.getLineNumber() - 1
-            log.error "---found parentLineNumber: ${expression.getName()}"
+        } else if(expression.isThisExpression()) {
+                this.definitionLineNumber = expression.getType().getLineNumber() - 1
+        } else if (expression.isSuperExpression() ) {
+            this.definitionLineNumber = currentClassNode.getLineNumber()
         } else {
             log.error "No parentLineNumber: ${expression.getName()}"
             log.error "type: ${expression.getType()}"
