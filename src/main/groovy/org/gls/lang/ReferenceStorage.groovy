@@ -79,6 +79,7 @@ class ReferenceStorage {
         }
         log.info "matchingReference: $matchingReference"
         Set<VarDefinition> definitions = varDefinitions.get(matchingReference.sourceFileURI)
+        log.info "definitions: $definitions"
         VarDefinition definition = findMatchingDefinition(definitions, matchingReference) as VarDefinition
         log.info "params: $params"
         log.info "definition: $definition"

@@ -40,9 +40,17 @@ class VarReference implements Reference {
             this.definitionLineNumber = expression.getType().getLineNumber() - 1
         } else if (expression.isSuperExpression() ) {
             this.definitionLineNumber = currentClassNode.getLineNumber()
-        } else {
+        } else if (expression.getAccessedVariable() != null){
             ASTNode variable = expression.getAccessedVariable() as ASTNode
             this.definitionLineNumber = variable.getLineNumber() - 1
+            log.error "---found parentLineNumber: ${expression.getName()}"
+        } else if (expression.getInitialExpression() != null){
+            this.definitionLineNumber = expression.getInitialExpression().getLineNumber() - 1
+            log.error "---found parentLineNumber: ${expression.getName()}"
+        } else {
+            log.error "No parentLineNumber: ${expression.getName()}"
+            log.error "type: ${expression.getType()}"
+            //TODO what then?
         }
     }
 

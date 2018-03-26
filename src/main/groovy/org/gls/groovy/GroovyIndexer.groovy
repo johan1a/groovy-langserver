@@ -7,7 +7,7 @@ import org.codehaus.groovy.ast.expr.BinaryExpression
 import org.codehaus.groovy.ast.expr.ClosureExpression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.control.CompilePhase
+import org.codehaus.groovy.control.*
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.control.CompilationUnit
@@ -33,13 +33,14 @@ class GroovyIndexer {
         long start = System.currentTimeMillis()
         File basedir = new File(new URL(rootUri).toURI())
         CompilationUnit unit = new CompilationUnit()
+
         basedir.eachFileRecurse {
           if (it.name =~ /.*\.groovy/) {
               unit.addSource(it)
           }
         }
 
-        unit.compile()
+        unit.compile(Phases.CONVERSION)
         List<ClassNode> classes = unit.getClasses()
 
         unit.iterator().each { sourceUnit ->
