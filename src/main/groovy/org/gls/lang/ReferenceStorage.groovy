@@ -5,7 +5,7 @@ import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
-import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.eclipse.lsp4j.*
 
 @Slf4j
 @TypeChecked
@@ -82,6 +82,10 @@ class ReferenceStorage {
             return getClassDefinition(params)
         }
         return varDefinitions
+    }
+
+    List<Location> getReferences(ReferenceParams params) {
+
     }
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {

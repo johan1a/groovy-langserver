@@ -86,7 +86,15 @@ class GroovyTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         log.info "references: ${params}"
-        return CompletableFuture.completedFuture([])
+        try {
+            log.info "references: ${params}"
+            def references = storage.getReferences(params)
+            log.info "found references: ${references}"
+            return CompletableFuture.completedFuture(references)
+        } catch (Exception e) {
+            log.error("Exception", e)
+            return CompletableFuture.completedFuture([])
+        }
     }
 
     @Override
