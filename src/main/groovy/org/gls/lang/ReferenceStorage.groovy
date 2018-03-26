@@ -52,7 +52,7 @@ class ReferenceStorage {
             varUsages.put(usage.sourceFileURI, usages)
         }
         usages.add(usage)
-         addClassVarUsage(usage)
+        addClassVarUsage(usage)
     }
 
     void addClassVarUsage(VarUsage varUsage) {

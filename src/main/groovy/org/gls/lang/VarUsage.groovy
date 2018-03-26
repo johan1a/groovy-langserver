@@ -21,7 +21,7 @@ class VarUsage implements Reference {
     int definitionLineNumber
     Optional<String> declaringClass
 
-    VarUsage(String sourceFileURI, ASTNode currentClassNode, VariableExpression expression) {
+    VarUsage(String sourceFileURI, ClassNode currentClassNode, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
         this.columnNumber = expression.columnNumber - 1
         this.lastColumnNumber = expression.lastColumnNumber - 1
