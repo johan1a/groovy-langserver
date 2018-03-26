@@ -1,16 +1,9 @@
 package org.gls.lang
 
-import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
+import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.ast.*
-import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
 
 @Slf4j
@@ -24,8 +17,9 @@ class VarUsage implements Reference {
     int lastLineNumber
 
     String varName
-    String definitionClassName
+    String typeName
     int definitionLineNumber
+    Optional<String> declaringClass
 
     VarUsage(String sourceFileURI, ASTNode currentClassNode, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
@@ -35,18 +29,28 @@ class VarUsage implements Reference {
         this.lastLineNumber = expression.lastLineNumber - 1
 
         varName = expression.getName()
-        this.definitionClassName = expression.getType().getName()
-        if (expression.getAccessedVariable() != null) {
-            ASTNode varDeclaration = expression.getAccessedVariable() as ASTNode
-            this.definitionLineNumber = varDeclaration.getLineNumber() - 1
-        } else if(expression.isThisExpression()) {
-                this.definitionLineNumber = expression.getType().getLineNumber() - 1
-        } else if (expression.isSuperExpression() ) {
-            this.definitionLineNumber = currentClassNode.getLineNumber()
-        } else {
-            log.error "No parentLineNumber: ${expression.getName()}"
-            log.error "type: ${expression.getType()}"
-            //TODO what then?
+        this.typeName = expression.getType().getName()
+        try {
+
+            if (expression.getAccessedVariable() != null) {
+                AnnotatedNode varDeclaration = expression.getAccessedVariable() as AnnotatedNode
+                this.definitionLineNumber = varDeclaration.getLineNumber() - 1
+                if ( varDeclaration.declaringClass != null ) {
+                    this.declaringClass = Optional.of(varDeclaration.declaringClass.getName())
+                } else {
+                    this.declaringClass = Optional.empty()
+                }
+            } else if(expression.isThisExpression()) {
+                    this.definitionLineNumber = expression.getType().getLineNumber() - 1
+            } else if (expression.isSuperExpression() ) {
+                this.definitionLineNumber = currentClassNode.getLineNumber()
+            } else {
+                log.error "No parentLineNumber: ${expression.getName()}"
+                log.error "type: ${expression.getType()}"
+                //TODO what then?
+            }
+        } catch (Exception e) {
+            log.error("no var decl", e)
         }
     }
 
@@ -59,7 +63,7 @@ class VarUsage implements Reference {
                 lineNumber=$lineNumber,
                 lastLineNumber=$lastLineNumber,
                 varName=$varName,
-                definitionClassName=$definitionClassName,
+                typeName=$typeName,
                 definitionLineNumber=$definitionLineNumber
                 ]"""
     }

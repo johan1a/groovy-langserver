@@ -13,6 +13,8 @@ class ReferenceStorage {
 
     // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
+    // For finding var usages of a certain class
+    private Map<String, Set<VarUsage>> classVarUsages = new HashMap<>()
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
@@ -43,13 +45,25 @@ class ReferenceStorage {
         references.add(reference)
     }
 
-    void addVarUsage(VarUsage reference) {
-        Set<VarUsage> references = varUsages.get(reference.sourceFileURI)
-        if(references == null) {
-            references = new HashSet<>()
-            varUsages.put(reference.sourceFileURI, references)
+    void addVarUsage(VarUsage usage) {
+        Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
+        if(usages == null) {
+            usages = new HashSet<>()
+            varUsages.put(usage.sourceFileURI, usages)
         }
-        references.add(reference)
+        usages.add(usage)
+         addClassVarUsage(usage)
+    }
+
+    void addClassVarUsage(VarUsage varUsage) {
+        varUsage.getDeclaringClass().map{ name ->
+            Set<VarUsage> usages = classVarUsages.get(name)
+            if(usages == null) {
+                usages = new HashSet<>()
+                classVarUsages.put(name, usages)
+            }
+            usages.add(varUsage)
+        }
     }
 
     void addVarDefinition(VarDefinition definition) {
@@ -93,7 +107,7 @@ class ReferenceStorage {
 
     VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
         return definitions.find {
-            it.typeName == reference.definitionClassName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+            it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }
 
     }

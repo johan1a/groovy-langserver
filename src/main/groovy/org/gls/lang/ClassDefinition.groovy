@@ -47,7 +47,7 @@ class ClassDefinition implements Definition {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return """ClassDefinition[
                 packageName=$packageName,
                 className=$className,
