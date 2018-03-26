@@ -25,7 +25,7 @@ class ClassUsage implements Reference {
 
     ClassUsage(String sourceFileURI, DeclarationExpression expression) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = expression.getType().getName()
+        this.referencedClassName = expression.getLeftExpression().getType().getName()
         initPosition(expression)
     }
 

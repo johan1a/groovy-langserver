@@ -102,10 +102,10 @@ class ReferenceStorage {
         String path = params.textDocument.uri.replace("file://", "")
         Set<ClassUsage> references = classUsages.get(path)
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
+        log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
             return Collections.emptyList()
         }
-        log.info "matchingReference: $matchingReference"
         ClassDefinition definition = classDefinitions.get(matchingReference.referencedClassName)
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
