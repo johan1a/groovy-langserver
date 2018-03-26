@@ -64,7 +64,8 @@ class IndexerSpec extends Specification {
         indexer.indexRecursive()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
-        ClassUsage usage = storage.getClassUsages(testFilePath).first()
+        Set<ClassUsage> usages = storage.getClassUsages(testFilePath)
+        ClassUsage usage = usages.find { it.referencedClassName == "VarDeclClassUsage" }
 
         expect:
         usage.lineNumber == 7

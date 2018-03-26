@@ -4,7 +4,7 @@ class VarDeclClassUsage {
 
 
 
-    def test() {
+    void test() {
         VarDeclClassUsage x = new VarDeclClassUsage()
     }
 
