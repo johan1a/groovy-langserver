@@ -8,7 +8,7 @@ import java.nio.file.Paths
 class IndexerSpec extends Specification {
   def "test indexer"() {
     ReferenceStorage storage = new ReferenceStorage()
-    String path = "./src/test/test-files/"
+    String path = "./src/test/test-files"
     URI uri = Paths.get(path).toUri()
 
     GroovyIndexer indexer = new GroovyIndexer(uri, storage)

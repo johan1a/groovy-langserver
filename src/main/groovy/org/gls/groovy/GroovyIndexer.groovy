@@ -14,6 +14,10 @@ class GroovyIndexer {
     URI rootUri
     ReferenceStorage storage
 
+    URI getRootUri() {
+        return rootUri
+    }
+
     GroovyIndexer(URI rootUri, ReferenceStorage storage) {
         this.rootUri = rootUri
         this.storage = storage

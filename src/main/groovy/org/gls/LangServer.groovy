@@ -24,12 +24,18 @@ import org.gls.lang.ReferenceStorage
 @TypeChecked
 class LangServer implements LanguageServer, LanguageClientAware {
 
+    public static final String DEFAULT_SRC_DIR = "/src/main/groovy"
     private LanguageClient client
     private WorkspaceService workspaceService
     private GroovyTextDocumentService textDocumentService
-    private GroovyIndexer indexer
 
-    public LangServer() {
+    GroovyIndexer indexer
+
+    GroovyIndexer getIndexer() {
+        return indexer
+    }
+
+    LangServer() {
         this.workspaceService = new GroovyWorkspaceService()
         this.textDocumentService = new GroovyTextDocumentService()
     }
@@ -37,9 +43,9 @@ class LangServer implements LanguageServer, LanguageClientAware {
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
         log.info "initialize: ${initializeParams}"
-        client.showMessage(new MessageParams(MessageType.Info, "Initializing langserver capabilities..."))
+        showClientMessage("Initializing langserver capabilities...")
 
-        URI rootUri = new URI(initializeParams.getRootUri())
+        URI rootUri = new URI(initializeParams.getRootUri() + DEFAULT_SRC_DIR)
         log.info "rootUri: " + rootUri
         ReferenceStorage storage = new ReferenceStorage()
         indexer = new GroovyIndexer(rootUri, storage)
@@ -48,6 +54,10 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
         ServerCapabilities capabilities = new ServerCapabilities()
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))
+    }
+
+    private void showClientMessage(String message) {
+        client?.showMessage(new MessageParams(MessageType.Info, message))
     }
 
     @Override
@@ -80,9 +90,9 @@ class LangServer implements LanguageServer, LanguageClientAware {
         LanguageServer server = new LangServer()
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
                     System.out)
-        LanguageClient client = launcher.getRemoteProxy();
-        server.connect(client);
-        launcher.startListening();
+        LanguageClient client = launcher.getRemoteProxy()
+        server.connect(client)
+        launcher.startListening()
     }
 
 }
