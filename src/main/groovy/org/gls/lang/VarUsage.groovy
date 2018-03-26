@@ -20,7 +20,7 @@ class VarUsage implements Reference {
     String varName
     String typeName
     int definitionLineNumber
-    Optional<String> declaringClass
+    Optional<String> declaringClass = Optional.empty()
 
     VarUsage(String sourceFileURI, ClassNode currentClassNode, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
