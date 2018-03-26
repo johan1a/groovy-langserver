@@ -4,6 +4,7 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.expr.*
+import org.codehaus.groovy.ast.*
 import groovy.transform.TypeChecked
 
 @Slf4j
