@@ -11,12 +11,13 @@ import org.eclipse.lsp4j.*
 @TypeChecked
 class ReferenceFinder {
 
+    ReferenceStorage storage = new ReferenceStorage()
+
     // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
     // For finding var usages of a certain class
     private Map<String, Set<VarUsage> > classVarUsages = new HashMap<>()
 
-    private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
@@ -63,12 +64,7 @@ class ReferenceFinder {
         Set<VarDefinition> definitions = varDefinitions.get(usage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, usage)
         if (definition != null) {
-            Set<VarUsage> usages = varUsagesByDefinition.get(definition)
-            if(usages == null) {
-                usages = new HashSet<>()
-                varUsagesByDefinition.put(definition, usages)
-            }
-            usages.add(usage)
+            storage.addVarUsageByDefinition(usage, definition)
         }
     }
 
@@ -109,7 +105,7 @@ class ReferenceFinder {
         }
         VarDefinition definition = findMatchingDefinition(definitions, params)
         if(definition != null) {
-            Set<VarUsage> usages = varUsagesByDefinition.get(definition)
+            Set<VarUsage> usages = storage.getVarUsagesByDefinition(definition)
             return usages.collect { it.getLocation() }
         }
         return Collections.emptyList()
