@@ -1,7 +1,12 @@
+import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.ReferenceParams
+import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassDefinition
 import org.gls.lang.ClassUsage
 import org.gls.lang.ReferenceStorage
+import org.gls.lang.VarDefinition
 import org.gls.lang.VarUsage
 import spock.lang.Specification
 import java.nio.file.Paths
@@ -83,7 +88,31 @@ class IndexerSpec extends Specification {
 
         then:
             notThrown Exception
+    }
 
+    def "Test find references"() {
+        setup:
+            ReferenceStorage storage = new ReferenceStorage()
+            String dirPath = "src/test/test-files/6"
+            URI uri = Paths.get(dirPath).toUri()
+
+            ReferenceParams params = new ReferenceParams()
+            Position position = new Position(3, 16)
+            params.position = position
+
+            String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+            GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+            indexer.indexRecursive()
+            List<Location> references = storage.getReferences(params)
+
+
+        then:
+            references.size() == 2
+            references.find{ it.range.start.line == 6 } != null
+            references.find{ it.range.start.line == 7 } != null
     }
 
 }

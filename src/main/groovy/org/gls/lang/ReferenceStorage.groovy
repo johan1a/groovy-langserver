@@ -26,6 +26,7 @@ class ReferenceStorage {
     Map<String, ClassDefinition> getClassDefinitions() {
         return classDefinitions
     }
+
     Map<String, Set<VarUsage>> getVarUsages() {
         return varUsages
     }
@@ -62,7 +63,7 @@ class ReferenceStorage {
         Set<VarDefinition> definitions = varDefinitions.get(usage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, usage)
         if (definition != null) {
-            Set<VarUsage> usages = varUsagesByDefinition.get(definition.sourceFileURI)
+            Set<VarUsage> usages = varUsagesByDefinition.get(definition)
             if(usages == null) {
                 usages = new HashSet<>()
                 varUsagesByDefinition.put(definition, usages)
@@ -101,19 +102,14 @@ class ReferenceStorage {
     }
 
     List<Location> getReferences(ReferenceParams params) {
-        String uri = params.textDocument.uri.replace("file://", "")
+        String uri = params.textDocument.uri.replace("file:///", "")
         Set<VarDefinition> definitions = varDefinitions.get(uri)
-        log.info("definitions: ${definitions.size()}")
-        def d = definitions.find { it.varName == 'definition' }
+        if(definitions == null) {
+            return Collections.emptyList()
+        }
         VarDefinition definition = findMatchingDefinition(definitions, params)
-        log.info("d: ${d}")
-        log.info("params: ${params}")
-        log.info("definition: ${definition}")
         if(definition != null) {
-            log.info("definition.typeName: ${definition.typeName}")
-            log.info("classVarUsages: ${classVarUsages.keySet()}")
             Set<VarUsage> usages = varUsagesByDefinition.get(definition)
-            log.info("usages: ${usages}")
             return usages.collect { it.getLocation() }
         }
         return Collections.emptyList()

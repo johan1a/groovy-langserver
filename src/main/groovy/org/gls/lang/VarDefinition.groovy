@@ -58,7 +58,7 @@ class VarDefinition implements Definition {
 
     @Override
     public String toString() {
-        return """VarUsage[
+        return """VarDefinition[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,
