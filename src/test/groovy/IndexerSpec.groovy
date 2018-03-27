@@ -115,6 +115,31 @@ class IndexerSpec extends Specification {
             references.find{ it.range.start.line == 7 } != null
     }
 
+    def "Test find references2"() {
+        setup:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/6"
+        URI uri = Paths.get(dirPath).toUri()
+
+        ReferenceParams params = new ReferenceParams()
+        Position position = new Position(3, 11)
+        params.position = position
+
+        String filePath = new File(dirPath + "/FindReference2.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        indexer.indexRecursive()
+        List<Location> references = finder.getReferences(params)
+
+
+        then:
+        references.size() == 1
+        references.find{ it.range.start.line == 7 } != null
+    }
+
+
     def "Test method argument"() {
         given:
             ReferenceFinder finder = new ReferenceFinder()
