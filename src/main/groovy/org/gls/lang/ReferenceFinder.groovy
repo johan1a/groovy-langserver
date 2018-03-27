@@ -13,11 +13,8 @@ class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
 
-    // Key is class name
-    private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
-
     Map<String, ClassDefinition> getClassDefinitions() {
-        return classDefinitions
+        return storage.classDefinitions
     }
 
     Map<String, Set<VarUsage>> getVarUsages() {
@@ -29,7 +26,7 @@ class ReferenceFinder {
     }
 
     void addClassDefinition(ClassDefinition definition) {
-        classDefinitions.put(definition.getFullClassName(), definition)
+        storage.addClassDefinitionToFile(definition.getFullClassName(), definition)
     }
 
     void addClassUsage(ClassUsage reference) {
@@ -94,13 +91,6 @@ class ReferenceFinder {
         return Arrays.asList(definition.getLocation())
     }
 
-    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
-        return definitions.find {
-            it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
-        }
-
-    }
-
     List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<ClassUsage> references = storage.getClassUsagesByFile(path)
@@ -115,14 +105,19 @@ class ReferenceFinder {
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
     }
 
+    static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
+        return definitions.find {
+            it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+        }
+    }
 
-    Reference findMatchingReference(Set<? extends Reference> references, TextDocumentPositionParams params) {
+    static Reference findMatchingReference(Set<? extends Reference> references, TextDocumentPositionParams params) {
         return references.find {
             it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }
     }
 
-    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, ReferenceParams params) {
+    static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, ReferenceParams params) {
         return definitions.find {
             it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }
