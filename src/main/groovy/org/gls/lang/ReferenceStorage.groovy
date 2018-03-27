@@ -4,6 +4,13 @@ package org.gls.lang
  * Created by joha on 27-03-2018.
  */
 class ReferenceStorage {
+    // Key is soure file uri
+
+    Map<String, Set<ClassUsage>> getClassUsages() {
+        return classUsages
+    }
+    private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
+
     // For finding var usages of a var definition
     private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
 
@@ -43,5 +50,19 @@ class ReferenceStorage {
 
     void addVarDefinitionToFile(String filePath, VarDefinition varDefinition) {
         getVarDefinitionsByFile(filePath).add(varDefinition)
+    }
+
+    void addClassUsage(ClassUsage reference) {
+        Set<ClassUsage> references = getClassUsagesByFile(reference.sourceFileURI)
+        references.add(reference)
+    }
+
+    Set<ClassUsage> getClassUsagesByFile(String filePath) {
+        Set<ClassUsage> references = classUsages.get(filePath)
+        if(references == null) {
+            references = new HashSet<>()
+            this.classUsages.put(filePath, references)
+        }
+        return  references
     }
 }

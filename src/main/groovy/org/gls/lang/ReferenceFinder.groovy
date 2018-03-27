@@ -16,9 +16,6 @@ class ReferenceFinder {
     // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
 
-    // Key is soure file uri
-    private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
-
     Map<String, ClassDefinition> getClassDefinitions() {
         return classDefinitions
     }
@@ -28,7 +25,7 @@ class ReferenceFinder {
     }
 
     Set<ClassUsage> getClassUsages(String fileUri) {
-        return classUsages.get(fileUri)
+        return storage.getClassUsages().get(fileUri)
     }
 
     void addClassDefinition(ClassDefinition definition) {
@@ -36,12 +33,7 @@ class ReferenceFinder {
     }
 
     void addClassUsage(ClassUsage reference) {
-        Set<ClassUsage> references = classUsages.get(reference.sourceFileURI)
-        if(references == null) {
-            references = new HashSet<>()
-            classUsages.put(reference.sourceFileURI, references)
-        }
-        references.add(reference)
+        storage.addClassUsage(reference)
     }
 
     void addVarUsage(VarUsage usage) {
@@ -111,7 +103,7 @@ class ReferenceFinder {
 
     List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassUsage> references = classUsages.get(path)
+        Set<ClassUsage> references = storage.getClassUsagesByFile(path)
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
