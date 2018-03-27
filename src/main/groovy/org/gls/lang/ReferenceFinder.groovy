@@ -51,7 +51,7 @@ class ReferenceFinder {
     }
 
     List<Location> getReferences(ReferenceParams params) {
-        String uri = params.textDocument.uri.replace("file:///", "")
+        String uri = params.textDocument.uri.replace("file://", "")
         Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(uri)
         if(definitions == null) {
             return Collections.emptyList()
