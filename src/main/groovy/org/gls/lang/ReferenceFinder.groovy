@@ -22,7 +22,7 @@ class ReferenceFinder {
     }
 
     Set<ClassUsage> getClassUsages(String fileUri) {
-        return storage.getClassUsages().get(fileUri)
+        return storage.getClassUsagesByFile(fileUri)
     }
 
     void addClassDefinition(ClassDefinition definition) {
