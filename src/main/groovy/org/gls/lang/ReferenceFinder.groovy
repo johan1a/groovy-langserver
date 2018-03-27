@@ -18,15 +18,13 @@ class ReferenceFinder {
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
-    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
-    private Map<String, Set<VarDefinition> > varDefinitions = new HashMap<>()
 
     Map<String, ClassDefinition> getClassDefinitions() {
         return classDefinitions
     }
 
     Map<String, Set<VarUsage>> getVarUsages() {
-        return varUsages
+        return storage.varUsages
     }
 
     Set<ClassUsage> getClassUsages(String fileUri) {
@@ -47,17 +45,12 @@ class ReferenceFinder {
     }
 
     void addVarUsage(VarUsage usage) {
-        Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
-        if(usages == null) {
-            usages = new HashSet<>()
-            varUsages.put(usage.sourceFileURI, usages)
-        }
-        usages.add(usage)
+        storage.addVarUsage(usage)
         addVarUsageByDefinition(usage)
     }
 
     void addVarUsageByDefinition(VarUsage usage) {
-        Set<VarDefinition> definitions = varDefinitions.get(usage.sourceFileURI)
+        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(usage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, usage)
         if (definition != null) {
             storage.addVarUsageByDefinition(usage, definition)
@@ -65,14 +58,8 @@ class ReferenceFinder {
     }
 
     void addVarDefinition(VarDefinition definition) {
-        Set<VarDefinition> definitions = varDefinitions.get(definition.sourceFileURI)
-        if(definitions == null) {
-            definitions = new HashSet<>()
-            varDefinitions.put(definition.sourceFileURI, definitions)
-        }
-        definitions.add(definition)
+        storage.addVarDefinitionToFile(definition.sourceFileURI, definition)
     }
-
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
         List<Location> varDefinitions = getVarDefinition(params)
@@ -84,7 +71,7 @@ class ReferenceFinder {
 
     List<Location> getReferences(ReferenceParams params) {
         String uri = params.textDocument.uri.replace("file:///", "")
-        Set<VarDefinition> definitions = varDefinitions.get(uri)
+        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(uri)
         if(definitions == null) {
             return Collections.emptyList()
         }
@@ -96,7 +83,6 @@ class ReferenceFinder {
         return Collections.emptyList()
     }
 
-
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<VarUsage> references = varUsages.get(path)
@@ -105,7 +91,7 @@ class ReferenceFinder {
             return Collections.emptyList()
         }
         log.info "matchingReference: $matchingUsage"
-        Set<VarDefinition> definitions = varDefinitions.get(matchingUsage.sourceFileURI)
+        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(matchingUsage.sourceFileURI)
         log.info "definitions: $definitions"
         VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
         log.info "params: $params"

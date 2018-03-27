@@ -7,9 +7,8 @@ class ReferenceStorage {
     // For finding var usages of a var definition
     private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
 
-    // For finding var usages of a class definition
-    // TODO does it make sense?
-    private Map<String, Set<VarUsage> > classVarUsages = new HashMap<>()
+    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
+    private Map<String, Set<VarDefinition> > varDefinitionsByFile = new HashMap<>()
 
     Set<VarUsage> getVarUsagesByDefinition(VarDefinition varDefinition) {
         Set<VarUsage> usages = varUsagesByDefinition.get(varDefinition)
@@ -22,5 +21,27 @@ class ReferenceStorage {
 
     void addVarUsageByDefinition(VarUsage varUsage, VarDefinition varDefinition) {
         getVarUsagesByDefinition(varDefinition).add(varUsage)
+    }
+
+    void addVarUsage(VarUsage usage) {
+        Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
+        if(usages == null) {
+            usages = new HashSet<>()
+            varUsages.put(usage.sourceFileURI, usages)
+        }
+        usages.add(usage)
+    }
+
+    Set<VarDefinition> getVarDefinitionsByFile(String filePath) {
+        Set<VarDefinition> definitions = varDefinitionsByFile.get(filePath)
+        if(definitions == null) {
+            definitions = new HashSet<>()
+            varDefinitionsByFile.put(filePath, definitions)
+        }
+        return definitions
+    }
+
+    void addVarDefinitionToFile(String filePath, VarDefinition varDefinition) {
+        getVarDefinitionsByFile(filePath).add(varDefinition)
     }
 }
