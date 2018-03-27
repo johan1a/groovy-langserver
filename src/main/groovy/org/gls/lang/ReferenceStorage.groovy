@@ -74,4 +74,11 @@ class ReferenceStorage {
         classDefinitions.put(filePath, definition)
     }
 
+    ClassDefinition getClassDefinitionByName(String className) {
+        return classDefinitions.get(className)
+    }
+
+    Set<VarUsage> getVarUsagesByFile(String path) {
+        return varUsages.get(path)
+    }
 }

@@ -74,7 +74,7 @@ class ReferenceFinder {
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<VarUsage> references = varUsages.get(path)
+        Set<VarUsage> references = storage.getVarUsagesByFile(path)
         VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
         if (matchingUsage == null) {
             return Collections.emptyList()
@@ -99,7 +99,7 @@ class ReferenceFinder {
         if (matchingReference == null) {
             return Collections.emptyList()
         }
-        ClassDefinition definition = classDefinitions.get(matchingReference.referencedClassName)
+        ClassDefinition definition = storage.getClassDefinitionByName(matchingReference.referencedClassName)
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
