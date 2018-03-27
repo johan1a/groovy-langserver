@@ -71,4 +71,19 @@ class IndexerSpec extends Specification {
         usage.lineNumber == 7
     }
 
+    def "Test unresolved import"() {
+        setup:
+            ReferenceStorage storage = new ReferenceStorage()
+            String path = "src/test/test-files/5"
+            URI uri = Paths.get(path).toUri()
+
+        when:
+            GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+            indexer.indexRecursive()
+
+        then:
+            notThrown Exception
+
+    }
+
 }
