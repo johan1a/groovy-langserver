@@ -1,53 +1,22 @@
 package org.gls
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture
-import org.eclipse.lsp4j.CodeActionParams
-import org.eclipse.lsp4j.CodeLens
-import org.eclipse.lsp4j.CodeLensParams
-import org.eclipse.lsp4j.Command
-import org.eclipse.lsp4j.CompletionItem
-import org.eclipse.lsp4j.CompletionList
-import org.eclipse.lsp4j.DidChangeTextDocumentParams
-import org.eclipse.lsp4j.DidCloseTextDocumentParams
-import org.eclipse.lsp4j.DidOpenTextDocumentParams
-import org.eclipse.lsp4j.DidSaveTextDocumentParams
-import org.eclipse.lsp4j.DocumentFormattingParams
-import org.eclipse.lsp4j.DocumentHighlight
-import org.eclipse.lsp4j.DocumentOnTypeFormattingParams
-import org.eclipse.lsp4j.DocumentRangeFormattingParams
-import org.eclipse.lsp4j.DocumentSymbolParams
-import org.eclipse.lsp4j.Hover
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.ReferenceParams
-import org.eclipse.lsp4j.RenameParams
-import org.eclipse.lsp4j.SignatureHelp
-import org.eclipse.lsp4j.SymbolInformation
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent
-import org.eclipse.lsp4j.TextDocumentItem
-import org.eclipse.lsp4j.TextDocumentPositionParams
-import org.eclipse.lsp4j.TextEdit
-import org.eclipse.lsp4j.WorkspaceEdit
-import org.eclipse.lsp4j.jsonrpc.messages.Either
-import org.eclipse.lsp4j.services.TextDocumentService
-import org.eclipse.lsp4j.DidChangeConfigurationParams
-import org.eclipse.lsp4j.WorkspaceSymbolParams
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.gls.lang.ReferenceStorage
+import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.jsonrpc.messages.Either
+import org.eclipse.lsp4j.services.TextDocumentService
+import org.gls.lang.ReferenceFinder
 
+import java.util.concurrent.CompletableFuture
 
 @Slf4j
 @TypeChecked
 class GroovyTextDocumentService implements TextDocumentService {
 
-    private ReferenceStorage storage
+    private ReferenceFinder finder
 
-    void setReferenceStorage(ReferenceStorage storage) {
-        this.storage = storage
+    void setReferenceStorage(ReferenceFinder finder) {
+        this.finder = finder
     }
 
     @Override
@@ -74,7 +43,7 @@ class GroovyTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
         try {
             log.info "definition: ${params}"
-            def definition = storage.getDefinition(params)
+            def definition = finder.getDefinition(params)
             log.info "found definition: ${definition}"
             return CompletableFuture.completedFuture(definition)
         } catch (Exception e) {
@@ -88,7 +57,7 @@ class GroovyTextDocumentService implements TextDocumentService {
         log.info "references: ${params}"
         try {
             log.info "references: ${params}"
-            def references = storage.getReferences(params)
+            def references = finder.getReferences(params)
             log.info "found references: ${references}"
             return CompletableFuture.completedFuture(references)
         } catch (Exception e) {

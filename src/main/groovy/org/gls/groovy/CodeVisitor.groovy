@@ -15,12 +15,12 @@ import org.gls.lang.ReferenceStorage
 @TypeChecked
 class CodeVisitor extends ClassCodeVisitorSupport {
 
-    private ReferenceStorage storage
+    private ReferenceFinder finder
     private String sourceFileURI
     private ClassNode currentClassNode
 
-    CodeVisitor(ReferenceStorage storage, String sourceFileURI) {
-        this.storage = storage
+    CodeVisitor(ReferenceFinder finder, String sourceFileURI) {
+        this.finder = finder
         this.sourceFileURI = sourceFileURI
     }
 
@@ -32,7 +32,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitClass(ClassNode node) {
         currentClassNode = node
-        storage.addClassDefinition(new ClassDefinition(node, sourceFileURI))
+        finder.addClassDefinition(new ClassDefinition(node, sourceFileURI))
         super.visitClass(node)
     }
 
@@ -43,14 +43,14 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitField(FieldNode node){
-        storage.addClassUsage(new ClassUsage(sourceFileURI, node))
-        storage.addVarDefinition(new VarDefinition(sourceFileURI, node))
+        finder.addClassUsage(new ClassUsage(sourceFileURI, node))
+        finder.addVarDefinition(new VarDefinition(sourceFileURI, node))
         super.visitField(node)
     }
 
     @Override
     void visitMethod(MethodNode node){
-        storage.addClassUsage(new ClassUsage(sourceFileURI, node))
+        finder.addClassUsage(new ClassUsage(sourceFileURI, node))
         super.visitMethod(node)
     }
 
@@ -160,8 +160,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
             TupleExpression left = expression.getTupleExpression()
         } else {
             VariableExpression left = expression.getVariableExpression()
-            storage.addVarDefinition(new VarDefinition(sourceFileURI, left))
-            storage.addClassUsage(new ClassUsage(sourceFileURI, expression))
+            finder.addVarDefinition(new VarDefinition(sourceFileURI, left))
+            finder.addClassUsage(new ClassUsage(sourceFileURI, expression))
         }
         super.visitDeclarationExpression(expression)
     }
@@ -313,7 +313,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression){
-        storage.addVarUsage(new VarUsage(sourceFileURI, currentClassNode, expression))
+        finder.addVarUsage(new VarUsage(sourceFileURI, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }
 

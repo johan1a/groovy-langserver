@@ -5,34 +5,33 @@ import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassDefinition
 import org.gls.lang.ClassUsage
-import org.gls.lang.ReferenceStorage
-import org.gls.lang.VarDefinition
+import org.gls.lang.ReferenceFinder
 import org.gls.lang.VarUsage
 import spock.lang.Specification
 import java.nio.file.Paths
 
 class IndexerSpec extends Specification {
     def "test indexer"() {
-        ReferenceStorage storage = new ReferenceStorage()
+        ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/1"
         URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
         indexer.indexRecursive()
 
         expect:
-        storage.getClassDefinitions().values().size() == 1
+        finder.getClassDefinitions().values().size() == 1
     }
 
     def "test VarRef indexing"() {
-        ReferenceStorage storage = new ReferenceStorage()
+        ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/2"
         URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
         indexer.indexRecursive()
 
-        Set<VarUsage> usages = storage.getVarUsages().values().first()
+        Set<VarUsage> usages = finder.getVarUsages().values().first()
         VarUsage reference = usages.find { it.varName == 'theString' }
 
         expect:
@@ -41,18 +40,18 @@ class IndexerSpec extends Specification {
     }
 
     def "test function return type"() {
-        ReferenceStorage storage = new ReferenceStorage()
+        ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/3"
         URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
         indexer.indexRecursive()
 
 
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
 
-        ClassDefinition definition = storage.getClassDefinitions().get("Box")
-        def usages = storage.getClassUsages(testFilePath)
+        ClassDefinition definition = finder.getClassDefinitions().get("Box")
+        def usages = finder.getClassUsages(testFilePath)
         ClassUsage usage = usages.first()
 
         expect:
@@ -61,15 +60,15 @@ class IndexerSpec extends Specification {
     }
 
     def "test Vardecl class usage"() {
-        ReferenceStorage storage = new ReferenceStorage()
+        ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/4"
         URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
         indexer.indexRecursive()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
-        Set<ClassUsage> usages = storage.getClassUsages(testFilePath)
+        Set<ClassUsage> usages = finder.getClassUsages(testFilePath)
         ClassUsage usage = usages.find { it.referencedClassName == "VarDeclClassUsage" }
 
         expect:
@@ -78,12 +77,12 @@ class IndexerSpec extends Specification {
 
     def "Test unresolved import"() {
         setup:
-            ReferenceStorage storage = new ReferenceStorage()
+            ReferenceFinder finder = new ReferenceFinder()
             String path = "src/test/test-files/5"
             URI uri = Paths.get(path).toUri()
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
             indexer.indexRecursive()
 
         then:
@@ -92,7 +91,7 @@ class IndexerSpec extends Specification {
 
     def "Test find references"() {
         setup:
-            ReferenceStorage storage = new ReferenceStorage()
+            ReferenceFinder finder = new ReferenceFinder()
             String dirPath = "src/test/test-files/6"
             URI uri = Paths.get(dirPath).toUri()
 
@@ -104,9 +103,9 @@ class IndexerSpec extends Specification {
             params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uri, storage)
+            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
             indexer.indexRecursive()
-            List<Location> references = storage.getReferences(params)
+            List<Location> references = finder.getReferences(params)
 
 
         then:

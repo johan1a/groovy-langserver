@@ -5,6 +5,7 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.Phases
+import org.gls.lang.ReferenceFinder
 import org.gls.lang.ReferenceStorage
 
 @Slf4j
@@ -12,15 +13,15 @@ import org.gls.lang.ReferenceStorage
 class GroovyIndexer {
 
     URI rootUri
-    ReferenceStorage storage
+    ReferenceFinder finder
 
     URI getRootUri() {
         return rootUri
     }
 
-    GroovyIndexer(URI rootUri, ReferenceStorage storage) {
+    GroovyIndexer(URI rootUri, ReferenceFinder finder) {
         this.rootUri = rootUri
-        this.storage = storage
+        this.finder = finder
     }
 
     void indexRecursive() {
@@ -52,7 +53,7 @@ class GroovyIndexer {
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
-            CodeVisitor codeVisitor = new CodeVisitor(storage, sourceUnit.getName())
+            CodeVisitor codeVisitor = new CodeVisitor(finder, sourceUnit.getName())
             moduleNode.visit(codeVisitor)
             moduleNode.getClasses().each { classNode ->
                 codeVisitor.visitClass(classNode)

@@ -3,6 +3,8 @@ package org.gls
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.gls.lang.ReferenceFinder
+
 import java.util.concurrent.CompletableFuture
 
 import org.eclipse.lsp4j.InitializeParams
@@ -47,10 +49,10 @@ class LangServer implements LanguageServer, LanguageClientAware {
 
         URI rootUri = new URI(initializeParams.getRootUri() + DEFAULT_SRC_DIR)
         log.info "rootUri: " + rootUri
-        ReferenceStorage storage = new ReferenceStorage()
-        indexer = new GroovyIndexer(rootUri, storage)
+        ReferenceFinder finder = new ReferenceFinder()
+        indexer = new GroovyIndexer(rootUri, finder)
         indexer.indexRecursive()
-        textDocumentService.setReferenceStorage(storage)
+        textDocumentService.setReferenceStorage(finder)
 
         ServerCapabilities capabilities = new ServerCapabilities()
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))
