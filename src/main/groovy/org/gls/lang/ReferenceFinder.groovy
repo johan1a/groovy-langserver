@@ -13,14 +13,6 @@ class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
 
-    Map<String, ClassDefinition> getClassDefinitions() {
-        return storage.classDefinitions
-    }
-
-    Map<String, Set<VarUsage>> getVarUsages() {
-        return storage.varUsages
-    }
-
     Set<ClassUsage> getClassUsages(String fileUri) {
         return storage.getClassUsagesByFile(fileUri)
     }

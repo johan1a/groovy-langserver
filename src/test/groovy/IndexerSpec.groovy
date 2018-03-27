@@ -20,7 +20,7 @@ class IndexerSpec extends Specification {
         indexer.indexRecursive()
 
         expect:
-        finder.getClassDefinitions().values().size() == 1
+        finder.storage.classDefinitions.values().size() == 1
     }
 
     def "test VarRef indexing"() {
@@ -31,7 +31,7 @@ class IndexerSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
         indexer.indexRecursive()
 
-        Set<VarUsage> usages = finder.getVarUsages().values().first()
+        Set<VarUsage> usages = finder.storage.varUsages.values().first()
         VarUsage reference = usages.find { it.varName == 'theString' }
 
         expect:
@@ -50,7 +50,7 @@ class IndexerSpec extends Specification {
 
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
 
-        ClassDefinition definition = finder.getClassDefinitions().get("Box")
+        ClassDefinition definition = finder.storage.classDefinitions.get("Box")
         def usages = finder.getClassUsages(testFilePath)
         ClassUsage usage = usages.first()
 

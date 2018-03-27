@@ -17,10 +17,6 @@ class ReferenceStorage {
     private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
     private Map<String, Set<VarDefinition> > varDefinitionsByFile = new HashMap<>()
 
-    Map<String, Set<ClassUsage>> getClassUsages() {
-        return classUsages
-    }
-
     Set<VarUsage> getVarUsagesByDefinition(VarDefinition varDefinition) {
         Set<VarUsage> usages = varUsagesByDefinition.get(varDefinition)
         if(usages == null) {
