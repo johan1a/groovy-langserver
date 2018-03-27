@@ -15,9 +15,6 @@ class ReferenceFinder {
 
     // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
-    // For finding var usages of a certain class
-    private Map<String, Set<VarUsage> > classVarUsages = new HashMap<>()
-
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
@@ -56,7 +53,6 @@ class ReferenceFinder {
             varUsages.put(usage.sourceFileURI, usages)
         }
         usages.add(usage)
-        addClassVarUsage(usage)
         addVarUsageByDefinition(usage)
     }
 
@@ -65,17 +61,6 @@ class ReferenceFinder {
         VarDefinition definition = findMatchingDefinition(definitions, usage)
         if (definition != null) {
             storage.addVarUsageByDefinition(usage, definition)
-        }
-    }
-
-    void addClassVarUsage(VarUsage varUsage) {
-        varUsage.getDeclaringClass().map{ name ->
-            Set<VarUsage> usages = classVarUsages.get(name)
-            if(usages == null) {
-                usages = new HashSet<>()
-                classVarUsages.put(name, usages)
-            }
-            usages.add(varUsage)
         }
     }
 
