@@ -6,6 +6,9 @@ import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.*
 import groovy.transform.TypeChecked
+import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.Range
 
 @Slf4j
 @TypeChecked
@@ -53,6 +56,12 @@ class VarUsage implements Reference {
         } catch (Exception e) {
             log.error("no var decl", e)
         }
+    }
+
+    Location getLocation() {
+        Position start = new Position(lineNumber, columnNumber)
+        Position end = new Position(lastLineNumber, lastColumnNumber)
+        return new Location("file://" + sourceFileURI, new Range(start, end))
     }
 
     @Override

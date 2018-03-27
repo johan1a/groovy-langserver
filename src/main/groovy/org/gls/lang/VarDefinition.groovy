@@ -11,6 +11,9 @@ import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.*
+import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.Range
 
 @Slf4j
 class VarDefinition implements Definition {
@@ -45,6 +48,12 @@ class VarDefinition implements Definition {
 
     String getSourceFileURI() {
         return sourceFileURI
+    }
+
+    Location getLocation() {
+        Position start = new Position(lineNumber, columnNumber)
+        Position end = new Position(lastLineNumber, lastColumnNumber)
+        return new Location(getURI(), new Range(start, end))
     }
 
     @Override

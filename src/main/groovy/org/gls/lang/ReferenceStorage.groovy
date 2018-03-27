@@ -14,7 +14,9 @@ class ReferenceStorage {
     // Key is class name
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
     // For finding var usages of a certain class
-    private Map<String, Set<VarUsage>> classVarUsages = new HashMap<>()
+    private Map<String, Set<VarUsage> > classVarUsages = new HashMap<>()
+
+    private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
@@ -53,6 +55,20 @@ class ReferenceStorage {
         }
         usages.add(usage)
         addClassVarUsage(usage)
+        addVarUsageByDefinition(usage)
+    }
+
+    void addVarUsageByDefinition(VarUsage usage) {
+        Set<VarDefinition> definitions = varDefinitions.get(usage.sourceFileURI)
+        VarDefinition definition = findMatchingDefinition(definitions, usage)
+        if (definition != null) {
+            Set<VarUsage> usages = varUsagesByDefinition.get(definition.sourceFileURI)
+            if(usages == null) {
+                usages = new HashSet<>()
+                varUsagesByDefinition.put(definition, usages)
+            }
+            usages.add(usage)
+        }
     }
 
     void addClassVarUsage(VarUsage varUsage) {
@@ -85,8 +101,24 @@ class ReferenceStorage {
     }
 
     List<Location> getReferences(ReferenceParams params) {
-
+        String uri = params.textDocument.uri.replace("file://", "")
+        Set<VarDefinition> definitions = varDefinitions.get(uri)
+        log.info("definitions: ${definitions.size()}")
+        def d = definitions.find { it.varName == 'definition' }
+        VarDefinition definition = findMatchingDefinition(definitions, params)
+        log.info("d: ${d}")
+        log.info("params: ${params}")
+        log.info("definition: ${definition}")
+        if(definition != null) {
+            log.info("definition.typeName: ${definition.typeName}")
+            log.info("classVarUsages: ${classVarUsages.keySet()}")
+            Set<VarUsage> usages = varUsagesByDefinition.get(definition)
+            log.info("usages: ${usages}")
+            return usages.collect { it.getLocation() }
+        }
+        return Collections.emptyList()
     }
+
 
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
@@ -104,9 +136,7 @@ class ReferenceStorage {
         if (definition == null) {
             return Collections.emptyList()
         }
-        def start = new Position(definition.lineNumber, definition.columnNumber)
-        def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
-        return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
+        return Arrays.asList(definition.getLocation())
     }
 
     VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
@@ -133,6 +163,12 @@ class ReferenceStorage {
 
     Reference findMatchingReference(Set<? extends Reference> references, TextDocumentPositionParams params) {
         return references.find {
+            it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
+        }
+    }
+
+    VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, ReferenceParams params) {
+        return definitions.find {
             it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }
     }

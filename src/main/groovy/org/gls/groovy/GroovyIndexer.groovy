@@ -38,7 +38,7 @@ class GroovyIndexer {
             īndexFiles(files)
 
             long elapsed = System.currentTimeMillis() - start
-            log.info("Elapsed: ${elapsed / 1000}s")
+            log.info("Indexing done in ${elapsed / 1000}s")
         } catch (Exception e) {
             log.error("error", e)
         }
