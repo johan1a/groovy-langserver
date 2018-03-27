@@ -51,6 +51,10 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitMethod(MethodNode node){
         finder.addClassUsage(new ClassUsage(sourceFileURI, node))
+        node.parameters.each { Parameter it ->
+            finder.addVarDefinition( new VarDefinition(sourceFileURI, it))
+            finder.addClassUsage(new ClassUsage(sourceFileURI, it))
+        }
         super.visitMethod(node)
     }
 

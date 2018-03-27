@@ -2,6 +2,7 @@ import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
+import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassDefinition
 import org.gls.lang.ClassUsage
@@ -112,6 +113,30 @@ class IndexerSpec extends Specification {
             references.size() == 2
             references.find{ it.range.start.line == 6 } != null
             references.find{ it.range.start.line == 7 } != null
+    }
+
+    def "Test method argument"() {
+        given:
+            ReferenceFinder finder = new ReferenceFinder()
+            String dirPath = "src/test/test-files/7"
+            URI uri = Paths.get(dirPath).toUri()
+
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+            Position position = new Position(12, 18)
+            params.position = position
+
+            String filePath = new File(dirPath + "/MethodArgument.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+            indexer.indexRecursive()
+            List<Location> definitions = finder.getDefinition(params)
+
+
+        then:
+            definitions.size() == 1
+            definitions.first().range.start.line == 11
     }
 
 }

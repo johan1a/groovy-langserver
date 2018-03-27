@@ -17,6 +17,12 @@ class ClassUsage implements Reference {
     int lastLineNumber
     String referencedClassName
 
+    ClassUsage(String sourceFileURI, Parameter node) {
+        this.sourceFileURI = sourceFileURI
+        this.referencedClassName = node.getType().getName()
+        initPosition(node)
+    }
+
     ClassUsage(String sourceFileURI, FieldNode node) {
         this.sourceFileURI = sourceFileURI
         this.referencedClassName = node.getType().getName()
@@ -42,7 +48,7 @@ class ClassUsage implements Reference {
         this.lastLineNumber = node.lastLineNumber - 1
     }
 
-    public String toString() {
+    String toString() {
         return """ClassUsage[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,

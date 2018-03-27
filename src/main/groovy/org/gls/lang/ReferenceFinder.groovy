@@ -92,6 +92,9 @@ class ReferenceFinder {
             return Collections.emptyList()
         }
         ClassDefinition definition = storage.getClassDefinitionByName(matchingReference.referencedClassName)
+        if(definition == null) {
+            return Collections.emptyList()
+        }
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))

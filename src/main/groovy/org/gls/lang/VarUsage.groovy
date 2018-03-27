@@ -42,7 +42,9 @@ class VarUsage implements Reference {
                 if ( varDeclaration.declaringClass != null ) {
                     this.declaringClass = Optional.of(varDeclaration.declaringClass.getName())
                 } else {
-                    this.declaringClass = Optional.empty()
+                    // TODO not sure if this is correct.
+                    // Seems to be true for method arguments.
+                    this.declaringClass = Optional.of(currentClassNode.getName())
                 }
             } else if(expression.isThisExpression()) {
                     this.definitionLineNumber = expression.getType().getLineNumber() - 1

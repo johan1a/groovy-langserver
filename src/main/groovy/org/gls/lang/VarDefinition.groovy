@@ -26,25 +26,35 @@ class VarDefinition implements Definition {
     String typeName
     String varName
 
-    VarDefinition(String sourceFileURI, VariableExpression node) {
+
+    VarDefinition(String sourceFileURI, Parameter node) {
         this.sourceFileURI = sourceFileURI
-        columnNumber = node.columnNumber - 1
-        lastColumnNumber = node.lastColumnNumber - 1
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
         typeName = node.getType().getName()
         varName = node.getName()
+        initPosition(node)
+    }
+
+    VarDefinition(String sourceFileURI, VariableExpression node) {
+        this.sourceFileURI = sourceFileURI
+        typeName = node.getType().getName()
+        varName = node.getName()
+        initPosition(node)
     }
 
     VarDefinition(String sourceFileURI, FieldNode node) {
         this.sourceFileURI = sourceFileURI
+        typeName = node.getType().getName()
+        varName = node.getName()
+        initPosition(node)
+    }
+
+    private void initPosition(ASTNode node) {
         columnNumber = node.columnNumber - 1
         lastColumnNumber = node.lastColumnNumber - 1
         lineNumber = node.lineNumber - 1
         lastLineNumber = node.lastLineNumber - 1
-        typeName = node.getType().getName()
-        varName = node.getName()
     }
+
 
     String getSourceFileURI() {
         return sourceFileURI
