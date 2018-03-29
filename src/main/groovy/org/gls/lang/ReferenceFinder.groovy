@@ -59,7 +59,7 @@ class ReferenceFinder {
         VarDefinition definition = findMatchingDefinition(definitions, params)
         if(definition != null) {
             Set<VarUsage> usages = storage.getVarUsagesByDefinition(definition)
-            return usages.collect { it.getLocation() }
+            return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }
         return Collections.emptyList()
     }
