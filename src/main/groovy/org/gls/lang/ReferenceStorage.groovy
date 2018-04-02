@@ -15,12 +15,14 @@ class ReferenceStorage {
 
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
+    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
+    private Map<String, Set<VarDefinition> > varDefinitionsByFile = new HashMap<>()
+
+    private Map<String, Set<FuncDefinition> > funcDefinitionsByFile = new HashMap<>()
+
 
     // For finding var usages of a var definition
     private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
-
-    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
-    private Map<String, Set<VarDefinition> > varDefinitionsByFile = new HashMap<>()
 
     Set<VarUsage> getVarUsagesByDefinition(VarDefinition varDefinition) {
         Set<VarUsage> usages = varUsagesByDefinition.get(varDefinition)
@@ -53,8 +55,21 @@ class ReferenceStorage {
         return definitions
     }
 
+    Set<FuncDefinition> getFuncDefinitionsByFile(String filePath) {
+        Set<FuncDefinition> definitions = funcDefinitionsByFile.get(filePath)
+        if(definitions == null) {
+            definitions = new HashSet<>()
+            funcDefinitionsByFile.put(filePath, definitions)
+        }
+        return definitions
+    }
+
     void addVarDefinitionToFile(String filePath, VarDefinition varDefinition) {
         getVarDefinitionsByFile(filePath).add(varDefinition)
+    }
+
+    void addFuncDefinitionToFile(String filePath, FuncDefinition funcDefinition) {
+        getFuncDefinitionsByFile(filePath).add(funcDefinition)
     }
 
     void addClassUsage(ClassUsage reference) {
