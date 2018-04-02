@@ -69,7 +69,9 @@ class GroovyIndexer {
         } catch (Exception e) {
             log.error("error", e)
         }
-        return getDiagnostics(errorCollector)
+        def diagnostics = getDiagnostics(errorCollector)
+        log.info("diagnostics: ${diagnostics}")
+        return diagnostics
     }
 
     private void compile(List<File> files) {
@@ -87,12 +89,13 @@ class GroovyIndexer {
             }
         }
     }
+    ]
 
     private Map<String, List<Diagnostic> > getDiagnostics(ErrorCollector errorCollector) {
         Map<String, List<Diagnostic> > diagnosticMap = new HashMap<>()
         try {
             if(errorCollector == null) {
-                return
+                return diagnosticMap
             }
             List<SyntaxErrorMessage> errors = errorCollector.getErrors()
             List<Message> warnings = errorCollector.getWarnings()
