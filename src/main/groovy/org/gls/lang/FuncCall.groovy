@@ -15,7 +15,11 @@ import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.codehaus.groovy.ast.*
+import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 
+@Slf4j
+@TypeChecked
 class FuncCall {
 
     String sourceFileURI
@@ -25,11 +29,18 @@ class FuncCall {
     int lineNumber
     int lastLineNumber
 
-    String functionName
+    String name
+    VarUsage receiver
 
-    FuncCall(String sourceFileURI, MethodCallExpression call) {
+    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call) {
         this.sourceFileURI = sourceFileURI
-        MethodNode target = getMethodTarget().getName()
+        try {
+            VariableExpression receiver = call.getReceiver() as VariableExpression
+            this.receiver = new VarUsage(sourceFileURI, currentClassNode, receiver)
+        } catch (Exception e) {
+            log.info "TODO"
+        }
+        name = call.getMethodAsString()
         initPosition(call)
     }
 

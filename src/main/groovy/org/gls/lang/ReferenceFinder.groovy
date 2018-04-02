@@ -34,6 +34,11 @@ class ReferenceFinder {
         storage.addFuncDefinitionToFile(filePath, funcDefinition)
     }
 
+    void addFuncCall(FuncCall funcCall) {
+        storage.addFuncCall(funcCall)
+    }
+
+
     void addVarUsageByDefinition(VarUsage usage) {
         Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(usage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, usage)
