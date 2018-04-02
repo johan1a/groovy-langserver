@@ -170,7 +170,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         try {
             String path = params.textDocument.uri.replace("file:/", "")
             savedFiles.add(new File(path))
-            Map<String, List<Diagnostic> > diagnostics = indexer.index(savedFiles)
+            Map<String, List<Diagnostic> > diagnostics = indexer.index()
             sendDiagnostics(diagnostics, client)
             savedFiles.clear()
         } catch (Exception e) {

@@ -19,8 +19,8 @@ class GroovyIndexer {
 
     URI rootUri
     ReferenceFinder finder
-    CompilationUnit unit = new CompilationUnit()
     ErrorCollector errorCollector
+    List<File> allFiles
 
     URI getRootUri() {
         return rootUri
@@ -38,15 +38,11 @@ class GroovyIndexer {
     Map<String, List<Diagnostic> > index() {
         try {
             List<File> files = findFilesRecursive()
-            return index(files, unit)
+            return index(files)
         } catch (FileNotFoundException e) {
             log.error("Error", e)
         }
         return new HashMap<>()
-    }
-
-    Map<String, List<Diagnostic> > index(List<File> files) {
-        return index(files, unit)
     }
 
     List<File> findFilesRecursive() {
@@ -61,10 +57,11 @@ class GroovyIndexer {
         return files
     }
 
-    Map<String, List<Diagnostic> > index(List<File> files, CompilationUnit unit) {
+    Map<String, List<Diagnostic> > index(List<File> files) {
         try {
             long start = System.currentTimeMillis()
-            compile(files, unit)
+            this.allFiles = files
+            compile(files)
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -75,7 +72,8 @@ class GroovyIndexer {
         return getDiagnostics(errorCollector)
     }
 
-    private void compile(List<File> files, CompilationUnit unit) {
+    private void compile(List<File> files) {
+        CompilationUnit unit = new CompilationUnit()
         files.each { unit.addSource(it) }
 
         unit.compile(Phases.CANONICALIZATION)
