@@ -56,9 +56,7 @@ class GroovyTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         log.info "references: ${params}"
         try {
-            log.info "references: ${params}"
             def references = finder.getReferences(params)
-            log.info "found references: ${references}"
             return CompletableFuture.completedFuture(references)
         } catch (Exception e) {
             log.error("Exception", e)
