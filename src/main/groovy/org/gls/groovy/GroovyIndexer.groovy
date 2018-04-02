@@ -9,6 +9,9 @@ import org.gls.lang.ReferenceFinder
 import org.gls.lang.ReferenceStorage
 import org.codehaus.groovy.control.ErrorCollector
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
+import org.eclipse.lsp4j.*
+import org.codehaus.groovy.syntax.*
+import org.codehaus.groovy.control.messages.*
 
 @Slf4j
 @TypeChecked
@@ -32,17 +35,19 @@ class GroovyIndexer {
         this.finder = finder
     }
 
-    void index() {
+    Map<String, List<Diagnostic> > index() {
         try {
             List<File> files = findFilesRecursive()
-            index(files, unit)
+            return index(files, unit)
         } catch (FileNotFoundException e) {
             log.error("Error", e)
         }
+        return new HashMap<>()
     }
 
-    void index(List<File> files) {
-        index(files, unit)
+    Map<String, List<Diagnostic> > index(List<File> files) {
+        log.info "INDEXING FILES"
+        return index(files, unit)
     }
 
     List<File> findFilesRecursive() {
@@ -57,7 +62,7 @@ class GroovyIndexer {
         return files
     }
 
-    void index(List<File> files, CompilationUnit unit) {
+    Map<String, List<Diagnostic> > index(List<File> files, CompilationUnit unit) {
         try {
             long start = System.currentTimeMillis()
             compile(files, unit)
@@ -68,12 +73,16 @@ class GroovyIndexer {
         } catch (Exception e) {
             log.error("error", e)
         }
+        return getDiagnostics(errorCollector)
     }
 
     private void compile(List<File> files, CompilationUnit unit) {
+        log.info "bfore compile"
         files.each { unit.addSource(it) }
+        log.info "222bfore compile"
 
         unit.compile(Phases.CANONICALIZATION)
+        log.info "after compile"
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
@@ -84,4 +93,50 @@ class GroovyIndexer {
             }
         }
     }
+
+    private Map<String, List<Diagnostic> > getDiagnostics(ErrorCollector errorCollector) {
+        log.info "Logging errors..."
+        log.info("errorCollector: ${errorCollector}")
+        Map<String, List<Diagnostic> > diagnosticMap = new HashMap<>()
+        try {
+            if(errorCollector == null) {
+                return
+            }
+            List<SyntaxErrorMessage> errors = errorCollector.getErrors()
+            List<Message> warnings = errorCollector.getWarnings()
+            log.info("errors: ${errors}")
+            log.info("warnings: ${warnings}")
+            errors?.each {
+                SyntaxException exception = it.getCause()
+                String uri = "file://" + exception.getSourceLocator()
+                Diagnostic diagnostic = asDiagnostic(exception)
+
+                List<Diagnostic> diagnostics = diagnosticMap.get(uri)
+                if(diagnostics == null) {
+                    diagnostics = new LinkedList<>()
+                    diagnosticMap.put(uri, diagnostics)
+                }
+                diagnostics.add(diagnostic)
+            }
+            warnings?.each {
+                log.info it.toString()
+                log.info "TODO implement warning diagnostics"
+            }
+        } catch (Exception e) {
+            log.error("Error", e)
+        }
+        return diagnosticMap
+    }
+
+    private Diagnostic asDiagnostic(SyntaxException exception) {
+        log.info "${exception.getMessage()}"
+        int line = exception.getLine() - 1
+        Position start = new Position(line, exception.getStartColumn())
+        Position end = new Position(line, exception.getEndColumn())
+        Range range = new Range(start, end)
+
+        Diagnostic diagnostic = new Diagnostic(range, exception.getMessage())
+        return diagnostic
+    }
+
 }

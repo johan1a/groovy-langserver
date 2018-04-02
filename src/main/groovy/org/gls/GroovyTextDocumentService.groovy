@@ -21,10 +21,9 @@ import org.eclipse.lsp4j.*
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
     private ReferenceFinder finder
-    private List<File> changedFiles = new LinkedList<>()
+    private List<File> savedFiles = new LinkedList<>()
     private LanguageClient client
-
-    GroovyIndexer indexer
+    private GroovyIndexer indexer
 
     void setReferenceStorage(ReferenceFinder finder) {
         this.finder = finder
@@ -32,62 +31,21 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     void setIndexer(GroovyIndexer indexer) {
         this.indexer = indexer
-        indexer.index()
-        sendDiagnostics(indexer.getErrorCollector(), client)
+        Map<String, List<Diagnostic> > diagnostics = indexer.index()
+        sendDiagnostics(diagnostics, client)
     }
 
     private void showClientMessage(String message) {
         client?.showMessage(new MessageParams(MessageType.Info, message))
     }
 
-    private void sendDiagnostics(ErrorCollector errorCollector, LanguageClient client) {
-        log.info "Logging errors..."
-        log.info("errorCollector: ${errorCollector}")
-        try {
-            if(errorCollector == null) {
-                return
-            }
-            List<SyntaxErrorMessage> errors = errorCollector.getErrors()
-            List<Message> warnings = errorCollector.getWarnings()
-            log.info("errors: ${errors}")
-            log.info("warnings: ${warnings}")
-            Map<String, List<Diagnostic> > diagnosticMap = new HashMap<>()
-            errors?.each {
-                SyntaxException exception = it.getCause()
-                String uri = "file://" + exception.getSourceLocator()
-                Diagnostic diagnostic = asDiagnostic(exception)
-
-                List<Diagnostic> diagnostics = diagnosticMap.get(uri)
-                if(diagnostics == null) {
-                    diagnostics = new LinkedList<>()
-                    diagnosticMap.put(uri, diagnostics)
-                }
-                diagnostics.add(diagnostic)
-            }
-            warnings?.each {
-                log.info it.toString()
-                log.info "TODO implement warning diagnostics"
-            }
-            diagnosticMap.keySet().each {
-                PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnosticMap.get(it))
-                log.info("PARAMS: ${params}")
-                log.info("client?: ${client}")
-                client?.publishDiagnostics(params)
-            }
-        } catch (Exception e) {
-            log.error("Error", e)
+    private void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
+        diagnostics.keySet().each {
+                PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnostics.get(it))
+            log.info("PARAMS: ${params}")
+            log.info("client?: ${client}")
+            client?.publishDiagnostics(params)
         }
-    }
-
-    private Diagnostic asDiagnostic(SyntaxException exception) {
-        log.info "${exception.getMessage()}"
-        int line = exception.getLine() - 1
-        Position start = new Position(line, exception.getStartColumn())
-        Position end = new Position(line, exception.getEndColumn())
-        Range range = new Range(start, end)
-
-        Diagnostic diagnostic = new Diagnostic(range, exception.getMessage())
-        return diagnostic
     }
 
     @Override
@@ -200,7 +158,6 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        changedFiles.add(new File(params.textDocument.uri))
         log.info "didChange"
     }
 
@@ -211,7 +168,16 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-        log.info "didSave ${params}"
+        log.info "didSave"
+        try {
+            String path = params.textDocument.uri.replace("file:/", "")
+            savedFiles.add(new File(path))
+            Map<String, List<Diagnostic> > diagnostics = indexer.index(savedFiles)
+            sendDiagnostics(diagnostics, client)
+            savedFiles.clear()
+        } catch (Exception e) {
+            log.error("error", e)
+        }
     }
 
 }
