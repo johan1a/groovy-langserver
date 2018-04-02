@@ -40,7 +40,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     private void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
-        diagnostics?.keySet().each {
+        diagnostics.keySet().each {
                 PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnostics.get(it))
             client?.publishDiagnostics(params)
         }

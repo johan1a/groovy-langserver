@@ -19,7 +19,6 @@ class GroovyIndexer {
 
     URI rootUri
     ReferenceFinder finder
-    ErrorCollector errorCollector
     List<File> allFiles
 
     URI getRootUri() {
@@ -58,6 +57,7 @@ class GroovyIndexer {
     }
 
     Map<String, List<Diagnostic> > index(List<File> files) {
+        Map<String, List<Diagnostic>> diagnostics = new HashMap<>()
         try {
             long start = System.currentTimeMillis()
             this.allFiles = files
@@ -65,11 +65,10 @@ class GroovyIndexer {
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
-            this.errorCollector = e.getErrorCollector()
+            diagnostics = getDiagnostics(e.getErrorCollector())
         } catch (Exception e) {
             log.error("error", e)
         }
-        def diagnostics = getDiagnostics(errorCollector)
         log.info("diagnostics: ${diagnostics}")
         return diagnostics
     }
@@ -89,7 +88,6 @@ class GroovyIndexer {
             }
         }
     }
-    ]
 
     private Map<String, List<Diagnostic> > getDiagnostics(ErrorCollector errorCollector) {
         Map<String, List<Diagnostic> > diagnosticMap = new HashMap<>()
