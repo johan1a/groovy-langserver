@@ -56,9 +56,10 @@ class LangServer implements LanguageServer, LanguageClientAware {
         URI rootUri = new URI(initializeParams.getRootUri() + DEFAULT_SRC_DIR)
         log.info "rootUri: " + rootUri
         ReferenceFinder finder = new ReferenceFinder()
-        indexer = new GroovyIndexer(rootUri, finder)
-        indexer.indexRecursive()
         textDocumentService.setReferenceStorage(finder)
+        indexer = new GroovyIndexer(rootUri, finder)
+
+        indexer.indexRecursive()
         sendDiagnostics(indexer.getErrorCollector(), client)
 
         ServerCapabilities capabilities = new ServerCapabilities()
