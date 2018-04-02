@@ -12,7 +12,7 @@ class LangServerSpec extends Specification{
     def "test initialize"() {
         LangServer langServer = new LangServer()
 
-        String uri = 'file://test/uri'
+        String uri = 'file:///test/uri'
         def params = new InitializeParams(rootUri: uri)
         langServer.initialize(params)
 

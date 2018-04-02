@@ -18,7 +18,7 @@ class IndexerSpec extends Specification {
         URI uri = Paths.get(path).toUri()
 
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-        indexer.indexRecursive()
+        indexer.index()
 
         expect:
         finder.storage.classDefinitions.values().size() == 1
@@ -30,7 +30,7 @@ class IndexerSpec extends Specification {
         URI uri = Paths.get(path).toUri()
 
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-        indexer.indexRecursive()
+        indexer.index()
 
         Set<VarUsage> usages = finder.storage.varUsages.values().first()
         VarUsage reference = usages.find { it.varName == 'theString' }
@@ -46,7 +46,7 @@ class IndexerSpec extends Specification {
         URI uri = Paths.get(path).toUri()
 
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-        indexer.indexRecursive()
+        indexer.index()
 
 
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
@@ -66,7 +66,7 @@ class IndexerSpec extends Specification {
         URI uri = Paths.get(path).toUri()
 
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-        indexer.indexRecursive()
+        indexer.index()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
         Set<ClassUsage> usages = finder.getClassUsages(testFilePath)
@@ -84,7 +84,7 @@ class IndexerSpec extends Specification {
 
         when:
             GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-            indexer.indexRecursive()
+            indexer.index()
 
         then:
             notThrown Exception
@@ -105,7 +105,7 @@ class IndexerSpec extends Specification {
 
         when:
             GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-            indexer.indexRecursive()
+            indexer.index()
             List<Location> references = finder.getReferences(params)
 
 
@@ -130,7 +130,7 @@ class IndexerSpec extends Specification {
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-        indexer.indexRecursive()
+        indexer.index()
         List<Location> references = finder.getReferences(params)
 
 
@@ -155,7 +155,7 @@ class IndexerSpec extends Specification {
 
         when:
             GroovyIndexer indexer = new GroovyIndexer(uri, finder)
-            indexer.indexRecursive()
+            indexer.index()
             List<Location> definitions = finder.getDefinition(params)
 
 

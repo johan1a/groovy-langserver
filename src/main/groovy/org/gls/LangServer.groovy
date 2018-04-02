@@ -59,7 +59,7 @@ class LangServer implements LanguageServer, LanguageClientAware {
         textDocumentService.setReferenceStorage(finder)
         indexer = new GroovyIndexer(rootUri, finder)
 
-        indexer.indexRecursive()
+        indexer.index()
         sendDiagnostics(indexer.getErrorCollector(), client)
 
         ServerCapabilities capabilities = new ServerCapabilities()

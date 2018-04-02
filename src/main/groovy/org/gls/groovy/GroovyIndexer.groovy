@@ -32,21 +32,35 @@ class GroovyIndexer {
         this.finder = finder
     }
 
-    void indexRecursive() {
+    void index() {
+        try {
+            List<File> files = findFilesRecursive()
+            index(files, unit)
+        } catch (FileNotFoundException e) {
+            log.error("Error", e)
+        }
+    }
+
+    void index(List<File> files) {
+        index(files, unit)
+    }
+
+    List<File> findFilesRecursive() {
+        File basedir = new File(rootUri)
+
+        List<File> files = new LinkedList<>()
+        basedir.eachFileRecurse {
+            if (it.name =~ /.*\.groovy/) {
+                files.add(it)
+            }
+        }
+        return files
+    }
+
+    void index(List<File> files, CompilationUnit unit) {
         try {
             long start = System.currentTimeMillis()
-            File basedir = new File(rootUri)
-
-            List<File> files = new LinkedList<>()
-            basedir.eachFileRecurse {
-                if (it.name =~ /.*\.groovy/) {
-                    files.add(it)
-                }
-            }
-
-            unit = new CompilationUnit()
-            īndexFiles(unit, files)
-
+            compile(files, unit)
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -56,7 +70,7 @@ class GroovyIndexer {
         }
     }
 
-    private void īndexFiles(CompilationUnit unit, List<File> files) {
+    private void compile(List<File> files, CompilationUnit unit) {
         files.each { unit.addSource(it) }
 
         unit.compile(Phases.CANONICALIZATION)
