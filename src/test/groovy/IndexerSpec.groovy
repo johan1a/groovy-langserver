@@ -180,6 +180,33 @@ class IndexerSpec extends Specification {
         definitions.first().range.start.line == 3
     }
 
+    def "Class definition"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/9"
+
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(4, 21)
+        params.position = position
+
+        String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getDefinition(params)
+        Set<ClassUsage> usages = finder.storage.getClassUsagesByFile(filePath)
+
+        then:
+        definitions.size() == 1
+        definitions.first().range.start.line == 1
+        usages.size() == 3
+        ClassUsage usage = usages.find{ it.lineNumber == 4}
+        usage.columnNumber == 8
+        usage.lastColumnNumber == 23
+    }
+
     private static List<URI> uriList(String path) {
         try {
             return [Paths.get(path).toUri()]

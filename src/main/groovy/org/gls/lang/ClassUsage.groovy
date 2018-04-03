@@ -43,9 +43,13 @@ class ClassUsage implements Reference {
 
     void initPosition(ASTNode node) {
         this.columnNumber = node.columnNumber - 1
-        this.lastColumnNumber = node.lastColumnNumber - 1
+        this.lastColumnNumber = columnNumber + simpleClassName(referencedClassName).size() - 1 // -1 because trim isn't working TODO
         this.lineNumber = node.lineNumber - 1
         this.lastLineNumber = node.lastLineNumber - 1
+    }
+
+    private static String simpleClassName(String name) {
+        return name.split("\\.").last().trim()
     }
 
     String toString() {
