@@ -48,10 +48,12 @@ class LangServer implements LanguageServer {
         log.info "initialize: ${initializeParams}"
         textDocumentService.showClientMessage("Initializing langserver capabilities...")
 
-        URI rootUri = new URI(initializeParams.getRootUri() + DEFAULT_SRC_DIR)
-        log.info "rootUri: " + rootUri
+        List<URI> sourcePaths = [new URI(initializeParams.getRootUri() + "/src/main/groovy"),
+                    new URI(initializeParams.getRootUri() + "/grails-app")]
+        log.info "sourcePaths: ${sourcePaths}"
+
         ReferenceFinder finder = new ReferenceFinder()
-        GroovyIndexer indexer = new GroovyIndexer(rootUri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(sourcePaths, finder)
 
         textDocumentService.setReferenceStorage(finder)
         textDocumentService.setIndexer(indexer)

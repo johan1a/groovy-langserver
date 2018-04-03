@@ -17,40 +17,40 @@ import org.codehaus.groovy.control.messages.*
 @TypeChecked
 class GroovyIndexer {
 
-    URI rootUri
+    List<URI> sourcePaths
     ReferenceFinder finder
     List<File> allFiles
 
-    URI getRootUri() {
-        return rootUri
+    List<URI> getRootUri() {
+        return sourcePaths
     }
 
     ErrorCollector getErrorCollector() {
         return errorCollector
     }
 
-    GroovyIndexer(URI rootUri, ReferenceFinder finder) {
-        this.rootUri = rootUri
+    GroovyIndexer(List<URI> sourcePaths, ReferenceFinder finder) {
+        this.sourcePaths = sourcePaths
         this.finder = finder
     }
 
     Map<String, List<Diagnostic> > index() {
-        try {
-            List<File> files = findFilesRecursive()
-            return index(files)
-        } catch (FileNotFoundException e) {
-            log.error("Error", e)
-        }
-        return new HashMap<>()
+        List<File> files = findFilesRecursive()
+        return index(files)
     }
 
     List<File> findFilesRecursive() {
-        File basedir = new File(rootUri)
-
         List<File> files = new LinkedList<>()
-        basedir.eachFileRecurse {
-            if (it.name =~ /.*\.groovy/) {
-                files.add(it)
+        sourcePaths.each {
+            try {
+                File basedir = new File(it)
+                basedir.eachFileRecurse {
+                    if (it.name =~ /.*\.groovy/) {
+                        files.add(it)
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                log.error("Error", e)
             }
         }
         return files

@@ -17,7 +17,9 @@ class LangServerSpec extends Specification{
         langServer.initialize(params)
 
         URI uri1 = new URI("${uri}/src/main/groovy")
+        URI uri2 = new URI("${uri}/grails-app")
+        def expected = [uri1, uri2]
         expect:
-        langServer.getIndexer().getRootUri() == uri1
+        langServer.getIndexer().getRootUri() == expected
     }
 }

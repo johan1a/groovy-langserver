@@ -12,12 +12,12 @@ import spock.lang.Specification
 import java.nio.file.Paths
 
 class IndexerSpec extends Specification {
+
     def "test indexer"() {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/1"
-        URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
         expect:
@@ -27,9 +27,8 @@ class IndexerSpec extends Specification {
     def "test VarRef indexing"() {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/2"
-        URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
         Set<VarUsage> usages = finder.storage.varUsages.values().first()
@@ -43,9 +42,8 @@ class IndexerSpec extends Specification {
     def "test function return type"() {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/3"
-        URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
 
@@ -63,9 +61,8 @@ class IndexerSpec extends Specification {
     def "test Vardecl class usage"() {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/4"
-        URI uri = Paths.get(path).toUri()
 
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
@@ -80,21 +77,19 @@ class IndexerSpec extends Specification {
         setup:
             ReferenceFinder finder = new ReferenceFinder()
             String path = "src/test/test-files/5"
-            URI uri = Paths.get(path).toUri()
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+            GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
             indexer.index()
 
         then:
-            notThrown Exception
+            true // No exception was thrown
     }
 
     def "Test find references"() {
         setup:
             ReferenceFinder finder = new ReferenceFinder()
             String dirPath = "src/test/test-files/6"
-            URI uri = Paths.get(dirPath).toUri()
 
             ReferenceParams params = new ReferenceParams()
             Position position = new Position(3, 16)
@@ -104,7 +99,7 @@ class IndexerSpec extends Specification {
             params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+            GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
             indexer.index()
             List<Location> references = finder.getReferences(params)
 
@@ -119,7 +114,6 @@ class IndexerSpec extends Specification {
         setup:
         ReferenceFinder finder = new ReferenceFinder()
         String dirPath = "src/test/test-files/6"
-        URI uri = Paths.get(dirPath).toUri()
 
         ReferenceParams params = new ReferenceParams()
         Position position = new Position(3, 11)
@@ -129,7 +123,7 @@ class IndexerSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
         indexer.index()
         List<Location> references = finder.getReferences(params)
 
@@ -144,9 +138,8 @@ class IndexerSpec extends Specification {
         given:
             ReferenceFinder finder = new ReferenceFinder()
             String dirPath = "src/test/test-files/7"
-            URI uri = Paths.get(dirPath).toUri()
 
-        TextDocumentPositionParams params = new TextDocumentPositionParams()
+            TextDocumentPositionParams params = new TextDocumentPositionParams()
             Position position = new Position(12, 18)
             params.position = position
 
@@ -154,7 +147,7 @@ class IndexerSpec extends Specification {
             params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+            GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
             indexer.index()
             List<Location> definitions = finder.getDefinition(params)
 
@@ -162,6 +155,14 @@ class IndexerSpec extends Specification {
         then:
             definitions.size() == 1
             definitions.first().range.start.line == 11
+    }
+
+    private static List<URI> uriList(String path) {
+        try {
+            return [Paths.get(path).toUri()]
+        } catch (Exception e) {
+            return []
+        }
     }
 
 }
