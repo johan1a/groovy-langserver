@@ -51,6 +51,7 @@ class VarUsage implements Reference {
 
     void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
         try {
+            // TODO Maybe shouldn't be a varusage?
             varName = expression.getType().getName()
             typeName = expression.getType().getName()
             declaringClass = Optional.of(typeName)
@@ -68,8 +69,11 @@ class VarUsage implements Reference {
                 def accessed = expression.getAccessedVariable()
                 if(accessed instanceof AnnotatedNode) {
                     initAnnotatedNode(currentClass, accessed as AnnotatedNode)
+                } else if (accessed instanceof DynamicVariable) {
+                    initDynamicVariable(currentClass, accessed as DynamicVariable)
                 } else {
                     log.error " cast: ${expression}"
+                    log.error " accessed: ${accessed}"
                 }
             } else if(expression.isThisExpression()) {
                 this.definitionLineNumber = expression.getType().getLineNumber() - 1
@@ -83,6 +87,11 @@ class VarUsage implements Reference {
         } catch (Exception e) {
             log.error("no var decl", e)
         }
+    }
+
+    void initDynamicVariable(ClassNode currentClass, DynamicVariable varDeclaration) {
+        this.definitionLineNumber = varDeclaration.getType().getLineNumber() - 1
+        this.declaringClass = Optional.of(currentClass.getName())
     }
 
     void initAnnotatedNode(ClassNode currentClass, AnnotatedNode varDeclaration) {
