@@ -20,7 +20,7 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 @TypeChecked
-class FuncCall {
+class FuncCall implements Reference {
 
     String sourceFileURI
 
@@ -32,11 +32,35 @@ class FuncCall {
     String name
     VarUsage receiver
 
+    int definitionLineNumber
+    String definitionClass
+    Optional<String> declaringClass = Optional.empty()
+
     FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
         this.sourceFileURI = sourceFileURI
         this.receiver = receiver
         name = call.getMethodAsString()
         initPosition(call)
+        definitionClass = receiver.typeName
+
+        initArguments(call.getArguments())
+
+        if(receiver.varName != "super") {
+            log.info("-------")
+            log.info("name: ${name}")
+            log.info("definitionClass: ${definitionClass}")
+        }
+    }
+
+    void initArguments(Expression arguments) {
+        if (arguments instanceof ConstructorCallExpression) {
+            ConstructorCallExpression constructorCallExpression = arguments as ConstructorCallExpression
+            Expression constructorArguments = arguments.getArguments()
+            log.info("constructorArguments : ${constructorArguments }")
+        } else if (arguments instanceof ArgumentListExpression) {
+            ArgumentListExpression argumentListExpression = arguments as ArgumentListExpression
+            log.info("argumentListExpression: ${argumentListExpression}")
+        }
     }
 
     private void initPosition(ASTNode node) {

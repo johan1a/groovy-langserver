@@ -73,6 +73,21 @@ class ReferenceFinder {
         return Collections.emptyList()
     }
 
+    List<Location> getFuncDefinition(TextDocumentPositionParams params) {
+        String path = params.textDocument.uri.replace("file://", "")
+        Set<FuncCall> references = storage.getFuncCallsByFile(path)
+        FuncCall matchingUsage = findMatchingReference(references, params) as FuncCall
+        if (matchingUsage == null) {
+            return Collections.emptyList()
+        }
+        Set<FuncDefinition> definitions = storage.getFuncDefinitionsByFile(matchingUsage.sourceFileURI)
+        FuncDefinition definition = findMatchingFuncDefinition(definitions, matchingUsage)
+        if (definition == null) {
+            return Collections.emptyList()
+        }
+        return Arrays.asList(definition.getLocation())
+    }
+
     List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<VarUsage> references = storage.getVarUsagesByFile(path)
@@ -103,6 +118,13 @@ class ReferenceFinder {
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
         return Arrays.asList(new Location(definition.getURI(), new Range(start, end)))
+    }
+
+    static FuncDefinition findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
+        return null
+        // return definitions.find {
+        //     it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+        // }
     }
 
     static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {

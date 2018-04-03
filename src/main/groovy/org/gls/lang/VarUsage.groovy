@@ -78,7 +78,8 @@ class VarUsage implements Reference {
             } else if(expression.isThisExpression()) {
                 this.definitionLineNumber = expression.getType().getLineNumber() - 1
             } else if (expression.isSuperExpression() ) {
-                this.definitionLineNumber = currentClass.getLineNumber()
+                ClassNode superClass = currentClass.getSuperClass()
+                this.definitionLineNumber = superClass.getLineNumber() - superClass.getAnnotations().size()
             } else {
                 log.error "No parentLineNumber: ${expression.getName()}"
                 log.error "type: ${expression.getType()}"
