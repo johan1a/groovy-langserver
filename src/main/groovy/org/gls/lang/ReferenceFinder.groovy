@@ -86,7 +86,7 @@ class ReferenceFinder {
         Set<FuncDefinition> definitions = storage.getFuncDefinitionsByFile(matchingUsage.sourceFileURI)
         FuncDefinition definition = findMatchingFuncDefinition(definitions, matchingUsage)
         if (definition == null) {
-            return Collections.emptyList()
+            return []
         }
         return Arrays.asList(definition.getLocation())
     }
@@ -96,12 +96,12 @@ class ReferenceFinder {
         Set<VarUsage> references = storage.getVarUsagesByFile(path)
         VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
         if (matchingUsage == null) {
-            return Collections.emptyList()
+            return []
         }
         Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(matchingUsage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
         if (definition == null) {
-            return Collections.emptyList()
+            return []
         }
         return Arrays.asList(definition.getLocation())
     }
@@ -112,11 +112,11 @@ class ReferenceFinder {
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
-            return Collections.emptyList()
+            return []
         }
         ClassDefinition definition = storage.getClassDefinitionByName(matchingReference.referencedClassName)
         if(definition == null) {
-            return Collections.emptyList()
+            return []
         }
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
