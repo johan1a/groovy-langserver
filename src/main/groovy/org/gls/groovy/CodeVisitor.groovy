@@ -218,7 +218,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitMethodCallExpression(MethodCallExpression call){
-        finder.addFuncCall(new FuncCall(sourceFileURI, currentClassNode, call))
+        VarUsage usage = new VarUsage(sourceFileURI, currentClassNode, call.getReceiver())
+        finder.addFuncCall(new FuncCall(sourceFileURI, currentClassNode, call, usage))
         super.visitMethodCallExpression(call)
     }
 

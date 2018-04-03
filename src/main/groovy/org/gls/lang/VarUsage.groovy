@@ -25,17 +25,43 @@ class VarUsage implements Reference {
     int definitionLineNumber
     Optional<String> declaringClass = Optional.empty()
 
-    VarUsage(String sourceFileURI, ClassNode currentClassNode, VariableExpression expression) {
+    VarUsage(String sourceFileURI, ClassNode currentClass, ASTNode expression) {
         this.sourceFileURI = sourceFileURI
-        this.columnNumber = expression.columnNumber - 1
-        this.lastColumnNumber = expression.lastColumnNumber - 1
-        this.lineNumber = expression.lineNumber - 1
-        this.lastLineNumber = expression.lastLineNumber - 1
+        initLocation(expression)
 
-        varName = expression.getName()
-        this.typeName = expression.getType().getName()
+        if(expression instanceof ClassExpression) {
+            initDeclarationReference(currentClass, expression as ClassExpression)
+        } else if (expression instanceof VariableExpression) {
+            initDeclarationReference(currentClass, expression as VariableExpression)
+        }
+    }
+
+    VarUsage(String sourceFileURI, ClassNode currentClass, VariableExpression expression) {
+        this.sourceFileURI = sourceFileURI
+        initLocation(expression)
+        initDeclarationReference(currentClass, expression)
+    }
+
+    void initLocation(ASTNode node) {
+        this.columnNumber = node.columnNumber - 1
+        this.lastColumnNumber = node.lastColumnNumber - 1
+        this.lineNumber = node.lineNumber - 1
+        this.lastLineNumber = node.lastLineNumber - 1
+    }
+
+    void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
         try {
+            typeName = expression.getType().getName()
+            varName = expression.getType().getName()
+        } catch (Exception e) {
+            log.error("no var decl", e)
+        }
+    }
 
+    void initDeclarationReference(ClassNode currentClass, VariableExpression expression) {
+        try {
+            typeName = expression.getType().getName()
+            varName = expression.getName()
             if (expression.getAccessedVariable() != null) {
                 AnnotatedNode varDeclaration = expression.getAccessedVariable() as AnnotatedNode
                 this.definitionLineNumber = varDeclaration.getLineNumber() - 1
@@ -44,12 +70,12 @@ class VarUsage implements Reference {
                 } else {
                     // TODO not sure if this is correct.
                     // Seems to be true for method arguments.
-                    this.declaringClass = Optional.of(currentClassNode.getName())
+                    this.declaringClass = Optional.of(currentClass.getName())
                 }
             } else if(expression.isThisExpression()) {
-                    this.definitionLineNumber = expression.getType().getLineNumber() - 1
+                this.definitionLineNumber = expression.getType().getLineNumber() - 1
             } else if (expression.isSuperExpression() ) {
-                this.definitionLineNumber = currentClassNode.getLineNumber()
+                this.definitionLineNumber = currentClass.getLineNumber()
             } else {
                 log.error "No parentLineNumber: ${expression.getName()}"
                 log.error "type: ${expression.getType()}"

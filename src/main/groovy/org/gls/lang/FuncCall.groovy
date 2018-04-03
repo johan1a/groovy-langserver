@@ -32,14 +32,9 @@ class FuncCall {
     String name
     VarUsage receiver
 
-    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call) {
+    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
         this.sourceFileURI = sourceFileURI
-        try {
-            VariableExpression receiver = call.getReceiver() as VariableExpression
-            this.receiver = new VarUsage(sourceFileURI, currentClassNode, receiver)
-        } catch (Exception e) {
-            log.info "TODO"
-        }
+        this.receiver = receiver
         name = call.getMethodAsString()
         initPosition(call)
     }
