@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.eclipse.xtend:org.eclipse.xtend.lib:2.13.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.xtend/org.eclipse.xtend.lib/2.13.0/accfb60dda659a31dddb5823d4fbcc7c0c1aa4ae/org.eclipse.xtend.lib-2.13.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.eclipse.xtend/org.eclipse.xtend.lib/2.13.0/c8841f7735714cc794a980094178a9fd31b50754/org.eclipse.xtend.lib-2.13.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
