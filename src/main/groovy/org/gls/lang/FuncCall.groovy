@@ -32,9 +32,8 @@ class FuncCall implements Reference {
     String name
     VarUsage receiver
 
-    int definitionLineNumber
     String definitionClass
-    Optional<String> declaringClass = Optional.empty()
+    List<String> argumentTypes
 
     FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
         this.sourceFileURI = sourceFileURI
@@ -44,23 +43,33 @@ class FuncCall implements Reference {
         definitionClass = receiver.typeName
 
         initArguments(call.getArguments())
-
-        if(receiver.varName != "super") {
-            log.info("-------")
-            log.info("name: ${name}")
-            log.info("definitionClass: ${definitionClass}")
-        }
     }
 
     void initArguments(Expression arguments) {
         if (arguments instanceof ConstructorCallExpression) {
-            ConstructorCallExpression constructorCallExpression = arguments as ConstructorCallExpression
-            Expression constructorArguments = arguments.getArguments()
-            log.info("constructorArguments : ${constructorArguments }")
+            initArguments(arguments as ConstructorCallExpression)
         } else if (arguments instanceof ArgumentListExpression) {
-            ArgumentListExpression argumentListExpression = arguments as ArgumentListExpression
-            log.info("argumentListExpression: ${argumentListExpression}")
+            initArguments(arguments as ArgumentListExpression)
+        } else if (arguments instanceof TupleExpression) {
+            initArguments(arguments as TupleExpression)
+        } else {
+            log.error("instanceof: ${arguments}", arguments)
         }
+    }
+
+    void initArguments(ArgumentListExpression expression) {
+        List<Expression> expressions = expression.getExpressions()
+        this.argumentTypes = expressions.collect{ it.getType().getName() }
+    }
+
+    void initArguments(ConstructorCallExpression expression) {
+        Expression constructorArguments = expression.getArguments()
+        log.info("constructorArguments : ${constructorArguments }")
+    }
+
+    void initArguments(TupleExpression expression) {
+        List<Expression> expressions = expression.expressions
+        this.argumentTypes = expressions.collect{ it.getType().getName() }
     }
 
     private void initPosition(ASTNode node) {
