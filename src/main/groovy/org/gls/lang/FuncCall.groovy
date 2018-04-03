@@ -1,20 +1,8 @@
 package org.gls.lang
 
-import groovy.transform.TypeChecked
-import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.*
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
-import org.codehaus.groovy.ast.*
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 
@@ -29,20 +17,31 @@ class FuncCall implements Reference {
     int lineNumber
     int lastLineNumber
 
-    String name
+    String functionName
     VarUsage receiver
 
-    String definitionClass
+    String definingClass
     List<String> argumentTypes
 
     FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
         this.sourceFileURI = sourceFileURI
         this.receiver = receiver
-        name = call.getMethodAsString()
+        functionName = call.getMethodAsString()
         initPosition(call)
-        definitionClass = receiver.typeName
+
+        initDefiningClass(currentClassNode, receiver)
 
         initArguments(call.getArguments())
+    }
+
+    private void initDefiningClass(ClassNode currentClassNode, VarUsage receiver) {
+        if(receiver.varName == "this"){
+            definingClass = currentClassNode.getName()
+        } else if (receiver.varName == "super") {
+            definingClass = currentClassNode.getSuperClass().getName()
+        } else {
+            definingClass = receiver.typeName
+        }
     }
 
     void initArguments(Expression arguments) {

@@ -38,7 +38,6 @@ class ReferenceFinder {
         storage.addFuncCall(funcCall)
     }
 
-
     void addVarUsageByDefinition(VarUsage usage) {
         Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(usage.sourceFileURI)
         VarDefinition definition = findMatchingDefinition(definitions, usage)
@@ -53,10 +52,14 @@ class ReferenceFinder {
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
         List<Location> varDefinitions = getVarDefinition(params)
-        if(varDefinitions.isEmpty()) {
-            return getClassDefinition(params)
+        if(!varDefinitions.isEmpty()) {
+            return varDefinitions
         }
-        return varDefinitions
+        List<Location> classDefinitions = getClassDefinition(params)
+        if (!classDefinitions.isEmpty()){
+            return classDefinitions
+        }
+        return getFuncDefinition(params)
     }
 
     List<Location> getReferences(ReferenceParams params) {
@@ -88,7 +91,7 @@ class ReferenceFinder {
         return Arrays.asList(definition.getLocation())
     }
 
-    List<Location> getVarDefinition(TextDocumentPositionParams params) {
+    private List<Location> getVarDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<VarUsage> references = storage.getVarUsagesByFile(path)
         VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
@@ -103,7 +106,7 @@ class ReferenceFinder {
         return Arrays.asList(definition.getLocation())
     }
 
-    List<Location> getClassDefinition(TextDocumentPositionParams params) {
+    private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
         Set<ClassUsage> references = storage.getClassUsagesByFile(path)
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
@@ -121,10 +124,9 @@ class ReferenceFinder {
     }
 
     static FuncDefinition findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
-        return null
-        // return definitions.find {
-        //     it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
-        // }
+        return definitions.find {
+            it.definingClass == reference.definingClass && it.functionName == reference.functionName && it.parameterTypes == reference.argumentTypes
+        }
     }
 
     static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {

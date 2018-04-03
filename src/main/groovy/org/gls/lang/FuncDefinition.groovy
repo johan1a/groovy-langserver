@@ -1,16 +1,6 @@
 package org.gls.lang
 
-import groovy.transform.TypeChecked
-import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.*
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
@@ -27,14 +17,20 @@ class FuncDefinition implements Definition {
 
     String returnType
     String functionName
-    String className
+    String definingClass
+    List<String> parameterTypes
 
-    FuncDefinition(String sourceFileURI, String className, MethodNode node) {
+    FuncDefinition(String sourceFileURI, String definingClass, MethodNode node) {
         this.sourceFileURI = sourceFileURI
         functionName = node.getName()
         returnType = node.getReturnType().getName()
-        this.className = className
+        this.definingClass = definingClass
         initPosition(node)
+        initParameterTypes(node.getParameters())
+    }
+
+    void initParameterTypes(Parameter[] parameters) {
+        this.parameterTypes = parameters.collect() { it.getType().name }
     }
 
     private void initPosition(ASTNode node) {
@@ -56,13 +52,16 @@ class FuncDefinition implements Definition {
 
     @Override
     public String toString() {
-        return """VarDefinition[
-                sourceFileURI=$sourceFileURI,
-                columnNumber=$columnNumber,
-                lastColumnNumber=$lastColumnNumber,
-                lineNumber=$lineNumber,
-                lastLineNumber=$lastLineNumber,
-                varName=$varName
-                ]"""
+        return "FuncDefinition{" +
+                "sourceFileURI='" + sourceFileURI + '\'' +
+                ", columnNumber=" + columnNumber +
+                ", lastColumnNumber=" + lastColumnNumber +
+                ", lineNumber=" + lineNumber +
+                ", lastLineNumber=" + lastLineNumber +
+                ", returnType='" + returnType + '\'' +
+                ", functionName='" + functionName + '\'' +
+                ", definingClass='" + definingClass + '\'' +
+                ", parameterTypes=" + parameterTypes +
+                '}';
     }
 }

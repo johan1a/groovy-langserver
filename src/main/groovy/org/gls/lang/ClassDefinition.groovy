@@ -50,7 +50,7 @@ class ClassDefinition implements Definition {
     String toString() {
         return """ClassDefinition[
                 packageName=$packageName,
-                className=$className,
+                definingClass=$className,
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,

@@ -75,39 +75,39 @@ class IndexerSpec extends Specification {
 
     def "Test unresolved import"() {
         setup:
-            ReferenceFinder finder = new ReferenceFinder()
-            String path = "src/test/test-files/5"
+        ReferenceFinder finder = new ReferenceFinder()
+        String path = "src/test/test-files/5"
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
-            indexer.index()
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        indexer.index()
 
         then:
-            true // No exception was thrown
+        true // No exception was thrown
     }
 
     def "Test find references"() {
         setup:
-            ReferenceFinder finder = new ReferenceFinder()
-            String dirPath = "src/test/test-files/6"
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/6"
 
-            ReferenceParams params = new ReferenceParams()
-            Position position = new Position(3, 16)
-            params.position = position
+        ReferenceParams params = new ReferenceParams()
+        Position position = new Position(3, 16)
+        params.position = position
 
-            String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+        String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-            indexer.index()
-            List<Location> references = finder.getReferences(params)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> references = finder.getReferences(params)
 
 
         then:
-            references.size() == 2
-            references.find{ it.range.start.line == 6 } != null
-            references.find{ it.range.start.line == 7 } != null
+        references.size() == 2
+        references.find { it.range.start.line == 6 } != null
+        references.find { it.range.start.line == 7 } != null
     }
 
     def "Test find references2"() {
@@ -130,31 +130,54 @@ class IndexerSpec extends Specification {
 
         then:
         references.size() == 1
-        references.find{ it.range.start.line == 7 } != null
+        references.find { it.range.start.line == 7 } != null
     }
 
 
     def "Test method argument"() {
         given:
-            ReferenceFinder finder = new ReferenceFinder()
-            String dirPath = "src/test/test-files/7"
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/7"
 
-            TextDocumentPositionParams params = new TextDocumentPositionParams()
-            Position position = new Position(12, 18)
-            params.position = position
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(12, 18)
+        params.position = position
 
-            String filePath = new File(dirPath + "/MethodArgument.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+        String filePath = new File(dirPath + "/MethodArgument.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-            GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-            indexer.index()
-            List<Location> definitions = finder.getDefinition(params)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getDefinition(params)
 
 
         then:
-            definitions.size() == 1
-            definitions.first().range.start.line == 11
+        definitions.size() == 1
+        definitions.first().range.start.line == 11
+    }
+
+    def "Test func definition"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/8"
+
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(4, 13)
+        params.position = position
+
+        String filePath = new File(dirPath + "/FunctionDefinition.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getDefinition(params)
+
+
+        then:
+        definitions.size() == 1
+        definitions.first().range.start.line == 3
     }
 
     private static List<URI> uriList(String path) {

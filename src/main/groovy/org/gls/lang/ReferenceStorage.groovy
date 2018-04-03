@@ -10,7 +10,7 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class ReferenceStorage {
 
-    // Key is class name
+    // Key is class functionName
     private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
 
     // Key is soure file uri
