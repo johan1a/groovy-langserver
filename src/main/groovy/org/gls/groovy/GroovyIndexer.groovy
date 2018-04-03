@@ -13,6 +13,7 @@ import org.eclipse.lsp4j.*
 import org.codehaus.groovy.syntax.*
 import org.codehaus.groovy.control.messages.*
 
+
 @Slf4j
 @TypeChecked
 class GroovyIndexer {
@@ -50,7 +51,7 @@ class GroovyIndexer {
                     }
                 }
             } catch (FileNotFoundException e) {
-                log.error("Error", e)
+                log.debug("Source dir not found", e)
             }
         }
         return files
@@ -125,7 +126,7 @@ class GroovyIndexer {
         Position end = new Position(line, exception.getEndColumn())
         Range range = new Range(start, end)
 
-        Diagnostic diagnostic = new Diagnostic(range, exception.getMessage())
+        Diagnostic diagnostic = new Diagnostic(range, exception.getMessage(), DiagnosticSeverity.Error, "Groovy")
         return diagnostic
     }
 
