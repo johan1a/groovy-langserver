@@ -80,12 +80,8 @@ class ReferenceFinder {
         if (matchingUsage == null) {
             return Collections.emptyList()
         }
-        log.info "matchingReference: $matchingUsage"
         Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(matchingUsage.sourceFileURI)
-        log.info "definitions: $definitions"
         VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
-        log.info "params: $params"
-        log.info "definition: $definition"
         if (definition == null) {
             return Collections.emptyList()
         }
