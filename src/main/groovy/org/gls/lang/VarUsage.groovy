@@ -51,8 +51,10 @@ class VarUsage implements Reference {
 
     void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
         try {
-            typeName = expression.getType().getName()
             varName = expression.getType().getName()
+            typeName = expression.getType().getName()
+            declaringClass = Optional.of(typeName)
+            definitionLineNumber = expression.getType().getLineNumber() - 1
         } catch (Exception e) {
             log.error("no var decl", e)
         }
@@ -63,14 +65,11 @@ class VarUsage implements Reference {
             typeName = expression.getType().getName()
             varName = expression.getName()
             if (expression.getAccessedVariable() != null) {
-                AnnotatedNode varDeclaration = expression.getAccessedVariable() as AnnotatedNode
-                this.definitionLineNumber = varDeclaration.getLineNumber() - 1
-                if ( varDeclaration.declaringClass != null ) {
-                    this.declaringClass = Optional.of(varDeclaration.declaringClass.getName())
+                def accessed = expression.getAccessedVariable()
+                if(accessed instanceof AnnotatedNode) {
+                    initAnnotatedNode(currentClass, accessed as AnnotatedNode)
                 } else {
-                    // TODO not sure if this is correct.
-                    // Seems to be true for method arguments.
-                    this.declaringClass = Optional.of(currentClass.getName())
+                    log.error " cast: ${expression}"
                 }
             } else if(expression.isThisExpression()) {
                 this.definitionLineNumber = expression.getType().getLineNumber() - 1
@@ -83,6 +82,17 @@ class VarUsage implements Reference {
             }
         } catch (Exception e) {
             log.error("no var decl", e)
+        }
+    }
+
+    void initAnnotatedNode(ClassNode currentClass, AnnotatedNode varDeclaration) {
+        this.definitionLineNumber = varDeclaration.getLineNumber() - 1
+        if ( varDeclaration.declaringClass != null ) {
+            this.declaringClass = Optional.of(varDeclaration.declaringClass.getName())
+        } else {
+            // TODO not sure if this is correct.
+            // Seems to be true for method arguments.
+            this.declaringClass = Optional.of(currentClass.getName())
         }
     }
 
