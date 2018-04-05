@@ -33,7 +33,7 @@ class FuncDefinition implements Definition {
         this.parameterTypes = parameters.collect() { it.getType().name }
     }
 
-    private void initPosition(ASTNode node) {
+    private void initPosition(MethodNode node) {
         columnNumber = node.columnNumber - 1
         lastColumnNumber = node.lastColumnNumber - 1
         lineNumber = node.lineNumber - 1

@@ -1,5 +1,6 @@
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentPositionParams
@@ -157,7 +158,7 @@ class IndexerSpec extends Specification {
         definitions.first().range.start.line == 11
     }
 
-    def "Test func definition"() {
+    def "Func definition"() {
         given:
         ReferenceFinder finder = new ReferenceFinder()
         String dirPath = "src/test/test-files/8"
@@ -178,6 +179,31 @@ class IndexerSpec extends Specification {
         then:
         definitions.size() == 1
         definitions.first().range.start.line == 3
+    }
+
+    def "Func definition 2"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/9"
+
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(4, 36)
+        params.position = position
+
+        String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getDefinition(params)
+
+        then:
+        definitions.size() == 1
+
+        Range range = definitions.first().range
+        range.start.line == 7
+        range.start.character == 4
     }
 
     def "Class definition"() {
