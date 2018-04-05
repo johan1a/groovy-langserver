@@ -16,7 +16,7 @@ import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 
 @Slf4j
-class VarDefinition implements Definition {
+class VarDefinition implements HasLocation {
 
     String sourceFileURI
     int columnNumber
@@ -58,12 +58,6 @@ class VarDefinition implements Definition {
 
     String getSourceFileURI() {
         return sourceFileURI
-    }
-
-    Location getLocation() {
-        Position start = new Position(lineNumber, columnNumber)
-        Position end = new Position(lastLineNumber, lastColumnNumber)
-        return new Location(getURI(), new Range(start, end))
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.codehaus.groovy.ast.*
 
 @Slf4j
 @TypeChecked
-class ClassUsage implements Reference {
+class ClassUsage implements HasLocation {
 
     String sourceFileURI
     int columnNumber

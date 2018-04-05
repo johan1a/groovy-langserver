@@ -8,7 +8,7 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 @TypeChecked
-class FuncCall implements Reference {
+class FuncCall implements HasLocation {
 
     String sourceFileURI
 

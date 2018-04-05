@@ -14,7 +14,7 @@ import groovy.transform.TypeChecked
 
 @Slf4j
 @TypeChecked
-class ClassDefinition implements Definition {
+class ClassDefinition implements HasLocation {
 
     private String packageName
     private String className

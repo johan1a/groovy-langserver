@@ -11,7 +11,6 @@ import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
 
 import static org.gls.util.TestUtil.uriList
-import java.nio.file.Paths
 
 class ClassSpec extends Specification {
 
@@ -21,7 +20,6 @@ class ClassSpec extends Specification {
 
         GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
-
 
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
 

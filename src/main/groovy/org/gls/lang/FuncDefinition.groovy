@@ -1,12 +1,11 @@
 package org.gls.lang
 
-import org.codehaus.groovy.ast.ASTNode
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.codehaus.groovy.ast.*
 
-class FuncDefinition implements Definition {
+class FuncDefinition implements HasLocation {
 
     String sourceFileURI
 
@@ -35,19 +34,14 @@ class FuncDefinition implements Definition {
 
     private void initPosition(MethodNode node) {
         columnNumber = node.columnNumber - 1
-        lastColumnNumber = node.lastColumnNumber - 1
+        // TODO Hack because we don't know which is the last column number on the first line
+        lastColumnNumber = 666
         lineNumber = node.lineNumber - 1
         lastLineNumber = node.lastLineNumber - 1
     }
 
     String getSourceFileURI() {
         return sourceFileURI
-    }
-
-    Location getLocation() {
-        Position start = new Position(lineNumber, columnNumber)
-        Position end = new Position(lastLineNumber, lastColumnNumber)
-        return new Location(getURI(), new Range(start, end))
     }
 
     @Override

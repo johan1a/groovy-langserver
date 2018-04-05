@@ -6,8 +6,6 @@ import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
 import static org.gls.util.TestUtil.uriList
 
-import java.nio.file.Paths
-
 class FunctionSpec extends Specification {
 
 
@@ -57,6 +55,31 @@ class FunctionSpec extends Specification {
         Range range = definitions.first().range
         range.start.line == 7
         range.start.character == 4
+    }
+
+    def "Function reference 1"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/9"
+
+        ReferenceParams params = new ReferenceParams()
+        Position position = new Position(7, 28)
+        params.position = position
+
+        String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getReferences(params)
+
+        then:
+        definitions.size() == 1
+
+        Range range = definitions.first().range
+        range.start.line == 4
+        range.start.character == 31
     }
 
 }
