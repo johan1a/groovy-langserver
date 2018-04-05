@@ -1,14 +1,14 @@
 
 class FunctionReference {
 
-    Set<ClassDefinition1> methodB() {
-        return aMethod()
+
+
+
+
+    Set<String> methodB() {
+        return methodA()
     }
 
     List<String> methodA() {
-    }
-
-    Set<ClassDefinition1> methodC() {
-        return aMethod()
     }
 }

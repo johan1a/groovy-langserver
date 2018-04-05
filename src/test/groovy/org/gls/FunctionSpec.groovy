@@ -4,8 +4,11 @@ import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
+import spock.lang.Unroll
+
 import static org.gls.util.TestUtil.uriList
 
+@Unroll
 class FunctionSpec extends Specification {
 
 
@@ -81,8 +84,9 @@ class FunctionSpec extends Specification {
         range.start.line == _expectedLine
         range.start.character == _expectedChar
         where:
-        _dir | _pos                | _class             | _expectedLine | _expectedChar
-        9    | new Position(7, 28) | "ClassDefinition1" | 4             | 31
+        _dir  | _pos                | _class               | _expectedLine | _expectedChar
+        9     | new Position(7, 28) | "ClassDefinition1"   | 4             | 31
+        10    | new Position(11, 17) | "FunctionReference" | 8             | 15
     }
 
 }
