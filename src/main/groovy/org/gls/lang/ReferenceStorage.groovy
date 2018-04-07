@@ -19,7 +19,7 @@ class ReferenceStorage {
     private Set<VarDefinition> varDefinitions = new HashSet<>()
 
     private Set<FuncDefinition> funcDefinitions = new HashSet<>()
-    private Map<String, Set<FuncCall> > funcCallsByFile = new HashMap<>()
+    private Set<FuncCall> funcCalls = new HashSet<>()
 
     void addVarUsage(VarUsage usage) {
         Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
@@ -38,13 +38,8 @@ class ReferenceStorage {
         return funcDefinitions
     }
 
-    Set<FuncCall> getFuncCallsByFile(String filePath) {
-        Set<FuncCall> calls = funcCallsByFile.get(filePath)
-        if(calls == null) {
-            calls = new HashSet<>()
-            funcCallsByFile.put(filePath, calls)
-        }
-        return calls
+    Set<FuncCall> getFuncCalls() {
+        return funcCalls
     }
 
     void addVarDefinitionToFile(VarDefinition varDefinition) {
@@ -56,7 +51,7 @@ class ReferenceStorage {
     }
 
     void addFuncCall(FuncCall call) {
-        Set<FuncCall> calls = getFuncCallsByFile(call.getSourceFileURI())
+        Set<FuncCall> calls = getFuncCalls()
         calls.add(call)
     }
 
@@ -84,10 +79,6 @@ class ReferenceStorage {
 
     Set<VarUsage> getVarUsagesByFile(String path) {
         return varUsages.get(path)
-    }
-
-    Set<FuncCall> getAllFuncCalls() {
-        return funcCallsByFile.values().flatten().toSet() as Set<FuncCall>
     }
 
     Set<VarUsage> getVarUsages() {

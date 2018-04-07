@@ -74,6 +74,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
             log.info "definition: ${params}"
             def definition = finder.getDefinition(params)

@@ -70,7 +70,7 @@ class ReferenceFinder {
         }
         FuncDefinition definition = findMatchingDefinition(definitions, params) as FuncDefinition
         if (definition != null) {
-            Set<FuncCall> allFuncCalls = storage.getAllFuncCalls()
+            Set<FuncCall> allFuncCalls = storage.getFuncCalls()
             Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
             return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
         }
@@ -91,8 +91,7 @@ class ReferenceFinder {
     }
 
     List<Location> getFuncDefinition(TextDocumentPositionParams params) {
-        String path = params.textDocument.uri.replace("file://", "")
-        Set<FuncCall> references = storage.getFuncCallsByFile(path)
+        Set<FuncCall> references = storage.getFuncCalls()
         FuncCall matchingFuncCall = findMatchingReference(references, params) as FuncCall
         if (matchingFuncCall == null) {
             return []
