@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.*
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
     private List<URI> sourcePaths
-    private ReferenceFinder finder
+    private ReferenceFinder finder = new ReferenceFinder()
     private LanguageClient client
     FileWatcher fileWacher = new FileWatcher()
 

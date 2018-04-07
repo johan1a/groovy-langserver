@@ -17,10 +17,12 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     private ReferenceFinder finder
     private String sourceFileURI
     private ClassNode currentClassNode
+    List<String> fileContents
 
-    CodeVisitor(ReferenceFinder finder, String sourceFileURI) {
+    CodeVisitor(ReferenceFinder finder, String sourceFileURI, List<String> fileContents) {
         this.finder = finder
         this.sourceFileURI = sourceFileURI
+        this.fileContents = fileContents
     }
 
     @Override
@@ -31,7 +33,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitClass(ClassNode node) {
         currentClassNode = node
-        finder.addClassDefinition(new ClassDefinition(node, sourceFileURI))
+        finder.addClassDefinition(new ClassDefinition(node, sourceFileURI, fileContents))
         super.visitClass(node)
     }
 
@@ -42,18 +44,18 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitField(FieldNode node){
-        finder.addClassUsage(new ClassUsage(sourceFileURI, node))
-        finder.addVarDefinition(new VarDefinition(sourceFileURI, node))
+        finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, node))
+        finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
         super.visitField(node)
     }
 
     @Override
     void visitMethod(MethodNode node){
-        finder.addClassUsage(new ClassUsage(sourceFileURI, node))
-        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, currentClassNode.getName(), node))
+        finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, node))
+        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.getName(), node))
         node.parameters.each { Parameter it ->
-            finder.addVarDefinition( new VarDefinition(sourceFileURI, it))
-            finder.addClassUsage(new ClassUsage(sourceFileURI, it))
+            finder.addVarDefinition( new VarDefinition(sourceFileURI, fileContents, it))
+            finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, it))
         }
         super.visitMethod(node)
     }
@@ -164,8 +166,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
             TupleExpression left = expression.getTupleExpression()
         } else {
             VariableExpression left = expression.getVariableExpression()
-            finder.addVarDefinition(new VarDefinition(sourceFileURI, left))
-            finder.addClassUsage(new ClassUsage(sourceFileURI, expression))
+            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
+            finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, expression))
         }
         super.visitDeclarationExpression(expression)
     }
@@ -217,8 +219,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitMethodCallExpression(MethodCallExpression call){
-        VarUsage usage = new VarUsage(sourceFileURI, currentClassNode, call.getReceiver())
-        finder.addFuncCall(new FuncCall(sourceFileURI, currentClassNode, call, usage))
+        VarUsage usage = new VarUsage(sourceFileURI, fileContents, currentClassNode, call.getReceiver())
+        finder.addFuncCall(new FuncCall(sourceFileURI, fileContents, currentClassNode, call, usage))
         super.visitMethodCallExpression(call)
     }
 
@@ -274,7 +276,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitStaticMethodCallExpression(StaticMethodCallExpression expression){
-        finder.addFuncCall(new FuncCall(sourceFileURI, currentClassNode, expression))
+        finder.addFuncCall(new FuncCall(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitStaticMethodCallExpression(expression)
     }
 
@@ -320,7 +322,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression){
-        finder.addVarUsage(new VarUsage(sourceFileURI, currentClassNode, expression))
+        finder.addVarUsage(new VarUsage(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }
 

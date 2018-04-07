@@ -13,6 +13,8 @@ import org.eclipse.lsp4j.*
 import org.codehaus.groovy.syntax.*
 import org.codehaus.groovy.control.messages.*
 
+import java.util.concurrent.ExecutionException
+
 
 @Slf4j
 @TypeChecked
@@ -63,6 +65,8 @@ class GroovyIndexer {
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
             diagnostics = getDiagnostics(e.getErrorCollector())
+        } catch (Exception e) {
+            log.error("error", e)
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics
@@ -79,12 +83,22 @@ class GroovyIndexer {
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()
-            CodeVisitor codeVisitor = new CodeVisitor(finder, sourceUnit.getName())
+
+            String name = sourceUnit.getName()
+            List<String> fileContents = getFileContent(name, changedFiles)
+            CodeVisitor codeVisitor = new CodeVisitor(finder, name, fileContents)
             moduleNode.visit(codeVisitor)
             moduleNode.getClasses().each { classNode ->
                 codeVisitor.visitClass(classNode)
             }
         }
+    }
+
+    static List<String> getFileContent(String fileName, Map<String, String> changedFiles) {
+        if(changedFiles.containsKey(fileName)){
+            return changedFiles.get(fileName).split('\n').toList() //TODO proper line end split
+        }
+        return new File(fileName).readLines()
     }
 
     private static Map<String, List<Diagnostic>> getDiagnostics(ErrorCollector errorCollector) {

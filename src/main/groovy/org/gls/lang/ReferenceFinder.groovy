@@ -126,7 +126,7 @@ class ReferenceFinder {
         if (matchingReference == null) {
             return []
         }
-        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.referencedClassName}
+        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.fullReferencedClassName}
         if(definition == null) {
             return []
         }
@@ -137,7 +137,7 @@ class ReferenceFinder {
 
     static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
         return varUsages.findAll {
-            it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
+            it.getSourceFileURI() == varDefinition.getSourceFileURI() && it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
         }
     }
 
@@ -153,7 +153,7 @@ class ReferenceFinder {
 
     static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
         return definitions.find {
-            it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+            it.getSourceFileURI() == reference.getSourceFileURI() && it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }
     }
 

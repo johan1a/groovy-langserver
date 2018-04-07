@@ -29,14 +29,24 @@ class ClassDefinition implements HasLocation {
         return sourceFileURI
     }
 
-    ClassDefinition(ClassNode node, String sourceFileURI) {
-        columnNumber = node.getColumnNumber() - 1
-        lastColumnNumber = node.getLastColumnNumber() - 1
-        lineNumber = node.getLineNumber() + node.getAnnotations().size() - 1
-        lastLineNumber = node.getLastLineNumber() - 1
+    ClassDefinition(ClassNode node, String sourceFileURI, List<String> source) {
         className = node.getNameWithoutPackage()
         packageName = node.getPackageName()
+        initPosition(source, node)
         this.sourceFileURI = sourceFileURI
+    }
+
+    private void initPosition(List<String> source, ASTNode node) {
+        lineNumber = node.lineNumber - 1
+        lastLineNumber = node.lastLineNumber - 1
+        if(lineNumber > 0 ){
+            String firstLine = source[lineNumber]
+            columnNumber = firstLine.indexOf(className, node.columnNumber - 1)
+            lastColumnNumber = columnNumber + className.size() - 1
+        } else {
+            columnNumber = node.columnNumber
+            lastColumnNumber = node.lastColumnNumber
+        }
     }
 
     String getFullClassName() {

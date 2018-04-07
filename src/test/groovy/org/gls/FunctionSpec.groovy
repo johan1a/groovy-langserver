@@ -57,11 +57,12 @@ class FunctionSpec extends Specification {
         definitions.size() == 1
         Range range = definitions.first().range
         range.start == _expected
+        range.end.character == _end
 
         where:
-        _dir              | _pos                    | _class               |  _expected
-        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 4)
-        'functions/two'     | new Position(72, 46)  | "ReferenceFinder"    |  new Position(142, 4)
+        _dir              | _pos                    | _class               |  _expected             | _end
+        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
+        'functions/two'   | new Position(72, 46)  | "ReferenceFinder"      |  new Position(142, 25) | 45
     }
 
     def "Function reference 1"() {
@@ -116,7 +117,7 @@ class FunctionSpec extends Specification {
 
         where:
         _dir                | _pos                  | _class               |  _expected
-        'functions/1'       | new Position(16, 28)  | "MultipleFuncRefs1"  |  4
+        'functions/1'       | new Position(16, 23)  | "MultipleFuncRefs1"  |  4
         'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
         'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
         'functions/two'     | new Position(65, 25)  | "ReferenceFinder"    |  1

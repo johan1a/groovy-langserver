@@ -22,28 +22,34 @@ class VarUsage implements HasLocation {
     int definitionLineNumber
     Optional<String> declaringClass = Optional.empty()
 
-    VarUsage(String sourceFileURI, ClassNode currentClass, ASTNode expression) {
+    VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
         this.sourceFileURI = sourceFileURI
-        initLocation(expression)
 
         if(expression instanceof ClassExpression) {
             initDeclarationReference(currentClass, expression as ClassExpression)
         } else if (expression instanceof VariableExpression) {
             initDeclarationReference(currentClass, expression as VariableExpression)
         }
+        initPosition(source, expression)
     }
 
-    VarUsage(String sourceFileURI, ClassNode currentClass, VariableExpression expression) {
+    VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
-        initLocation(expression)
         initDeclarationReference(currentClass, expression)
+        initPosition(source, expression)
     }
 
-    void initLocation(ASTNode node) {
-        this.columnNumber = node.columnNumber - 1
-        this.lastColumnNumber = node.lastColumnNumber - 1
-        this.lineNumber = node.lineNumber - 1
-        this.lastLineNumber = node.lastLineNumber - 1
+    private void initPosition(List<String> source, ASTNode node) {
+        lineNumber = node.lineNumber - 1
+        lastLineNumber = node.lastLineNumber - 1
+        if(lineNumber > 0 && varName != null){
+            String firstLine = source[lineNumber]
+            columnNumber = firstLine.indexOf(varName, node.columnNumber - 1)
+            lastColumnNumber = columnNumber + varName.size() - 1
+        } else {
+            columnNumber = node.columnNumber
+            lastColumnNumber = node.lastColumnNumber
+        }
     }
 
     void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {

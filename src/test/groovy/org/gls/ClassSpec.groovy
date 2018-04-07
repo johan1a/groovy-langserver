@@ -41,7 +41,7 @@ class ClassSpec extends Specification {
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
         Set<ClassUsage> usages = finder.getClassUsages(testFilePath)
-        ClassUsage usage = usages.find { it.referencedClassName == "VarDeclClassUsage" }
+        ClassUsage usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
 
         expect:
         usage.lineNumber == 7

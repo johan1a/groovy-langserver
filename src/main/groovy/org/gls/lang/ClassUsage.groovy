@@ -15,52 +15,60 @@ class ClassUsage implements HasLocation {
     int lastColumnNumber
     int lineNumber
     int lastLineNumber
+    String fullReferencedClassName
     String referencedClassName
 
-    ClassUsage(String sourceFileURI, Parameter node) {
+    ClassUsage(String sourceFileURI, List<String> source, Parameter node) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = node.getType().getName()
-        initPosition(node)
+        this.fullReferencedClassName = node.getType().getName()
+        referencedClassName = fullReferencedClassName.split("\\.").last()
+        initPosition(node, source)
     }
 
-    ClassUsage(String sourceFileURI, FieldNode node) {
+    ClassUsage(String sourceFileURI, List<String> source, FieldNode node) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = node.getType().getName()
-        initPosition(node)
+        this.fullReferencedClassName = node.getType().getName()
+        initPosition(node, source)
     }
 
     ClassUsage(String sourceFileURI, Expression expression) {
        throw new Exception()
     }
 
-    ClassUsage(String sourceFileURI, VariableExpression expression) {
+    ClassUsage(String sourceFileURI, List<String> source, VariableExpression expression) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = expression.getType().getName()
-        initPosition(expression)
+        this.fullReferencedClassName = expression.getType().getName()
+        initPosition(expression, source)
     }
 
-    ClassUsage(String sourceFileURI, DeclarationExpression expression) {
+    ClassUsage(String sourceFileURI, List<String> source, DeclarationExpression expression) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = expression.getLeftExpression().getType().getName()
-        initPosition(expression)
+        this.fullReferencedClassName = expression.getLeftExpression().getType().getName()
+        initPosition(expression, source)
     }
 
-    ClassUsage(String sourceFileURI, MethodNode node) {
+    ClassUsage(String sourceFileURI, List<String> source, MethodNode node) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = node.getReturnType().getName()
-        initPosition(node)
+        this.fullReferencedClassName = node.getReturnType().getName()
+        initPosition(node, source)
     }
-    ClassUsage(String sourceFileURI, StaticMethodCallExpression expression ) {
+    ClassUsage(String sourceFileURI, List<String> source, StaticMethodCallExpression expression ) {
         this.sourceFileURI = sourceFileURI
-        this.referencedClassName = expression.type.name
-        initPosition(expression)
+        this.fullReferencedClassName = expression.type.name
+        initPosition(expression, source)
     }
 
-    void initPosition(ASTNode node) {
-        this.columnNumber = node.columnNumber - 1
-        this.lastColumnNumber = columnNumber + simpleClassName(referencedClassName).size() - 1 // -1 because trim isn't working TODO
-        this.lineNumber = node.lineNumber - 1
-        this.lastLineNumber = node.lastLineNumber - 1
+    private void initPosition(ASTNode node, List<String> source) {
+        lineNumber = node.lineNumber - 1
+        lastLineNumber = node.lastLineNumber - 1
+        if(lineNumber > 0 ){
+            String firstLine = source[lineNumber]
+            columnNumber = firstLine.indexOf(fullReferencedClassName, node.columnNumber - 1)
+            lastColumnNumber = columnNumber + fullReferencedClassName.size() - 1
+        } else {
+            columnNumber = node.columnNumber
+            lastColumnNumber = node.lastColumnNumber
+        }
     }
 
     private static String simpleClassName(String name) {
@@ -73,7 +81,7 @@ class ClassUsage implements HasLocation {
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,
                 lineNumber=$lineNumber,
-                referencedClassName=$referencedClassName,
+                fullReferencedClassName=$fullReferencedClassName,
                 lastLineNumber=$lastLineNumber]"""
     }
 

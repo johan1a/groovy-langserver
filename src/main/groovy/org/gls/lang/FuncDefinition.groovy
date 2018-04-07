@@ -21,22 +21,22 @@ class FuncDefinition implements HasLocation {
     String definingClass
     List<String> parameterTypes
 
-    FuncDefinition(String sourceFileURI, String definingClass, MethodNode node) {
+    FuncDefinition(String sourceFileURI, List<String> source, String definingClass, MethodNode node) {
         this.sourceFileURI = sourceFileURI
         functionName = node.getName()
         returnType = node.getReturnType().getName()
         this.definingClass = definingClass
-        initPosition(node)
+        initPosition(source, node)
         initParameterTypes(node.getParameters())
     }
 
-    FuncDefinition(String sourceFileURI, String definingClass, StaticMethodCallExpression expression) {
+    FuncDefinition(String sourceFileURI, String source, String definingClass, StaticMethodCallExpression expression) {
         this.sourceFileURI = sourceFileURI
         functionName = expression.getMethod()
         returnType = expression.type.getName()
         this.definingClass = definingClass
         initParameterTypes(expression.getArguments())
-        initPosition(expression)
+        initPosition(source, expression)
     }
 
     void initParameterTypes(Expression arguments) {
@@ -50,12 +50,17 @@ class FuncDefinition implements HasLocation {
         this.parameterTypes = parameters.collect() { it.getType().name }
     }
 
-    private void initPosition(ASTNode node) {
-        columnNumber = node.columnNumber - 1
-        // TODO Hack because we don't know which is the last column number on the first line
-        lastColumnNumber = 666
+    private void initPosition(List<String> source, ASTNode node) {
         lineNumber = node.lineNumber - 1
         lastLineNumber = node.lastLineNumber - 1
+        if(lineNumber > 0 ){
+            String firstLine = source[lineNumber]
+            columnNumber = firstLine.indexOf(functionName, node.columnNumber - 1)
+            lastColumnNumber = columnNumber + functionName.size() - 1
+        } else {
+            columnNumber = node.columnNumber
+            lastColumnNumber = node.lastColumnNumber
+        }
     }
 
     String getSourceFileURI() {

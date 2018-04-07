@@ -27,36 +27,37 @@ class VarDefinition implements HasLocation {
     String varName
 
 
-    VarDefinition(String sourceFileURI, Parameter node) {
+    VarDefinition(String sourceFileURI, List<String> source, Parameter node) {
         this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(node)
+        initPosition(source, node)
     }
 
     VarDefinition(String sourceFileURI, Expression node) {
         throw new Exception()
     }
 
-    VarDefinition(String sourceFileURI, VariableExpression node) {
+    VarDefinition(String sourceFileURI, List<String> source, VariableExpression node) {
         this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(node)
+        initPosition(source, node)
     }
 
-    VarDefinition(String sourceFileURI, FieldNode node) {
+    VarDefinition(String sourceFileURI, List<String> source, FieldNode node) {
         this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(node)
+        initPosition(source, node)
     }
 
-    private void initPosition(ASTNode node) {
-        columnNumber = node.columnNumber - 1
-        lastColumnNumber = node.lastColumnNumber - 1
+    private void initPosition(List<String> source, ASTNode node) {
         lineNumber = node.lineNumber - 1
         lastLineNumber = node.lastLineNumber - 1
+        String firstLine = source[lineNumber]
+        columnNumber = firstLine.indexOf(varName, node.columnNumber)
+        lastColumnNumber = columnNumber + varName.size() - 1
     }
 
 

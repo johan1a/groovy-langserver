@@ -22,18 +22,18 @@ class FuncCall implements HasLocation {
     String definingClass
     List<String> argumentTypes
 
-    FuncCall(String sourceFileURI, ClassNode currentClassNode, StaticMethodCallExpression call) {
+    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, StaticMethodCallExpression call) {
         this.sourceFileURI = sourceFileURI
         functionName = call.getMethodAsString()
-        initPosition(call)
+        initPosition(source, call)
         definingClass = currentClassNode.getName()
         initArguments(call.getArguments())
     }
 
-    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
+    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
         this.sourceFileURI = sourceFileURI
         functionName = call.getMethodAsString()
-        initPosition(call)
+        initPosition(source, call)
         initDefiningClass(currentClassNode, receiver)
         initArguments(call.getArguments())
     }
@@ -75,10 +75,16 @@ class FuncCall implements HasLocation {
         this.argumentTypes = expressions.collect{ it.getType().getName() }
     }
 
-    private void initPosition(ASTNode node) {
-        columnNumber = node.columnNumber - 1
-        lastColumnNumber = node.lastColumnNumber - 1
+    private void initPosition(List<String> source, ASTNode node) {
         lineNumber = node.lineNumber - 1
         lastLineNumber = node.lastLineNumber - 1
+        if(lineNumber > 0 ){
+            String firstLine = source[lineNumber]
+            columnNumber = firstLine.indexOf(functionName, node.columnNumber - 1)
+            lastColumnNumber = columnNumber + functionName.size() - 1
+        } else {
+            columnNumber = node.columnNumber
+            lastColumnNumber = node.lastColumnNumber
+        }
     }
 }
