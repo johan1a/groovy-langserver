@@ -13,7 +13,7 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent
 @TypeChecked
 class FileWatcher {
 
-    private Map<String, String> changedFiles = new HashMap<>()
+    Map<String, String> changedFiles = new HashMap<>()
 
     void didSave(DidSaveTextDocumentParams params) {
         log.info("didSave: $params")

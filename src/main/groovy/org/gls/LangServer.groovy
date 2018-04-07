@@ -32,11 +32,7 @@ class LangServer implements LanguageServer {
 
     public static final String DEFAULT_SRC_DIR = "/src/main/groovy"
     private WorkspaceService workspaceService
-    private GroovyTextDocumentService textDocumentService
-
-    GroovyIndexer getIndexer() {
-        return textDocumentService.indexer
-    }
+    GroovyTextDocumentService textDocumentService
 
     LangServer() {
         this.workspaceService = new GroovyWorkspaceService()
@@ -51,11 +47,8 @@ class LangServer implements LanguageServer {
                     new URI(initializeParams.getRootUri() + "/grails-app")]
         log.info "sourcePaths: ${sourcePaths}"
 
-        ReferenceFinder finder = new ReferenceFinder()
-        GroovyIndexer indexer = new GroovyIndexer(sourcePaths, finder)
-
-        textDocumentService.setReferenceStorage(finder)
-        textDocumentService.setIndexer(indexer)
+        textDocumentService.setSourcePaths(sourcePaths)
+        textDocumentService.index()
 
         ServerCapabilities capabilities = new ServerCapabilities()
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))

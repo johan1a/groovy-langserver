@@ -19,8 +19,9 @@ import org.codehaus.groovy.control.messages.*
 class GroovyIndexer {
 
     List<URI> sourcePaths
-    ReferenceFinder finder
-    List<File> allFiles
+
+    ReferenceFinder finder = new ReferenceFinder()
+
 
     List<URI> getRootUri() {
         return sourcePaths
@@ -31,9 +32,9 @@ class GroovyIndexer {
         this.finder = finder
     }
 
-    Map<String, List<Diagnostic> > index() {
+    Map<String, List<Diagnostic>> index(Map<String, String> changedFiles = [:]) {
         List<File> files = findFilesRecursive()
-        return index(files)
+        return index(files, changedFiles)
     }
 
     List<File> findFilesRecursive() {
@@ -53,12 +54,11 @@ class GroovyIndexer {
         return files
     }
 
-    Map<String, List<Diagnostic> > index(List<File> files) {
+    Map<String, List<Diagnostic>> index(List<File> files, Map<String, String> changedFiles) {
         Map<String, List<Diagnostic>> diagnostics = new HashMap<>()
         try {
             long start = System.currentTimeMillis()
-            this.allFiles = files
-            compile(files)
+            compile(files, changedFiles)
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -68,9 +68,12 @@ class GroovyIndexer {
         return diagnostics
     }
 
-    private void compile(List<File> files) {
+    private void compile(List<File> files, Map<String, String> changedFiles) {
+        List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
+
         CompilationUnit unit = new CompilationUnit()
-        files.each { unit.addSource(it) }
+        notChanged.each { unit.addSource(it) }
+        changedFiles.each { path, name -> unit.addSource(path, name) }
 
         unit.compile(Phases.CANONICALIZATION)
 
@@ -84,10 +87,10 @@ class GroovyIndexer {
         }
     }
 
-    private Map<String, List<Diagnostic> > getDiagnostics(ErrorCollector errorCollector) {
-        Map<String, List<Diagnostic> > diagnosticMap = new HashMap<>()
+    private static Map<String, List<Diagnostic>> getDiagnostics(ErrorCollector errorCollector) {
+        Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>()
         try {
-            if(errorCollector == null) {
+            if (errorCollector == null) {
                 return diagnosticMap
             }
             List<SyntaxErrorMessage> errors = errorCollector.getErrors()
@@ -98,7 +101,7 @@ class GroovyIndexer {
                 Diagnostic diagnostic = asDiagnostic(exception)
 
                 List<Diagnostic> diagnostics = diagnosticMap.get(uri)
-                if(diagnostics == null) {
+                if (diagnostics == null) {
                     diagnostics = new LinkedList<>()
                     diagnosticMap.put(uri, diagnostics)
                 }
@@ -114,7 +117,7 @@ class GroovyIndexer {
         return diagnosticMap
     }
 
-    private Diagnostic asDiagnostic(SyntaxException exception) {
+    private static Diagnostic asDiagnostic(SyntaxException exception) {
         int line = exception.getLine() - 1
         Position start = new Position(line, exception.getStartColumn())
         Position end = new Position(line, exception.getEndColumn())

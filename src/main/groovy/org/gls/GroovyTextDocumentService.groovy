@@ -20,26 +20,21 @@ import org.eclipse.lsp4j.*
 @TypeChecked
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
+    private List<URI> sourcePaths
     private ReferenceFinder finder
     private LanguageClient client
-    private GroovyIndexer indexer
     FileWatcher fileWacher = new FileWatcher()
 
-    void setReferenceStorage(ReferenceFinder finder) {
-        this.finder = finder
+
+    List<URI> getSourcePaths() {
+        return sourcePaths
     }
 
-    void setIndexer(GroovyIndexer indexer) {
-        this.indexer = indexer
-        Map<String, List<Diagnostic> > diagnostics = indexer.index()
-        sendDiagnostics(diagnostics, client)
-    }
-
-    private void showClientMessage(String message) {
+    public void showClientMessage(String message) {
         client?.showMessage(new MessageParams(MessageType.Info, message))
     }
 
-    private void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
+    public static void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
         diagnostics.keySet().each {
                 PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnostics.get(it))
             client?.publishDiagnostics(params)
@@ -173,9 +168,21 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         try {
             params.textDocument.uri = params.textDocument.uri.replace("file://", "")
             fileWacher.didSave(params)
+            index(fileWacher.changedFiles)
         } catch (Exception e) {
             log.error("error", e)
         }
     }
 
+    void index(Map<String, String> changedFiles = Collections.emptyMap()) {
+        ReferenceFinder finder = new ReferenceFinder()
+        GroovyIndexer indexer = new GroovyIndexer(sourcePaths, finder)
+        Map<String, List<Diagnostic> > diagnostics = indexer.index(changedFiles)
+        this.finder = finder
+        sendDiagnostics(diagnostics, client)
+    }
+
+    void setSourcePaths(List<URI> sourcePaths) {
+        this.sourcePaths = sourcePaths
+    }
 }

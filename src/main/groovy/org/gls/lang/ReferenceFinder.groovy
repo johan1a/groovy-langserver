@@ -11,9 +11,9 @@ import org.eclipse.lsp4j.*
 @TypeChecked
 class ReferenceFinder {
 
-    ReferenceStorage storage = new ReferenceStorage()
+   ReferenceStorage storage = new ReferenceStorage()
 
-    Set<ClassUsage> getClassUsages(String fileUri) {
+   Set<ClassUsage> getClassUsages(String fileUri) {
         return storage.getClassUsages()
     }
 
