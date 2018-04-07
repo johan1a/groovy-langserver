@@ -42,7 +42,6 @@ class VariableSpec extends Specification {
         indexer.index()
         List<Location> references = finder.getReferences(params)
 
-
         then:
         references.size() == 2
         references.find { it.range.start.line == 6 } != null
@@ -66,14 +65,14 @@ class VariableSpec extends Specification {
         indexer.index()
         List<Location> references = finder.getReferences(params)
 
-
         then:
         references.size() == 1
-        references.find { it.range.start.line == 7 } != null
+        references.find { it.range.start.line == _expectedLine } != null
 
         where:
         _class | _position | _expectedNbr | _expectedLine
         "FindReference2" | new Position(3, 11) | 1 | 7
+        "FindReference3" | new Position(3, 11) | 1 | 8
     }
 
 
