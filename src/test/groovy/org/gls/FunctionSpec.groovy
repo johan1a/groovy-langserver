@@ -89,4 +89,29 @@ class FunctionSpec extends Specification {
         10    | new Position(11, 17) | "FunctionReference" | 8             | 15
     }
 
+    def "Multiple function references 1"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/${_dir}"
+
+        ReferenceParams params = new ReferenceParams()
+        Position position = _pos
+        params.position = position
+
+        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> references = finder.getReferences(params)
+
+        then:
+        references.size() == 4
+
+        where:
+        _dir              | _pos                  | _class
+        'functions/1'     | new Position(16, 28)  | "MultipleFuncRefs1"
+    }
+
 }

@@ -27,15 +27,6 @@ class ReferenceFinder {
 
     void addVarUsage(VarUsage usage) {
         storage.addVarUsage(usage)
-        addVarUsageByDefinition(usage)
-    }
-
-    private void addVarUsageByDefinition(VarUsage usage) {
-        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(usage.sourceFileURI)
-        VarDefinition definition = findMatchingDefinition(definitions, usage)
-        if (definition != null) {
-            storage.addVarUsageByDefinition(usage, definition)
-        }
     }
 
     void addFuncDefinition(String filePath, FuncDefinition funcDefinition) {
@@ -92,7 +83,8 @@ class ReferenceFinder {
         }
         VarDefinition definition = findMatchingDefinition(definitions, params) as VarDefinition
         if (definition != null) {
-            Set<VarUsage> usages = storage.getVarUsagesByDefinition(definition)
+            Set<VarUsage> allUsages = storage.getVarUsages()
+            Set<VarUsage> usages = findMatchingVarUsages(allUsages, definition)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }
         return []
@@ -143,6 +135,12 @@ class ReferenceFinder {
         def start = new Position(definition.lineNumber, definition.columnNumber)
         def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
         return Arrays.asList(new Location(definition.getSourceFileURI(), new Range(start, end)))
+    }
+
+    static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
+        return varUsages.findAll {
+            it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
+        }
     }
 
     static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {

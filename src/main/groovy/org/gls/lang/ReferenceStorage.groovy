@@ -21,24 +21,6 @@ class ReferenceStorage {
     private Map<String, Set<FuncDefinition> > funcDefinitionsByFile = new HashMap<>()
     private Map<String, Set<FuncCall> > funcCallsByFile = new HashMap<>()
 
-
-    // For finding var usages of a var definition
-    private Map<VarDefinition, Set<VarUsage> > varUsagesByDefinition = new HashMap<>()
-
-
-    Set<VarUsage> getVarUsagesByDefinition(VarDefinition varDefinition) {
-        Set<VarUsage> usages = varUsagesByDefinition.get(varDefinition)
-        if(usages == null) {
-            usages = new HashSet<>()
-            varUsagesByDefinition.put(varDefinition, usages)
-        }
-        return usages
-    }
-
-    void addVarUsageByDefinition(VarUsage varUsage, VarDefinition varDefinition) {
-        getVarUsagesByDefinition(varDefinition).add(varUsage)
-    }
-
     void addVarUsage(VarUsage usage) {
         Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
         if(usages == null) {
@@ -118,4 +100,7 @@ class ReferenceStorage {
         return funcCallsByFile.values().flatten().toSet() as Set<FuncCall>
     }
 
+    Set<VarUsage> getVarUsages() {
+        return varUsages.values().flatten().toSet() as Set<VarUsage>
+    }
 }

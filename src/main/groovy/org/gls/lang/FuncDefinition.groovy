@@ -1,9 +1,7 @@
 package org.gls.lang
 
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
-import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.Parameter
 
 class FuncDefinition implements HasLocation {
 

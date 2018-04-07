@@ -17,7 +17,7 @@ class VariableSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
-        Set<VarUsage> usages = finder.storage.varUsages.values().first()
+        Set<VarUsage> usages = finder.storage.getVarUsages()
         VarUsage reference = usages.find { it.varName == 'theString' }
 
         expect:
