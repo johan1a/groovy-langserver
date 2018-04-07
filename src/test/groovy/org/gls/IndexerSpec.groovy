@@ -16,7 +16,7 @@ class IndexerSpec extends Specification {
         indexer.index()
 
         expect:
-        finder.storage.classDefinitions.values().size() == 1
+        finder.storage.classDefinitions.size() == 1
     }
 
     def "Test unresolved import"() {

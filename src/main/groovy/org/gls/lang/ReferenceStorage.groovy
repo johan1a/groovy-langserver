@@ -10,24 +10,15 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class ReferenceStorage {
 
-    // Key is class functionName
-    private Map<String, ClassDefinition> classDefinitions = new HashMap<>()
-
-    // Key is soure file uri
-    private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
-    private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
+    private Set<ClassDefinition> classDefinitions = new HashSet<>()
+    private Set<ClassUsage> classUsages = new HashSet<>()
+    private Set<VarUsage> varUsages = new HashSet<>()
     private Set<VarDefinition> varDefinitions = new HashSet<>()
-
     private Set<FuncDefinition> funcDefinitions = new HashSet<>()
     private Set<FuncCall> funcCalls = new HashSet<>()
 
     void addVarUsage(VarUsage usage) {
-        Set<VarUsage> usages = varUsages.get(usage.sourceFileURI)
-        if(usages == null) {
-            usages = new HashSet<>()
-            varUsages.put(usage.sourceFileURI, usages)
-        }
-        usages.add(usage)
+        varUsages.add(usage)
     }
 
     Set<VarDefinition> getVarDefinitions() {
@@ -56,32 +47,22 @@ class ReferenceStorage {
     }
 
     void addClassUsage(ClassUsage reference) {
-        Set<ClassUsage> references = getClassUsagesByFile(reference.sourceFileURI)
-        references.add(reference)
+        getClassUsages().add(reference)
     }
 
-    Set<ClassUsage> getClassUsagesByFile(String filePath) {
-        Set<ClassUsage> references = classUsages.get(filePath)
-        if(references == null) {
-            references = new HashSet<>()
-            this.classUsages.put(filePath, references)
-        }
-        return  references
+    Set<ClassUsage> getClassUsages() {
+        return classUsages
     }
 
-    void addClassDefinitionToFile(String filePath, ClassDefinition definition) {
-        classDefinitions.put(filePath, definition)
+    void addClassDefinitionToFile(ClassDefinition definition) {
+        classDefinitions.add(definition)
     }
 
-    ClassDefinition getClassDefinitionByName(String className) {
-        return classDefinitions.get(className)
-    }
-
-    Set<VarUsage> getVarUsagesByFile(String path) {
-        return varUsages.get(path)
+    Set<ClassDefinition> getClassDefinitions() {
+        return classDefinitions
     }
 
     Set<VarUsage> getVarUsages() {
-        return varUsages.values().flatten().toSet() as Set<VarUsage>
+        return varUsages
     }
 }

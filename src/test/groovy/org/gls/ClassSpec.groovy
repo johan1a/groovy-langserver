@@ -23,7 +23,7 @@ class ClassSpec extends Specification {
 
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
 
-        ClassDefinition definition = finder.storage.classDefinitions.get("Box")
+        ClassDefinition definition = finder.storage.getClassDefinitions().find{it.getFullClassName() == "Box"}
         def usages = finder.getClassUsages(testFilePath)
         ClassUsage usage = usages.first()
 
@@ -63,7 +63,7 @@ class ClassSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
         indexer.index()
         List<Location> definitions = finder.getDefinition(params)
-        Set<ClassUsage> usages = finder.storage.getClassUsagesByFile(filePath)
+        Set<ClassUsage> usages = finder.storage.getClassUsages()
 
         then:
         definitions.size() == 1

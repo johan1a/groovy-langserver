@@ -14,11 +14,11 @@ class ReferenceFinder {
     ReferenceStorage storage = new ReferenceStorage()
 
     Set<ClassUsage> getClassUsages(String fileUri) {
-        return storage.getClassUsagesByFile(fileUri)
+        return storage.getClassUsages()
     }
 
     void addClassDefinition(ClassDefinition definition) {
-        storage.addClassDefinitionToFile(definition.getFullClassName(), definition)
+        storage.addClassDefinitionToFile(definition)
     }
 
     void addClassUsage(ClassUsage reference) {
@@ -105,8 +105,7 @@ class ReferenceFinder {
     }
 
     private List<Location> getVarDefinition(TextDocumentPositionParams params) {
-        String path = params.textDocument.uri.replace("file://", "")
-        Set<VarUsage> references = storage.getVarUsagesByFile(path)
+        Set<VarUsage> references = storage.getVarUsages()
         VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
         if (matchingUsage == null) {
             return []
@@ -121,13 +120,13 @@ class ReferenceFinder {
 
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassUsage> references = storage.getClassUsagesByFile(path)
+        Set<ClassUsage> references = storage.getClassUsages()
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
             return []
         }
-        ClassDefinition definition = storage.getClassDefinitionByName(matchingReference.referencedClassName)
+        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.referencedClassName}
         if(definition == null) {
             return []
         }
