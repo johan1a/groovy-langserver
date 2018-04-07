@@ -10,27 +10,15 @@ import groovy.transform.TypeChecked
 @TypeChecked
 class ReferenceStorage {
 
-    private Set<ClassDefinition> classDefinitions = new HashSet<>()
-    private Set<ClassUsage> classUsages = new HashSet<>()
-    private Set<VarUsage> varUsages = new HashSet<>()
-    private Set<VarDefinition> varDefinitions = new HashSet<>()
-    private Set<FuncDefinition> funcDefinitions = new HashSet<>()
-    private Set<FuncCall> funcCalls = new HashSet<>()
+    Set<ClassDefinition> classDefinitions = new HashSet<>()
+    Set<ClassUsage> classUsages = new HashSet<>()
+    Set<VarDefinition> varDefinitions = new HashSet<>()
+    Set<VarUsage> varUsages = new HashSet<>()
+    Set<FuncDefinition> funcDefinitions = new HashSet<>()
+    Set<FuncCall> funcCalls = new HashSet<>()
 
     void addVarUsage(VarUsage usage) {
         varUsages.add(usage)
-    }
-
-    Set<VarDefinition> getVarDefinitions() {
-        return varDefinitions
-    }
-
-    Set<FuncDefinition> getFuncDefinitions() {
-        return funcDefinitions
-    }
-
-    Set<FuncCall> getFuncCalls() {
-        return funcCalls
     }
 
     void addVarDefinitionToFile(VarDefinition varDefinition) {
@@ -50,19 +38,8 @@ class ReferenceStorage {
         getClassUsages().add(reference)
     }
 
-    Set<ClassUsage> getClassUsages() {
-        return classUsages
-    }
-
     void addClassDefinitionToFile(ClassDefinition definition) {
         classDefinitions.add(definition)
     }
 
-    Set<ClassDefinition> getClassDefinitions() {
-        return classDefinitions
-    }
-
-    Set<VarUsage> getVarUsages() {
-        return varUsages
-    }
 }
