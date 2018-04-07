@@ -38,13 +38,13 @@ class FunctionSpec extends Specification {
     def "Function definition 2"() {
         given:
         ReferenceFinder finder = new ReferenceFinder()
-        String dirPath = "src/test/test-files/9"
+        String dirPath = "src/test/test-files/${_dir}"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
-        Position position = new Position(4, 36)
+        Position position = _pos
         params.position = position
 
-        String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
+        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
@@ -56,8 +56,12 @@ class FunctionSpec extends Specification {
         definitions.size() == 1
 
         Range range = definitions.first().range
-        range.start.line == 7
-        range.start.character == 4
+        range.start == _expected
+
+        where:
+        _dir              | _pos                  | _class               |  _expected
+        "9"               | new Position(4, 36)   | "ClassDefinition1"   |  new Position(7, 4)
+        'functions/2'     | new Position(72, 46)  | "ReferenceFinder"    |  new Position(142, 4)
     }
 
     def "Function reference 1"() {
