@@ -29,6 +29,16 @@ class ClassUsage implements HasLocation {
         initPosition(node)
     }
 
+    ClassUsage(String sourceFileURI, Expression expression) {
+       throw new Exception()
+    }
+
+    ClassUsage(String sourceFileURI, VariableExpression expression) {
+        this.sourceFileURI = sourceFileURI
+        this.referencedClassName = expression.getType().getName()
+        initPosition(expression)
+    }
+
     ClassUsage(String sourceFileURI, DeclarationExpression expression) {
         this.sourceFileURI = sourceFileURI
         this.referencedClassName = expression.getLeftExpression().getType().getName()
@@ -39,6 +49,11 @@ class ClassUsage implements HasLocation {
         this.sourceFileURI = sourceFileURI
         this.referencedClassName = node.getReturnType().getName()
         initPosition(node)
+    }
+    ClassUsage(String sourceFileURI, StaticMethodCallExpression expression ) {
+        this.sourceFileURI = sourceFileURI
+        this.referencedClassName = expression.type.name
+        initPosition(expression)
     }
 
     void initPosition(ASTNode node) {

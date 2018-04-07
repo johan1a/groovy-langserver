@@ -1,14 +1,13 @@
-package org.gls.lang
 
-import groovy.transform.TypeChecked
+
 import groovy.util.logging.Slf4j
+import org.gls.lang.*
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.*
 
 @Slf4j
-@TypeChecked
 class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
@@ -71,7 +70,6 @@ class ReferenceFinder {
         FuncDefinition definition = findMatchingDefinition(definitions, params) as FuncDefinition
         if (definition != null) {
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            def fuck = allFuncCalls.findAll{ it.functionName == definition.functionName }
             Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
             return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
         }

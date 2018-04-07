@@ -84,8 +84,8 @@ class FunctionSpec extends Specification {
         range.start.line == _expectedLine
         range.start.character == _expectedChar
         where:
-        _dir  | _pos                | _class               | _expectedLine | _expectedChar
-        9     | new Position(7, 28) | "ClassDefinition1"   | 4             | 31
+        _dir  | _pos                 | _class               | _expectedLine | _expectedChar
+        9     | new Position(7, 28)  | "ClassDefinition1"   | 4             | 31
         10    | new Position(11, 17) | "FunctionReference" | 8             | 15
     }
 
@@ -103,15 +103,17 @@ class FunctionSpec extends Specification {
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-        indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> references = finder.getReferences(params)
 
         then:
-        references.size() == 4
+        errors.isEmpty()
+        references.size() == _expected
 
         where:
-        _dir              | _pos                  | _class
-        'functions/1'     | new Position(16, 28)  | "MultipleFuncRefs1"
+        _dir              | _pos                  | _class               |  _expected
+        'functions/1'     | new Position(16, 28)  | "MultipleFuncRefs1"  |  4
+        'functions/2'     | new Position(64, 25)  | "ReferenceFinder"    |  1
     }
 
 }

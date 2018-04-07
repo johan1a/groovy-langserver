@@ -34,6 +34,10 @@ class VarDefinition implements HasLocation {
         initPosition(node)
     }
 
+    VarDefinition(String sourceFileURI, Expression node) {
+        throw new Exception()
+    }
+
     VarDefinition(String sourceFileURI, VariableExpression node) {
         this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
