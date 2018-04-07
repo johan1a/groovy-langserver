@@ -18,19 +18,23 @@ class FuncCall implements HasLocation {
     int lastLineNumber
 
     String functionName
-    VarUsage receiver
 
     String definingClass
     List<String> argumentTypes
 
-    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
+    FuncCall(String sourceFileURI, ClassNode currentClassNode, StaticMethodCallExpression call) {
         this.sourceFileURI = sourceFileURI
-        this.receiver = receiver
         functionName = call.getMethodAsString()
         initPosition(call)
+        definingClass = currentClassNode.getName()
+        initArguments(call.getArguments())
+    }
 
+    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
+        this.sourceFileURI = sourceFileURI
+        functionName = call.getMethodAsString()
+        initPosition(call)
         initDefiningClass(currentClassNode, receiver)
-
         initArguments(call.getArguments())
     }
 

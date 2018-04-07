@@ -274,12 +274,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitStaticMethodCallExpression(StaticMethodCallExpression expression){
-        finder.addClassUsage(new ClassUsage(sourceFileURI, expression))
-        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, currentClassNode.getName(), expression))
-        expression.arguments.each { Expression it ->
-            finder.addVarDefinition( new VarDefinition(sourceFileURI, it))
-            finder.addClassUsage(new ClassUsage(sourceFileURI, it))
-        }
+        finder.addFuncCall(new FuncCall(sourceFileURI, currentClassNode, expression))
         super.visitStaticMethodCallExpression(expression)
     }
 

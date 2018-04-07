@@ -114,6 +114,8 @@ class FunctionSpec extends Specification {
         _dir              | _pos                  | _class               |  _expected
         'functions/1'     | new Position(16, 28)  | "MultipleFuncRefs1"  |  4
         'functions/2'     | new Position(64, 25)  | "ReferenceFinder"    |  1
+        'functions/2'     | new Position(158, 49) | "ReferenceFinder"    |  3
+        'functions/2'     | new Position(65, 25)  | "ReferenceFinder"    |  1
     }
 
 }

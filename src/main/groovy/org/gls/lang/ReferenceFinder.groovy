@@ -71,7 +71,6 @@ class ReferenceFinder {
         FuncDefinition definition = findMatchingDefinition(definitions, params) as FuncDefinition
         if (definition != null) {
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            def fuck = allFuncCalls.findAll{ it.functionName == definition.functionName }
             Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
             return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
         }
