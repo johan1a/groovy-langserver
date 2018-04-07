@@ -1,4 +1,4 @@
-
+package two
 
 import groovy.util.logging.Slf4j
 import org.gls.lang.*

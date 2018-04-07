@@ -49,19 +49,19 @@ class FunctionSpec extends Specification {
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-        indexer.index()
+        def errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 
         then:
+        errors.isEmpty()
         definitions.size() == 1
-
         Range range = definitions.first().range
         range.start == _expected
 
         where:
-        _dir              | _pos                  | _class               |  _expected
-        "9"               | new Position(4, 36)   | "ClassDefinition1"   |  new Position(7, 4)
-        'functions/2'     | new Position(72, 46)  | "ReferenceFinder"    |  new Position(142, 4)
+        _dir              | _pos                    | _class               |  _expected
+        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 4)
+        'functions/two'     | new Position(72, 46)  | "ReferenceFinder"    |  new Position(142, 4)
     }
 
     def "Function reference 1"() {
@@ -115,11 +115,11 @@ class FunctionSpec extends Specification {
         references.size() == _expected
 
         where:
-        _dir              | _pos                  | _class               |  _expected
-        'functions/1'     | new Position(16, 28)  | "MultipleFuncRefs1"  |  4
-        'functions/2'     | new Position(64, 25)  | "ReferenceFinder"    |  1
-        'functions/2'     | new Position(158, 49) | "ReferenceFinder"    |  3
-        'functions/2'     | new Position(65, 25)  | "ReferenceFinder"    |  1
+        _dir                | _pos                  | _class               |  _expected
+        'functions/1'       | new Position(16, 28)  | "MultipleFuncRefs1"  |  4
+        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
+        'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
+        'functions/two'     | new Position(65, 25)  | "ReferenceFinder"    |  1
     }
 
 }
