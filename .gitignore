@@ -1,4 +1,5 @@
 .gradle
+.idea
 *.log*
 build
 tags
