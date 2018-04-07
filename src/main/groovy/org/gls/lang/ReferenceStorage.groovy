@@ -30,8 +30,7 @@ class ReferenceStorage {
     }
 
     void addFuncCall(FuncCall call) {
-        Set<FuncCall> calls = getFuncCalls()
-        calls.add(call)
+        getFuncCalls().add(call)
     }
 
     void addClassUsage(ClassUsage reference) {

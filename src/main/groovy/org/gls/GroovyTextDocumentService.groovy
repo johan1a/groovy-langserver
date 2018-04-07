@@ -21,9 +21,9 @@ import org.eclipse.lsp4j.*
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
     private ReferenceFinder finder
-    private List<File> savedFiles = new LinkedList<>()
     private LanguageClient client
     private GroovyIndexer indexer
+    FileWatcher fileWacher = new FileWatcher()
 
     void setReferenceStorage(ReferenceFinder finder) {
         this.finder = finder
@@ -152,28 +152,27 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
-        log.info "didOpen"
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+        fileWacher.didOpen(params)
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
-        log.info "didChange"
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+        fileWacher.didChange(params)
     }
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
-        log.info "didClose"
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+        fileWacher.didClose(params)
     }
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
-        log.info "didSave"
         try {
-            String path = params.textDocument.uri.replace("file:/", "")
-            savedFiles.add(new File(path))
-            Map<String, List<Diagnostic> > diagnostics = indexer.index()
-            sendDiagnostics(diagnostics, client)
-            savedFiles.clear()
+            params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+            fileWacher.didSave(params)
         } catch (Exception e) {
             log.error("error", e)
         }

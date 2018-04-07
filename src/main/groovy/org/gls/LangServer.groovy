@@ -45,7 +45,6 @@ class LangServer implements LanguageServer {
 
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
-        log.info "initialize: ${initializeParams}"
         textDocumentService.showClientMessage("Initializing langserver capabilities...")
 
         List<URI> sourcePaths = [new URI(initializeParams.getRootUri() + "/src/main/groovy"),
