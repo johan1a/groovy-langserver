@@ -29,8 +29,8 @@ class ReferenceFinder {
         storage.addVarUsage(usage)
     }
 
-    void addFuncDefinition(String filePath, FuncDefinition funcDefinition) {
-        storage.addFuncDefinitionToFile(filePath, funcDefinition)
+    void addFuncDefinition(FuncDefinition funcDefinition) {
+        storage.addFuncDefinitionToFile(funcDefinition)
     }
 
     void addFuncCall(FuncCall funcCall) {
@@ -38,7 +38,7 @@ class ReferenceFinder {
     }
 
     void addVarDefinition(VarDefinition definition) {
-        storage.addVarDefinitionToFile(definition.sourceFileURI, definition)
+        storage.addVarDefinitionToFile(definition)
     }
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
@@ -54,17 +54,17 @@ class ReferenceFinder {
     }
 
     List<Location> getReferences(ReferenceParams params) {
-        String uri = params.textDocument.uri.replace("file://", "")
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
 
-        List<Location> varReferences = getVarReferences(uri, params)
+        List<Location> varReferences = getVarReferences(params)
         if(!varReferences.isEmpty()) {
             return varReferences
         }
-        return getFuncReferences(uri, params)
+        return getFuncReferences(params)
     }
 
-    List<Location> getFuncReferences(String uri, ReferenceParams params) {
-        Set<FuncDefinition> definitions = storage.getFuncDefinitionsByFile(uri)
+    List<Location> getFuncReferences(ReferenceParams params) {
+        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
         if (definitions == null) {
             return []
         }
@@ -76,8 +76,8 @@ class ReferenceFinder {
         }
         return []
     }
-    private List<Location> getVarReferences(String uri, ReferenceParams params) {
-        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(uri)
+    private List<Location> getVarReferences(ReferenceParams params) {
+        Set<VarDefinition> definitions = storage.getVarDefinitions()
         if (definitions == null) {
             return []
         }
@@ -97,7 +97,7 @@ class ReferenceFinder {
         if (matchingFuncCall == null) {
             return []
         }
-        Set<FuncDefinition> definitions = storage.getFuncDefinitionsByFile(matchingFuncCall.sourceFileURI)
+        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
         FuncDefinition definition = findMatchingFuncDefinition(definitions, matchingFuncCall)
         if (definition == null) {
             return []
@@ -112,7 +112,7 @@ class ReferenceFinder {
         if (matchingUsage == null) {
             return []
         }
-        Set<VarDefinition> definitions = storage.getVarDefinitionsByFile(matchingUsage.sourceFileURI)
+        Set<VarDefinition> definitions = storage.getVarDefinitions()
         VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
         if (definition == null) {
             return []
@@ -147,7 +147,6 @@ class ReferenceFinder {
         funcCalls.findAll{ it.definingClass == definition.definingClass && it.functionName == definition.functionName && it.argumentTypes == definition.parameterTypes }
     }
 
-
     static FuncDefinition findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
         return definitions.find {
             it.definingClass == reference.definingClass && it.functionName == reference.functionName && it.parameterTypes == reference.argumentTypes
@@ -168,7 +167,7 @@ class ReferenceFinder {
 
     static <T extends HasLocation> T findMatchingDefinition(Set<? extends HasLocation> definitions, ReferenceParams params) {
         return definitions.find {
-            it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
+            it.getSourceFileURI() == params.textDocument.uri && it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
         }
     }
 }

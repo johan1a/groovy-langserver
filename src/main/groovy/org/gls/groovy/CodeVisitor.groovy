@@ -9,7 +9,6 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.SourceUnit
 import org.gls.lang.*
-import org.gls.lang.ReferenceStorage
 
 @Slf4j
 @TypeChecked
@@ -51,7 +50,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitMethod(MethodNode node){
         finder.addClassUsage(new ClassUsage(sourceFileURI, node))
-        finder.addFuncDefinition(sourceFileURI, new FuncDefinition(sourceFileURI, currentClassNode.getName(), node))
+        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, currentClassNode.getName(), node))
         node.parameters.each { Parameter it ->
             finder.addVarDefinition( new VarDefinition(sourceFileURI, it))
             finder.addClassUsage(new ClassUsage(sourceFileURI, it))

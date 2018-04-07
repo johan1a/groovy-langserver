@@ -16,9 +16,9 @@ class ReferenceStorage {
     // Key is soure file uri
     private Map<String, Set<ClassUsage> > classUsages = new HashMap<>()
     private Map<String, Set<VarUsage> > varUsages = new HashMap<>()
-    private Map<String, Set<VarDefinition> > varDefinitionsByFile = new HashMap<>()
+    private Set<VarDefinition> varDefinitions = new HashSet<>()
 
-    private Map<String, Set<FuncDefinition> > funcDefinitionsByFile = new HashMap<>()
+    private Set<FuncDefinition> funcDefinitions = new HashSet<>()
     private Map<String, Set<FuncCall> > funcCallsByFile = new HashMap<>()
 
     void addVarUsage(VarUsage usage) {
@@ -30,22 +30,12 @@ class ReferenceStorage {
         usages.add(usage)
     }
 
-    Set<VarDefinition> getVarDefinitionsByFile(String filePath) {
-        Set<VarDefinition> definitions = varDefinitionsByFile.get(filePath)
-        if(definitions == null) {
-            definitions = new HashSet<>()
-            varDefinitionsByFile.put(filePath, definitions)
-        }
-        return definitions
+    Set<VarDefinition> getVarDefinitions() {
+        return varDefinitions
     }
 
-    Set<FuncDefinition> getFuncDefinitionsByFile(String filePath) {
-        Set<FuncDefinition> definitions = funcDefinitionsByFile.get(filePath)
-        if(definitions == null) {
-            definitions = new HashSet<>()
-            funcDefinitionsByFile.put(filePath, definitions)
-        }
-        return definitions
+    Set<FuncDefinition> getFuncDefinitions() {
+        return funcDefinitions
     }
 
     Set<FuncCall> getFuncCallsByFile(String filePath) {
@@ -57,12 +47,12 @@ class ReferenceStorage {
         return calls
     }
 
-    void addVarDefinitionToFile(String filePath, VarDefinition varDefinition) {
-        getVarDefinitionsByFile(filePath).add(varDefinition)
+    void addVarDefinitionToFile(VarDefinition varDefinition) {
+        getVarDefinitions().add(varDefinition)
     }
 
-    void addFuncDefinitionToFile(String filePath, FuncDefinition funcDefinition) {
-        getFuncDefinitionsByFile(filePath).add(funcDefinition)
+    void addFuncDefinitionToFile(FuncDefinition funcDefinition) {
+        getFuncDefinitions().add(funcDefinition)
     }
 
     void addFuncCall(FuncCall call) {
