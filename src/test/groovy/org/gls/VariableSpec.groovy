@@ -55,10 +55,10 @@ class VariableSpec extends Specification {
         String dirPath = "src/test/test-files/6"
 
         ReferenceParams params = new ReferenceParams()
-        Position position = new Position(3, 11)
+        Position position = _position
         params.position = position
 
-        String filePath = new File(dirPath + "/FindReference2.groovy").getCanonicalPath()
+        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
@@ -70,6 +70,10 @@ class VariableSpec extends Specification {
         then:
         references.size() == 1
         references.find { it.range.start.line == 7 } != null
+
+        where:
+        _class | _position | _expectedNbr | _expectedLine
+        "FindReference2" | new Position(3, 11) | 1 | 7
     }
 
 
