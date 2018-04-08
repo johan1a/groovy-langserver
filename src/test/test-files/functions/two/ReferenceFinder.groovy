@@ -1,11 +1,11 @@
 package two
-
 import groovy.util.logging.Slf4j
 import org.gls.lang.*
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.*
+import two.ReferenceStorage
 
 @Slf4j
 class ReferenceFinder {

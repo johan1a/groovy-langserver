@@ -119,7 +119,6 @@ class ReferenceFinder {
     }
 
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
-        String path = params.textDocument.uri.replace("file://", "")
         Set<ClassUsage> references = storage.getClassUsages()
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         log.info "matchingReference: $matchingReference"

@@ -63,7 +63,7 @@ class DefinitionSpec extends Specification {
         usage.lastColumnNumber == 23
     }
 
-    def "Function definition 2"() {
+    def "Find definition"() {
         given:
         ReferenceFinder finder = new ReferenceFinder()
         String dirPath = "src/test/test-files/${_dir}"
@@ -90,7 +90,9 @@ class DefinitionSpec extends Specification {
         where:
         _dir              | _pos                    | _class               |  _expected             | _end
         "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
-        'functions/two'   | new Position(72, 46)  | "ReferenceFinder"      |  new Position(142, 25) | 45
+        'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
+        'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
+        'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
     }
 
     def "Test method argument"() {

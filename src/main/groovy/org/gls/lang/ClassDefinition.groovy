@@ -3,6 +3,7 @@ package org.gls.lang
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.GroovyCodeVisitor
 import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.*
@@ -36,8 +37,8 @@ class ClassDefinition implements HasLocation {
         this.sourceFileURI = sourceFileURI
     }
 
-    private void initPosition(List<String> source, ASTNode node) {
-        lineNumber = node.lineNumber - 1
+    private void initPosition(List<String> source, AnnotatedNode node) {
+        lineNumber = node.lineNumber - 1 + node.getAnnotations().size()
         lastLineNumber = node.lastLineNumber - 1
         if(lineNumber > 0 ){
             String firstLine = source[lineNumber]
