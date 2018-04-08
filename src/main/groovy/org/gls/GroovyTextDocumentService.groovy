@@ -7,6 +7,9 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.TextDocumentService
+import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ReferenceFinder
 
@@ -92,9 +95,10 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     List<Location> externalURIs(List<Location> locations) {
-        locations.collect{ it
-            it.uri = "file://" + it.uri
-            it
+        locations.collect { location ->
+            Position start = new Position(location.range.start.line, location.range.start.character)
+            Position end = new Position(location.range.end.line, location.range.end.character)
+            return new Location("file://" + location.uri, new Range(start, end))
         }
     }
 

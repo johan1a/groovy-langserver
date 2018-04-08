@@ -94,6 +94,7 @@ class ReferenceFinder {
     List<Location> getFuncDefinition(TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
         FuncCall matchingFuncCall = findMatchingReference(references, params) as FuncCall
+        log.info "matching func ref: $matchingFuncCall"
         if (matchingFuncCall == null) {
             return []
         }
@@ -107,7 +108,10 @@ class ReferenceFinder {
 
     private List<Location> getVarDefinition(TextDocumentPositionParams params) {
         Set<VarUsage> references = storage.getVarUsages()
+        log.info "var refs size: ${references.size()}"
+        references.findAll{ it.varName == "storage"}.each { log.info("debug print: $it")}
         VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
+        log.info "matching var ref: $matchingUsage"
         if (matchingUsage == null) {
             return []
         }
@@ -122,7 +126,7 @@ class ReferenceFinder {
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         Set<ClassUsage> references = storage.getClassUsages()
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
-        log.info "matchingReference: $matchingReference"
+        log.info "matching class ref: $matchingReference"
         if (matchingReference == null) {
             return []
         }
@@ -180,6 +184,12 @@ class ReferenceFinder {
 
     static <T extends HasLocation> T findMatchingDefinition(Set<? extends HasLocation> definitions, ReferenceParams params) {
         return definitions.find {
+            if(it.getSourceFileURI() == params.textDocument.uri &&
+                    it.lineNumber <= params.position.line) {
+                log.info("during search: $it")
+            }
+
+
             it.getSourceFileURI() == params.textDocument.uri &&
                     it.columnNumber <= params.position.character &&
                     it.lastColumnNumber >= params.position.character &&

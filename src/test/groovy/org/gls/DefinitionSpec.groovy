@@ -3,6 +3,7 @@ package org.gls
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassUsage
+import org.gls.lang.ImmutablePosition
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -19,7 +20,7 @@ class DefinitionSpec extends Specification {
         String dirPath = "src/test/test-files/8"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
-        Position position = new Position(4, 13)
+        ImmutablePosition position = new ImmutablePosition(4, 13)
         params.position = position
 
         String filePath = new File(dirPath + "/FunctionDefinition.groovy").getCanonicalPath()
@@ -43,7 +44,7 @@ class DefinitionSpec extends Specification {
         String dirPath = "src/test/test-files/9"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
-        Position position = new Position(4, 21)
+        ImmutablePosition position = new ImmutablePosition(4, 21)
         params.position = position
 
         String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
@@ -59,7 +60,7 @@ class DefinitionSpec extends Specification {
         definitions.size() == 1
         definitions.first().range.start.line == 1
         usages.size() == 3
-        ClassUsage usage = usages.find{ it.lineNumber == 4}
+        ClassUsage usage = usages.find { it.lineNumber == 4 }
         usage.columnNumber == 8
         usage.lastColumnNumber == 23
     }
@@ -70,7 +71,7 @@ class DefinitionSpec extends Specification {
         String dirPath = "src/test/test-files/${_dir}"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
-        Position position = _pos
+        ImmutablePosition position = _pos
         params.position = position
 
         String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
@@ -90,11 +91,11 @@ class DefinitionSpec extends Specification {
         range.end.character == _end
 
         where:
-        _dir              | _pos                    | _class               |  _expected             | _end
-        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
-        'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
-        'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
-        'functions/two'   | new Position(19, 8)     | "ReferenceFinder"    |  new Position(12, 21)  | 27
+        _dir            | _pos                          | _class             | _expected                      | _end
+        "9"             | new ImmutablePosition(4, 36)  | "ClassDefinition1" | new ImmutablePosition(7, 21)   | 31
+        'functions/two' | new ImmutablePosition(72, 46) | "ReferenceFinder"  | new ImmutablePosition(142, 25) | 45
+        'functions/two' | new ImmutablePosition(12, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 6)   | 21
+        'functions/two' | new ImmutablePosition(19, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
     }
 
     def "Repeated query"() {
@@ -102,7 +103,7 @@ class DefinitionSpec extends Specification {
         String dirPath = "src/test/test-files/functions/two"
 
         TextDocumentPositionParams params1 = new TextDocumentPositionParams()
-        Position position1 = new Position(72, 46)
+        ImmutablePosition position1 = new ImmutablePosition(72, 46)
         params1.position = position1
 
         String filePath = new File(dirPath + "/ReferenceFinder.groovy").getCanonicalPath()
@@ -119,23 +120,24 @@ class DefinitionSpec extends Specification {
         definitions1.size() == 1
         definitions1.first().uri.startsWith("/")
         Range range1 = definitions1.first().range
-        range1.start == new Position(142, 25)
+        range1.start == new ImmutablePosition(142, 25)
         range1.end.character == 45
 
         when:
         ReferenceParams params2 = new ReferenceParams()
         params2.setTextDocument(new TextDocumentIdentifier(filePath))
-        Position position2 = new Position(12, 25)
+        ImmutablePosition position2 = new ImmutablePosition(12, 25)
         params2.position = position2
         List<Location> definitions2 = finder.getReferences(params2)
 
         then:
+        finder.storage.varUsages.every { it.location.uri.startsWith("/") }
+        finder.storage.varDefinitions.every { it.location.uri.startsWith("/") }
         definitions1.size() == 1
         definitions1.first().uri.startsWith("/")
         Range range2 = definitions2.first().range
-        range2.start == new Position(15, 15)
+        range2.start == new ImmutablePosition(15, 15)
         range2.end.character == 21
-
 
 
     }
@@ -146,7 +148,7 @@ class DefinitionSpec extends Specification {
         String dirPath = "src/test/test-files/7"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
-        Position position = new Position(12, 18)
+        ImmutablePosition position = new ImmutablePosition(12, 18)
         params.position = position
 
         String filePath = new File(dirPath + "/MethodArgument.groovy").getCanonicalPath()
@@ -163,7 +165,6 @@ class DefinitionSpec extends Specification {
         definitions.size() == 1
         definitions.first().range.start.line == 11
     }
-
 
 
 }

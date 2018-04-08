@@ -13,8 +13,8 @@ trait HasLocation {
     abstract String getSourceFileURI()
 
     Location getLocation() {
-        Position start = new Position(getLineNumber(), getColumnNumber())
-        Position end = new Position(getLastLineNumber(), getLastColumnNumber())
-        return new Location(getSourceFileURI(), new Range(start, end))
+        ImmutablePosition start = new ImmutablePosition(getLineNumber(), getColumnNumber())
+        ImmutablePosition end = new ImmutablePosition(getLastLineNumber(), getLastColumnNumber())
+        return new ImmutableLocation(getSourceFileURI(), new ImmutableRange(start, end))
     }
 }

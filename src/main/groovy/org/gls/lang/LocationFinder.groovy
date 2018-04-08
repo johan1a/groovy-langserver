@@ -25,11 +25,10 @@ class LocationFinder {
             columnNumber = node.columnNumber
             lastColumnNumber = node.lastColumnNumber
         }
-        Position start = new Position(lineNumber, columnNumber)
-        Position end = new Position(lastLineNumber, lastColumnNumber)
+        Position start = new ImmutablePosition(lineNumber, columnNumber)
+        Position end = new ImmutablePosition(lastLineNumber, lastColumnNumber)
 
-        Range range = new Range(start, end)
-        Location location = new Location(sourceFilePath, range)
-        return location
+        Range range = new ImmutableRange(start, end)
+        return new ImmutableLocation(sourceFilePath, range)
     }
 }
