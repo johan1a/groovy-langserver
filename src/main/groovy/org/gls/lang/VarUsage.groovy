@@ -6,16 +6,18 @@ import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.*
 import groovy.transform.TypeChecked
+import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
 class VarUsage implements HasLocation {
 
-    String sourceFileURI
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
 
     String varName
     String typeName
@@ -23,32 +25,21 @@ class VarUsage implements HasLocation {
     Optional<String> declaringClass = Optional.empty()
 
     VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
-        this.sourceFileURI = sourceFileURI
 
         if(expression instanceof ClassExpression) {
             initDeclarationReference(currentClass, expression as ClassExpression)
         } else if (expression instanceof VariableExpression) {
             initDeclarationReference(currentClass, expression as VariableExpression)
         }
-        initPosition(source, expression)
+        if (varName != null) {
+            this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
+        }
     }
 
     VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
-        this.sourceFileURI = sourceFileURI
         initDeclarationReference(currentClass, expression)
-        initPosition(source, expression)
-    }
-
-    private void initPosition(List<String> source, ASTNode node) {
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
-        if(lineNumber > 0 && varName != null){
-            String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(varName, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + varName.size() - 1
-        } else {
-            columnNumber = node.columnNumber
-            lastColumnNumber = node.lastColumnNumber
+        if (varName != null) {
+            this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
         }
     }
 

@@ -65,8 +65,6 @@ class GroovyIndexer {
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
             diagnostics = getDiagnostics(e.getErrorCollector())
-        } catch (Exception e) {
-            log.error("error", e)
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics

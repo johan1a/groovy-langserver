@@ -27,11 +27,12 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-        indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 
 
         then:
+        errors.isEmpty()
         definitions.size() == 1
         definitions.first().range.start.line == 3
     }
@@ -89,10 +90,10 @@ class DefinitionSpec extends Specification {
 
         where:
         _dir              | _pos                    | _class               |  _expected             | _end
-        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
+       // "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
         'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
-        'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
-        'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
+        //'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
+        //'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
     }
 
     def "Test method argument"() {
@@ -109,11 +110,12 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-        indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 
 
         then:
+        errors.isEmpty()
         definitions.size() == 1
         definitions.first().range.start.line == 11
     }

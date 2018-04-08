@@ -4,17 +4,13 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.*
 import org.eclipse.lsp4j.jsonrpc.messages.Either
-import org.eclipse.lsp4j.services.TextDocumentService
-import org.gls.lang.ReferenceFinder
-import org.eclipse.lsp4j.services.LanguageClientAware
-import java.util.concurrent.CompletableFuture
-import org.gls.groovy.GroovyIndexer
-import org.codehaus.groovy.control.messages.*
 import org.eclipse.lsp4j.services.LanguageClient
-import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.control.ErrorCollector
-import org.codehaus.groovy.syntax.SyntaxException
-import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.services.LanguageClientAware
+import org.eclipse.lsp4j.services.TextDocumentService
+import org.gls.groovy.GroovyIndexer
+import org.gls.lang.ReferenceFinder
+
+import java.util.concurrent.CompletableFuture
 
 @Slf4j
 @TypeChecked
