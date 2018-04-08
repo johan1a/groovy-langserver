@@ -2,6 +2,7 @@ package org.gls
 
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
+import org.gls.lang.ClassUsage
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -9,7 +10,7 @@ import spock.lang.Unroll
 import static org.gls.util.TestUtil.uriList
 
 @Unroll
-class FunctionSpec extends Specification {
+class DefinitionSpec extends Specification {
 
 
     def "Function definition"() {
@@ -33,6 +34,33 @@ class FunctionSpec extends Specification {
         then:
         definitions.size() == 1
         definitions.first().range.start.line == 3
+    }
+
+    def "Class definition"() {
+        given:
+        ReferenceFinder finder = new ReferenceFinder()
+        String dirPath = "src/test/test-files/9"
+
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(4, 21)
+        params.position = position
+
+        String filePath = new File(dirPath + "/ClassDefinition1.groovy").getCanonicalPath()
+        params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        indexer.index()
+        List<Location> definitions = finder.getDefinition(params)
+        Set<ClassUsage> usages = finder.storage.getClassUsages()
+
+        then:
+        definitions.size() == 1
+        definitions.first().range.start.line == 1
+        usages.size() == 3
+        ClassUsage usage = usages.find{ it.lineNumber == 4}
+        usage.columnNumber == 8
+        usage.lastColumnNumber == 23
     }
 
     def "Function definition 2"() {
@@ -65,62 +93,29 @@ class FunctionSpec extends Specification {
         'functions/two'   | new Position(72, 46)  | "ReferenceFinder"      |  new Position(142, 25) | 45
     }
 
-    def "Function reference 1"() {
+    def "Test method argument"() {
         given:
         ReferenceFinder finder = new ReferenceFinder()
-        String dirPath = "src/test/test-files/${_dir}"
+        String dirPath = "src/test/test-files/7"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = _pos
+        TextDocumentPositionParams params = new TextDocumentPositionParams()
+        Position position = new Position(12, 18)
         params.position = position
 
-        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
+        String filePath = new File(dirPath + "/MethodArgument.groovy").getCanonicalPath()
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
         indexer.index()
-        List<Location> definitions = finder.getReferences(params)
+        List<Location> definitions = finder.getDefinition(params)
+
 
         then:
         definitions.size() == 1
-
-        Range range = definitions.first().range
-        range.start.line == _expectedLine
-        range.start.character == _expectedChar
-        where:
-        _dir  | _pos                 | _class               | _expectedLine | _expectedChar
-        9     | new Position(7, 28)  | "ClassDefinition1"   | 4             | 31
-        10    | new Position(11, 17) | "FunctionReference" | 8             | 15
+        definitions.first().range.start.line == 11
     }
 
-    def "Multiple function references 1"() {
-        given:
-        ReferenceFinder finder = new ReferenceFinder()
-        String dirPath = "src/test/test-files/${_dir}"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = _pos
-        params.position = position
-
-        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-        params.setTextDocument(new TextDocumentIdentifier(filePath))
-
-        when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
-        Map<String, List<Diagnostic>> errors = indexer.index()
-        List<Location> references = finder.getReferences(params)
-
-        then:
-        errors.isEmpty()
-        references.size() == _expected
-
-        where:
-        _dir                | _pos                  | _class               |  _expected
-        'functions/1'       | new Position(16, 23)  | "MultipleFuncRefs1"  |  4
-        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
-        'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
-        'functions/two'     | new Position(65, 25)  | "ReferenceFinder"    |  1
-    }
 
 }

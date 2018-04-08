@@ -25,7 +25,7 @@ class IndexerSpec extends Specification {
         String path = "src/test/test-files/5"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(TestUtil.uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
         then:
