@@ -11,9 +11,9 @@ import org.eclipse.lsp4j.*
 @TypeChecked
 class ReferenceFinder {
 
-   ReferenceStorage storage = new ReferenceStorage()
+    ReferenceStorage storage = new ReferenceStorage()
 
-   Set<ClassUsage> getClassUsages(String fileUri) {
+    Set<ClassUsage> getClassUsages(String fileUri) {
         return storage.getClassUsages()
     }
 
@@ -43,21 +43,20 @@ class ReferenceFinder {
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
         List<Location> varDefinitions = getVarDefinition(params)
-        if(!varDefinitions.isEmpty()) {
+        if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
         List<Location> classDefinitions = getClassDefinition(params)
-        if (!classDefinitions.isEmpty()){
+        if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
         return getFuncDefinition(params)
     }
 
     List<Location> getReferences(ReferenceParams params) {
-        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
 
         List<Location> varReferences = getVarReferences(params)
-        if(!varReferences.isEmpty()) {
+        if (!varReferences.isEmpty()) {
             return varReferences
         }
         return getFuncReferences(params)
@@ -76,6 +75,7 @@ class ReferenceFinder {
         }
         return []
     }
+
     private List<Location> getVarReferences(ReferenceParams params) {
         Set<VarDefinition> definitions = storage.getVarDefinitions()
         if (definitions == null) {
@@ -125,46 +125,65 @@ class ReferenceFinder {
         if (matchingReference == null) {
             return []
         }
-        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.fullReferencedClassName}
-        if(definition == null) {
+        ClassDefinition definition = storage.getClassDefinitions().find {
+            it.getFullClassName() == matchingReference.fullReferencedClassName
+        }
+        if (definition == null) {
             return []
         }
-        def start = new Position(definition.lineNumber, definition.columnNumber)
-        def end = new Position(definition.lastLineNumber, definition.lastColumnNumber)
-        return Arrays.asList(new Location(definition.getSourceFileURI(), new Range(start, end)))
+        return Arrays.asList(definition.getLocation())
     }
 
     static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
         return varUsages.findAll {
-            it.getSourceFileURI() == varDefinition.getSourceFileURI() && it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
+            it.getSourceFileURI() == varDefinition.getSourceFileURI() &&
+                    it.typeName == varDefinition.typeName &&
+                    it.definitionLineNumber == varDefinition.lineNumber
         }
     }
 
     static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
-        funcCalls.findAll{ it.definingClass == definition.definingClass && it.functionName == definition.functionName && it.argumentTypes == definition.parameterTypes }
+        funcCalls.findAll {
+            it.definingClass == definition.definingClass &&
+                    it.functionName == definition.functionName &&
+                    it.argumentTypes == definition.parameterTypes
+        }
     }
 
     static FuncDefinition findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
         return definitions.find {
-            it.definingClass == reference.definingClass && it.functionName == reference.functionName && it.parameterTypes == reference.argumentTypes
+            it.definingClass == reference.definingClass &&
+                    it.functionName == reference.functionName &&
+                    it.parameterTypes == reference.argumentTypes
         }
     }
 
     static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
         return definitions.find {
-            it.getSourceFileURI() == reference.getSourceFileURI() && it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
+            it.getSourceFileURI() == reference.getSourceFileURI() &&
+                    it.typeName == reference.typeName &&
+                    it.varName == reference.varName &&
+                    it.lineNumber == reference.definitionLineNumber
         }
     }
 
     static <T extends HasLocation> T findMatchingReference(Set<? extends HasLocation> references, TextDocumentPositionParams params) {
         return references.find {
-            it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
+            it.getSourceFileURI() == params.textDocument.uri &&
+            it.columnNumber <= params.position.character &&
+                    it.lastColumnNumber >= params.position.character &&
+                    it.lineNumber <= params.position.line &&
+                    it.lastLineNumber >= params.position.line
         }
     }
 
     static <T extends HasLocation> T findMatchingDefinition(Set<? extends HasLocation> definitions, ReferenceParams params) {
         return definitions.find {
-            it.getSourceFileURI() == params.textDocument.uri && it.columnNumber <= params.position.character && it.lastColumnNumber >= params.position.character && it.lineNumber <= params.position.line && it.lastLineNumber >= params.position.line
+            it.getSourceFileURI() == params.textDocument.uri &&
+                    it.columnNumber <= params.position.character &&
+                    it.lastColumnNumber >= params.position.character &&
+                    it.lineNumber <= params.position.line &&
+                    it.lastLineNumber >= params.position.line
         }
     }
 }

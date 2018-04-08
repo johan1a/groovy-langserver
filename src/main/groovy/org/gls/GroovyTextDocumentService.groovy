@@ -83,6 +83,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         log.info "references: ${params}"
         try {
             def references = finder.getReferences(params)

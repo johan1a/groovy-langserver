@@ -16,19 +16,19 @@ class FileWatcher {
     Map<String, String> changedFiles = new HashMap<>()
 
     void didSave(DidSaveTextDocumentParams params) {
-        log.info("didSave: $params")
+        log.info("didSave: ")
         changedFiles.remove(params.textDocument.uri)
     }
 
     void didChange(DidChangeTextDocumentParams params) {
-        log.info("didChange: $params")
+        log.info("didChange: ")
         TextDocumentContentChangeEvent event = params.contentChanges.first()
         log.info(event.text)
         changedFiles.put(params.textDocument.uri, event.text)
     }
 
     void didClose(DidCloseTextDocumentParams params) {
-        log.info("didClose: $params")
+        log.info("didClose: ")
         changedFiles.remove(params.textDocument.uri)
     }
 
