@@ -5,30 +5,33 @@ import org.codehaus.groovy.ast.ASTNode
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.*
+import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
 class ClassUsage implements HasLocation {
 
-    String sourceFileURI
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
+
     String fullReferencedClassName
-    String referencedClassName
+
+    String getShortReferencedClassName() {
+        return fullReferencedClassName.split("\\.").last()
+    }
 
     ClassUsage(String sourceFileURI, List<String> source, Parameter node) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = node.getType().getName()
-        referencedClassName = fullReferencedClassName.split("\\.").last()
-        initPosition(node, source)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
     ClassUsage(String sourceFileURI, List<String> source, FieldNode node) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = node.getType().getName()
-        initPosition(node, source)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
     ClassUsage(String sourceFileURI, Expression expression) {
@@ -36,39 +39,22 @@ class ClassUsage implements HasLocation {
     }
 
     ClassUsage(String sourceFileURI, List<String> source, VariableExpression expression) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = expression.getType().getName()
-        initPosition(expression, source)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
 
     ClassUsage(String sourceFileURI, List<String> source, DeclarationExpression expression) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = expression.getLeftExpression().getType().getName()
-        initPosition(expression, source)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
 
     ClassUsage(String sourceFileURI, List<String> source, MethodNode node) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = node.getReturnType().getName()
-        initPosition(node, source)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
     ClassUsage(String sourceFileURI, List<String> source, StaticMethodCallExpression expression ) {
-        this.sourceFileURI = sourceFileURI
         this.fullReferencedClassName = expression.type.name
-        initPosition(expression, source)
-    }
-
-    private void initPosition(ASTNode node, List<String> source) {
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
-        if(lineNumber > 0 ){
-            String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(fullReferencedClassName, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + fullReferencedClassName.size() - 1
-        } else {
-            columnNumber = node.columnNumber
-            lastColumnNumber = node.lastColumnNumber
-        }
+        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
 
     private static String simpleClassName(String name) {

@@ -42,11 +42,11 @@ class FuncDefinition implements HasLocation {
         throw new Exception()
     }
     void initParameterTypes(ArgumentListExpression arguments) {
-        this.parameterTypes = arguments.collect() { it.getType().name }
+        this.parameterTypes = arguments.collect { it.getType().name }
     }
 
     void initParameterTypes(Parameter[] parameters) {
-        this.parameterTypes = parameters.collect() { it.getType().name }
+        this.parameterTypes = parameters.collect { it.getType().name }
     }
 
     @Override

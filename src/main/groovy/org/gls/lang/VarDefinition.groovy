@@ -16,6 +16,7 @@ import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 
 @Slf4j
+@TypeChecked
 class VarDefinition implements HasLocation {
 
     Location location

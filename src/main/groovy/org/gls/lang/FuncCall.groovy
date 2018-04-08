@@ -5,17 +5,18 @@ import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
 class FuncCall implements HasLocation {
 
-    String sourceFileURI
-
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
 
     String functionName
 
@@ -23,17 +24,15 @@ class FuncCall implements HasLocation {
     List<String> argumentTypes
 
     FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, StaticMethodCallExpression call) {
-        this.sourceFileURI = sourceFileURI
         functionName = call.getMethodAsString()
-        initPosition(source, call)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         definingClass = currentClassNode.getName()
         initArguments(call.getArguments())
     }
 
     FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
-        this.sourceFileURI = sourceFileURI
         functionName = call.getMethodAsString()
-        initPosition(source, call)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         initDefiningClass(currentClassNode, receiver)
         initArguments(call.getArguments())
     }
@@ -73,18 +72,5 @@ class FuncCall implements HasLocation {
     void initArguments(TupleExpression expression) {
         List<Expression> expressions = expression.expressions
         this.argumentTypes = expressions.collect{ it.getType().getName() }
-    }
-
-    private void initPosition(List<String> source, ASTNode node) {
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
-        if(lineNumber > 0 ){
-            String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(functionName, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + functionName.size() - 1
-        } else {
-            columnNumber = node.columnNumber
-            lastColumnNumber = node.lastColumnNumber
-        }
     }
 }
