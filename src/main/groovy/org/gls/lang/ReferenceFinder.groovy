@@ -2,10 +2,8 @@ package org.gls.lang
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
-import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.ReferenceParams
+import org.eclipse.lsp4j.TextDocumentPositionParams
 
 @Slf4j
 @TypeChecked
@@ -41,13 +39,13 @@ class ReferenceFinder {
         storage.addVarDefinitionToFile(definition)
     }
 
-    List<Location> getDefinition(TextDocumentPositionParams params) {
-        List<Location> varDefinitions = getVarDefinition(params)
+    List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
+        List<ImmutableLocation> varDefinitions = getVarDefinition(params)
         log.info("varDefinitions: ${varDefinitions}")
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<Location> classDefinitions = getClassDefinition(params)
+        List<ImmutableLocation> classDefinitions = getClassDefinition(params)
         log.info("classDefinitions: ${classDefinitions}")
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
@@ -55,15 +53,15 @@ class ReferenceFinder {
         return getFuncDefinition(params)
     }
 
-    List<Location> getReferences(ReferenceParams params) {
-        List<Location> varReferences = getVarReferences(params)
+    List<ImmutableLocation> getReferences(ReferenceParams params) {
+        List<ImmutableLocation> varReferences = getVarReferences(params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
         return getFuncReferences(params)
     }
 
-    List<Location> getFuncReferences(ReferenceParams params) {
+    List<ImmutableLocation> getFuncReferences(ReferenceParams params) {
         Set<FuncDefinition> definitions = storage.getFuncDefinitions()
         if (definitions == null) {
             return []
@@ -77,7 +75,7 @@ class ReferenceFinder {
         return []
     }
 
-    private List<Location> getVarReferences(ReferenceParams params) {
+    private List<ImmutableLocation> getVarReferences(ReferenceParams params) {
         Set<VarDefinition> definitions = storage.getVarDefinitions()
         if (definitions == null) {
             return []
@@ -91,7 +89,7 @@ class ReferenceFinder {
         return []
     }
 
-    List<Location> getFuncDefinition(TextDocumentPositionParams params) {
+    List<ImmutableLocation> getFuncDefinition(TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
         FuncCall matchingFuncCall = findMatchingReference(references, params) as FuncCall
         log.info "matching func ref: $matchingFuncCall"
@@ -106,7 +104,7 @@ class ReferenceFinder {
         return Arrays.asList(definition.getLocation())
     }
 
-    private List<Location> getVarDefinition(TextDocumentPositionParams params) {
+    private List<ImmutableLocation> getVarDefinition(TextDocumentPositionParams params) {
         Set<VarUsage> references = storage.getVarUsages()
         log.info "var refs size: ${references.size()}"
         references.findAll{ it.varName == "storage"}.each { log.info("debug print: $it")}
@@ -123,7 +121,7 @@ class ReferenceFinder {
         return Arrays.asList(definition.getLocation())
     }
 
-    private List<Location> getClassDefinition(TextDocumentPositionParams params) {
+    private List<ImmutableLocation> getClassDefinition(TextDocumentPositionParams params) {
         Set<ClassUsage> references = storage.getClassUsages()
         ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
         log.info "matching class ref: $matchingReference"

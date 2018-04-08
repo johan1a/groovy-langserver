@@ -10,12 +10,7 @@ import org.eclipse.lsp4j.Location
 
 class FuncDefinition implements HasLocation {
 
-    Location location
-    int getLineNumber() { return location.getRange().start.line}
-    int getLastLineNumber() {return location.getRange().end.line}
-    int getColumnNumber() {return location.getRange().start.character}
-    int getLastColumnNumber() {return location.getRange().end.character}
-    String getSourceFileURI() { return location.uri }
+    ImmutableLocation location
 
     String returnType
     String functionName

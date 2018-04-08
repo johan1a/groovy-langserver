@@ -13,11 +13,11 @@ import org.eclipse.lsp4j.Range
 @TypeChecked
 class LocationFinder {
 
-    static Location findLocation(String sourceFilePath, List<String> source, AnnotatedNode node, String name) {
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> source, AnnotatedNode node, String name) {
         return findLocation(sourceFilePath, source, node, name, node.getAnnotations().size())
     }
 
-    static Location findLocation(String sourceFilePath, List<String> source, ASTNode node, String name, int lineOffset = 0) {
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> source, ASTNode node, String name, int lineOffset = 0) {
         int lineNumber = node.lineNumber - 1 + lineOffset
         int lastLineNumber = lineNumber
         int columnNumber

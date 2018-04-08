@@ -11,6 +11,8 @@ import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyIndexer
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.ImmutableRange
 import org.gls.lang.ReferenceFinder
 
 import java.util.concurrent.CompletableFuture
@@ -67,7 +69,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     @Override
-    public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
+    public CompletableFuture<List<? extends ImmutableLocation>> definition(TextDocumentPositionParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
             log.info "definition params: ${params}"
@@ -81,7 +83,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     @Override
-    public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+    public CompletableFuture<List<? extends ImmutableLocation>> references(ReferenceParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         log.info "reference params: ${params}"
         try {
@@ -94,11 +96,11 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         }
     }
 
-    List<Location> externalURIs(List<Location> locations) {
+    List<ImmutableLocation> externalURIs(List<ImmutableLocation> locations) {
         locations.collect { location ->
             Position start = new Position(location.range.start.line, location.range.start.character)
             Position end = new Position(location.range.end.line, location.range.end.character)
-            return new Location("file://" + location.uri, new Range(start, end))
+            return new ImmutableLocation("file://" + location.uri, new ImmutableRange(start, end))
         }
     }
 

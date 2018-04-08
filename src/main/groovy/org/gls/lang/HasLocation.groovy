@@ -6,15 +6,15 @@ import org.eclipse.lsp4j.Range
 
 trait HasLocation {
 
-    abstract int getLineNumber()
-    abstract int getLastLineNumber()
-    abstract int getColumnNumber()
-    abstract int getLastColumnNumber()
-    abstract String getSourceFileURI()
+    abstract ImmutableLocation getLocation()
 
-    Location getLocation() {
-        ImmutablePosition start = new ImmutablePosition(getLineNumber(), getColumnNumber())
-        ImmutablePosition end = new ImmutablePosition(getLastLineNumber(), getLastColumnNumber())
-        return new ImmutableLocation(getSourceFileURI(), new ImmutableRange(start, end))
-    }
+    int getLineNumber() { return location.getRange().start.line }
+
+    int getLastLineNumber() { return location.getRange().end.line }
+
+    int getColumnNumber() { return location.getRange().start.character }
+
+    int getLastColumnNumber() { return location.getRange().end.character }
+
+    String getSourceFileURI() { return location.uri }
 }
