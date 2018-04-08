@@ -6,15 +6,16 @@ import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import org.eclipse.lsp4j.Location
 
 class FuncDefinition implements HasLocation {
 
-    String sourceFileURI
-
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
 
     String returnType
     String functionName
@@ -22,21 +23,19 @@ class FuncDefinition implements HasLocation {
     List<String> parameterTypes
 
     FuncDefinition(String sourceFileURI, List<String> source, String definingClass, MethodNode node) {
-        this.sourceFileURI = sourceFileURI
         functionName = node.getName()
         returnType = node.getReturnType().getName()
         this.definingClass = definingClass
-        initPosition(source, node)
         initParameterTypes(node.getParameters())
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, functionName)
     }
 
     FuncDefinition(String sourceFileURI, String source, String definingClass, StaticMethodCallExpression expression) {
-        this.sourceFileURI = sourceFileURI
         functionName = expression.getMethod()
         returnType = expression.type.getName()
         this.definingClass = definingClass
         initParameterTypes(expression.getArguments())
-        initPosition(source, expression)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, functionName)
     }
 
     void initParameterTypes(Expression arguments) {
@@ -48,23 +47,6 @@ class FuncDefinition implements HasLocation {
 
     void initParameterTypes(Parameter[] parameters) {
         this.parameterTypes = parameters.collect() { it.getType().name }
-    }
-
-    private void initPosition(List<String> source, ASTNode node) {
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
-        if(lineNumber > 0 ){
-            String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(functionName, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + functionName.size() - 1
-        } else {
-            columnNumber = node.columnNumber
-            lastColumnNumber = node.lastColumnNumber
-        }
-    }
-
-    String getSourceFileURI() {
-        return sourceFileURI
     }
 
     @Override
