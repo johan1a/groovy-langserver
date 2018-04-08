@@ -2,6 +2,7 @@ package org.gls.lang
 
 import groovy.transform.TypeChecked
 import org.codehaus.groovy.ast.ASTNode
+import org.codehaus.groovy.ast.AnnotatedNode
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
@@ -12,8 +13,12 @@ import org.eclipse.lsp4j.Range
 @TypeChecked
 class LocationFinder {
 
-    static Location findLocation(String sourceFilePath, List<String> source, ASTNode node, String name) {
-        int lineNumber = node.lineNumber - 1
+    static Location findLocation(String sourceFilePath, List<String> source, AnnotatedNode node, String name) {
+        return findLocation(sourceFilePath, source, node, name, node.getAnnotations().size())
+    }
+
+    static Location findLocation(String sourceFilePath, List<String> source, ASTNode node, String name, int lineOffset = 0) {
+        int lineNumber = node.lineNumber - 1 + lineOffset
         int lastLineNumber = lineNumber
         int columnNumber
         int lastColumnNumber

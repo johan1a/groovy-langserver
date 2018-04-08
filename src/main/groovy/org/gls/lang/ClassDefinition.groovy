@@ -12,42 +12,26 @@ import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
+import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
 class ClassDefinition implements HasLocation {
 
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
+
     private String packageName
     private String className
-    private String sourceFileURI
-
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
-
-    String getSourceFileURI() {
-        return sourceFileURI
-    }
 
     ClassDefinition(ClassNode node, String sourceFileURI, List<String> source) {
         className = node.getNameWithoutPackage()
         packageName = node.getPackageName()
-        initPosition(source, node)
-        this.sourceFileURI = sourceFileURI
-    }
-
-    private void initPosition(List<String> source, AnnotatedNode node) {
-        lineNumber = node.lineNumber - 1 + node.getAnnotations().size()
-        lastLineNumber = node.lastLineNumber - 1
-        if(lineNumber > 0 ){
-            String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(className, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + className.size() - 1
-        } else {
-            columnNumber = node.columnNumber
-            lastColumnNumber = node.lastColumnNumber
-        }
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, className)
     }
 
     String getFullClassName() {
