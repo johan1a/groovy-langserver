@@ -18,20 +18,20 @@ import org.eclipse.lsp4j.Range
 @Slf4j
 class VarDefinition implements HasLocation {
 
-    String sourceFileURI
-    int columnNumber
-    int lastColumnNumber
-    int lineNumber
-    int lastLineNumber
+    Location location
+    int getLineNumber() { return location.getRange().start.line}
+    int getLastLineNumber() {return location.getRange().end.line}
+    int getColumnNumber() {return location.getRange().start.character}
+    int getLastColumnNumber() {return location.getRange().end.character}
+    String getSourceFileURI() { return location.uri }
+
     String typeName
     String varName
 
-
     VarDefinition(String sourceFileURI, List<String> source, Parameter node) {
-        this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(source, node)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
     }
 
     VarDefinition(String sourceFileURI, Expression node) {
@@ -39,30 +39,15 @@ class VarDefinition implements HasLocation {
     }
 
     VarDefinition(String sourceFileURI, List<String> source, VariableExpression node) {
-        this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(source, node)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
     }
 
     VarDefinition(String sourceFileURI, List<String> source, FieldNode node) {
-        this.sourceFileURI = sourceFileURI
         typeName = node.getType().getName()
         varName = node.getName()
-        initPosition(source, node)
-    }
-
-    private void initPosition(List<String> source, ASTNode node) {
-        lineNumber = node.lineNumber - 1
-        lastLineNumber = node.lastLineNumber - 1
-        String firstLine = source[lineNumber]
-        columnNumber = firstLine.indexOf(varName, node.columnNumber)
-        lastColumnNumber = columnNumber + varName.size() - 1
-    }
-
-
-    String getSourceFileURI() {
-        return sourceFileURI
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
     }
 
     @Override
