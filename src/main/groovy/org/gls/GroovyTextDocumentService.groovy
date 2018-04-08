@@ -67,8 +67,8 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     public CompletableFuture<List<? extends Location>> definition(TextDocumentPositionParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
-            log.info "definition: ${params}"
-            def definition = finder.getDefinition(params)
+            log.info "definition params: ${params}"
+            def definition = externalURIs(finder.getDefinition(params))
             log.info "found definition: ${definition}"
             return CompletableFuture.completedFuture(definition)
         } catch (Exception e) {
@@ -80,13 +80,21 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        log.info "references: ${params}"
+        log.info "reference params: ${params}"
         try {
-            def references = finder.getReferences(params)
+            def references = externalURIs(finder.getReferences(params))
+            log.info "Found references: ${references}"
             return CompletableFuture.completedFuture(references)
         } catch (Exception e) {
             log.error("Exception", e)
             return CompletableFuture.completedFuture([])
+        }
+    }
+
+    List<Location> externalURIs(List<Location> locations) {
+        locations.collect{ it
+            it.uri = "file://" + it.uri
+            it
         }
     }
 

@@ -15,6 +15,6 @@ trait HasLocation {
     Location getLocation() {
         Position start = new Position(getLineNumber(), getColumnNumber())
         Position end = new Position(getLastLineNumber(), getLastColumnNumber())
-        return new Location("file://" + getSourceFileURI(), new Range(start, end))
+        return new Location(getSourceFileURI(), new Range(start, end))
     }
 }

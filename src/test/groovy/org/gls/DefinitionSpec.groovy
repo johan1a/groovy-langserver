@@ -84,16 +84,60 @@ class DefinitionSpec extends Specification {
         then:
         errors.isEmpty()
         definitions.size() == 1
+        definitions.first().uri.startsWith("/")
         Range range = definitions.first().range
         range.start == _expected
         range.end.character == _end
 
         where:
         _dir              | _pos                    | _class               |  _expected             | _end
-       // "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
+        "9"               | new Position(4, 36)     | "ClassDefinition1"   |  new Position(7, 21)   | 31
         'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
-        //'functions/two'   | new Position(72, 46)    | "ReferenceFinder"    |  new Position(142, 25) | 45
-        //'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
+        'functions/two'   | new Position(12, 8)     | "ReferenceFinder"    |  new Position(12, 6)   | 21
+        'functions/two'   | new Position(19, 8)     | "ReferenceFinder"    |  new Position(12, 21)  | 27
+    }
+
+    def "Repeated query"() {
+        given:
+        String dirPath = "src/test/test-files/functions/two"
+
+        TextDocumentPositionParams params1 = new TextDocumentPositionParams()
+        Position position1 = new Position(72, 46)
+        params1.position = position1
+
+        String filePath = new File(dirPath + "/ReferenceFinder.groovy").getCanonicalPath()
+        params1.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+        GroovyTextDocumentService service = new GroovyTextDocumentService()
+        service.setSourcePaths(uriList(dirPath))
+        service.index()
+        ReferenceFinder finder = service.finder
+        List<Location> definitions1 = finder.getDefinition(params1)
+
+        then:
+        definitions1.size() == 1
+        definitions1.first().uri.startsWith("/")
+        Range range1 = definitions1.first().range
+        range1.start == new Position(142, 25)
+        range1.end.character == 45
+
+        when:
+        ReferenceParams params2 = new ReferenceParams()
+        params2.setTextDocument(new TextDocumentIdentifier(filePath))
+        Position position2 = new Position(12, 25)
+        params2.position = position2
+        List<Location> definitions2 = finder.getReferences(params2)
+
+        then:
+        definitions1.size() == 1
+        definitions1.first().uri.startsWith("/")
+        Range range2 = definitions2.first().range
+        range2.start == new Position(15, 15)
+        range2.end.character == 21
+
+
+
     }
 
     def "Test method argument"() {

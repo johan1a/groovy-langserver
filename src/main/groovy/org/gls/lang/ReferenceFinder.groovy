@@ -43,10 +43,12 @@ class ReferenceFinder {
 
     List<Location> getDefinition(TextDocumentPositionParams params) {
         List<Location> varDefinitions = getVarDefinition(params)
+        log.info("varDefinitions: ${varDefinitions}")
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
         List<Location> classDefinitions = getClassDefinition(params)
+        log.info("classDefinitions: ${classDefinitions}")
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
@@ -54,7 +56,6 @@ class ReferenceFinder {
     }
 
     List<Location> getReferences(ReferenceParams params) {
-
         List<Location> varReferences = getVarReferences(params)
         if (!varReferences.isEmpty()) {
             return varReferences
