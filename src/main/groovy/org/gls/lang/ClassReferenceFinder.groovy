@@ -12,7 +12,7 @@ class ClassReferenceFinder {
         Optional<ClassDefinition> definitionOptional = findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<ClassUsage> classUsages = storage.getClassUsages()
-            Set<ClassUsage> matchingClassReferences = findMatchingClassUsages(classUsages, definition)
+            Set<ClassUsage> matchingClassReferences = findMatchingReferences(classUsages, definition)
             return matchingClassReferences.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
@@ -20,22 +20,17 @@ class ClassReferenceFinder {
     List<ImmutableLocation> getClassDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<ClassUsage> references = storage.getClassUsages()
         Optional<ClassUsage> referenceOptional = findMatchingReference(references, params)
-        List<ImmutableLocation> locations = referenceOptional.map { ClassUsage matchingReference ->
-            List<ImmutableLocation> result
-            ClassDefinition definition = storage.getClassDefinitions().find {
-                it.getFullClassName() == matchingReference.fullReferencedClassName
-            }
-            if (definition == null) {
-                result = []
-            } else {
-                result =  Arrays.asList(definition.getLocation())
-            }
-            return result
-        }.orElse(new ArrayList<ImmutableLocation>())
-        return locations
+        referenceOptional.map { matchingReference ->
+            Set<ClassDefinition> definitions = storage.getClassDefinitions()
+            Optional<ClassDefinition> definition = matchingReference.findMatchingDefinition(definitions)
+            definition.map{
+                Arrays.asList(it.getLocation())
+
+            }.orElse([])
+        }.orElse([])
     }
 
-    static Set<ClassUsage> findMatchingClassUsages(Set<ClassUsage> classUsages, ClassDefinition definition) {
+    static Set<ClassUsage> findMatchingReferences(Set<ClassUsage> classUsages, ClassDefinition definition) {
         classUsages.findAll {
             it.fullReferencedClassName == definition.fullClassName
         }

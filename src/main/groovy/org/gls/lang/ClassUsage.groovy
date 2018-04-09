@@ -9,7 +9,7 @@ import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
-class ClassUsage implements HasLocation {
+class ClassUsage implements Reference<ClassDefinition> {
 
     ImmutableLocation location
 
@@ -30,7 +30,7 @@ class ClassUsage implements HasLocation {
     }
 
     ClassUsage(String sourceFileURI, Expression expression) {
-       throw new Exception()
+        throw new Exception()
     }
 
     ClassUsage(String sourceFileURI, List<String> source, VariableExpression expression) {
@@ -47,9 +47,17 @@ class ClassUsage implements HasLocation {
         this.fullReferencedClassName = node.getReturnType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
-    ClassUsage(String sourceFileURI, List<String> source, StaticMethodCallExpression expression ) {
+
+    ClassUsage(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
         this.fullReferencedClassName = expression.type.name
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
+    }
+
+    @Override
+    Optional<ClassDefinition> findMatchingDefinition(Set<ClassDefinition> definitions) {
+        Optional.ofNullable(definitions.find {
+            it.getFullClassName() == getFullReferencedClassName()
+        })
     }
 
     private static String simpleClassName(String name) {
