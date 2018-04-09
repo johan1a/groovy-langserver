@@ -5,9 +5,6 @@ import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
 
-/**
- * Created by johan on 4/9/18.
- */
 @TypeChecked
 @Slf4j
 class VarReferenceFinder {
@@ -27,7 +24,6 @@ class VarReferenceFinder {
 
     List<ImmutableLocation> getVarDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<VarUsage> references = storage.getVarUsages()
-        references.findAll { it.varName == "storage" }.each { log.info("debug print: $it") }
         Optional<VarUsage> usageOptional = matcher.findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
             Set<VarDefinition> definitions = storage.getVarDefinitions()

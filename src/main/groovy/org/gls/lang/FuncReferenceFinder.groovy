@@ -1,11 +1,12 @@
 package org.gls.lang
 
+import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
 
-/**
- * Created by johan on 4/9/18.
- */
+@TypeChecked
+@Slf4j
 class FuncReferenceFinder {
 
     ReferenceMatcher matcher = new ReferenceMatcher<FuncCall, FuncDefinition>()
@@ -15,7 +16,7 @@ class FuncReferenceFinder {
         Optional<FuncDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            Set<FuncCall> matchingFuncCalls = findMatchingReferences(allFuncCalls, definition)
+            Set<FuncCall> matchingFuncCalls = definition.findMatchingReferences(allFuncCalls)
             return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
@@ -25,27 +26,12 @@ class FuncReferenceFinder {
         Optional<FuncCall> funcCallOptional = matcher.findMatchingReference(references, params)
         funcCallOptional.map { funcCall ->
             Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-            Optional<FuncDefinition> definition = findMatchingDefinition(definitions, funcCall)
+            Optional<FuncDefinition> definition = funcCall.findMatchingDefinition(definitions)
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])
         }.orElse([])
     }
 
-    static Set<FuncCall> findMatchingReferences(Set<FuncCall> funcCalls, FuncDefinition definition) {
-        funcCalls.findAll {
-            it.definingClass == definition.definingClass &&
-                    it.functionName == definition.functionName &&
-                    it.argumentTypes == definition.parameterTypes
-        }
-    }
-
-    static Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
-        return Optional.ofNullable(definitions.find {
-            it.definingClass == reference.definingClass &&
-                    it.functionName == reference.functionName &&
-                    it.parameterTypes == reference.argumentTypes
-        })
-    }
 
 }

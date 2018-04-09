@@ -1,14 +1,12 @@
 package org.gls.lang
 
-import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
-import org.eclipse.lsp4j.Location
 
-class FuncDefinition implements HasLocation {
+class FuncDefinition implements Definition<FuncCall> {
 
     ImmutableLocation location
 
@@ -42,6 +40,15 @@ class FuncDefinition implements HasLocation {
 
     void initParameterTypes(Parameter[] parameters) {
         this.parameterTypes = parameters.collect { it.getType().name }
+    }
+
+    @Override
+    Set<FuncCall> findMatchingReferences(Set<FuncCall> funcCalls) {
+        funcCalls.findAll {
+            it.definingClass == getDefiningClass() &&
+                    it.functionName == getFunctionName() &&
+                    it.argumentTypes == this.parameterTypes
+        }
     }
 
     @Override

@@ -1,15 +1,13 @@
 package org.gls.lang
 
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.eclipse.lsp4j.Location
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.expr.*
 
 @Slf4j
 @TypeChecked
-class FuncCall implements HasLocation {
+class FuncCall implements Reference<FuncDefinition> {
 
     ImmutableLocation location
 
@@ -67,5 +65,14 @@ class FuncCall implements HasLocation {
     void initArguments(TupleExpression expression) {
         List<Expression> expressions = expression.expressions
         this.argumentTypes = expressions.collect{ it.getType().getName() }
+    }
+
+    @Override
+    Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions ) {
+        return Optional.ofNullable(definitions.find {
+            it.definingClass == definingClass &&
+                    it.functionName == functionName &&
+                    it.parameterTypes == argumentTypes
+        })
     }
 }
