@@ -20,7 +20,7 @@ class VarReferenceFinder {
         Optional<VarDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<VarUsage> allUsages = storage.getVarUsages()
-            Set<VarUsage> usages = findMatchingReferences(allUsages, definition)
+            Set<VarUsage> usages = definition.findMatchingReferences(allUsages)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
@@ -31,30 +31,11 @@ class VarReferenceFinder {
         Optional<VarUsage> usageOptional = matcher.findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
             Set<VarDefinition> definitions = storage.getVarDefinitions()
-            Optional<VarDefinition> definition = findMatchingDefinition(definitions, matchingUsage)
+            Optional<VarDefinition> definition = matchingUsage.findMatchingDefinition(definitions)
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])
         }.orElse([])
     }
-
-
-    private static Set<VarUsage> findMatchingReferences(Set<VarUsage> varUsages, VarDefinition varDefinition) {
-        return varUsages.findAll {
-            it.getSourceFileURI() == varDefinition.getSourceFileURI() &&
-                    it.typeName == varDefinition.typeName &&
-                    it.definitionLineNumber == varDefinition.lineNumber
-        }
-    }
-
-    private static Optional<VarDefinition> findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
-        return Optional.ofNullable(definitions.find {
-            it.getSourceFileURI() == reference.getSourceFileURI() &&
-                    it.typeName == reference.typeName &&
-                    it.varName == reference.varName &&
-                    it.lineNumber == reference.definitionLineNumber
-        })
-    }
-
 
 }

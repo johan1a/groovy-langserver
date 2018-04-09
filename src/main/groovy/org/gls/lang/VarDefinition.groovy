@@ -17,7 +17,7 @@ import org.eclipse.lsp4j.Range
 
 @Slf4j
 @TypeChecked
-class VarDefinition implements HasLocation {
+class VarDefinition implements Definition<VarUsage>  {
 
     ImmutableLocation location
 
@@ -44,6 +44,15 @@ class VarDefinition implements HasLocation {
         typeName = node.getType().getName()
         varName = node.getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
+    }
+
+    @Override
+    Set<VarUsage> findMatchingReferences(Set<VarUsage> varUsages) {
+        return varUsages.findAll {
+            it.getSourceFileURI() == getSourceFileURI() &&
+                    it.typeName == typeName &&
+                    it.definitionLineNumber == lineNumber
+        }
     }
 
     @Override

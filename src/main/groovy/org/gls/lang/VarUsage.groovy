@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
-class VarUsage implements HasLocation {
+class VarUsage implements Reference<VarDefinition>  {
 
     ImmutableLocation location
 
@@ -107,6 +107,16 @@ class VarUsage implements HasLocation {
                 typeName=$typeName,
                 definitionLineNumber=$definitionLineNumber
                 ]"""
+    }
+
+    @Override
+    Optional<VarDefinition> findMatchingDefinition(Set<VarDefinition> definitions) {
+            return Optional.ofNullable(definitions.find {
+                it.getSourceFileURI() == getSourceFileURI() &&
+                        it.typeName == typeName &&
+                        it.varName == varName &&
+                        it.lineNumber == definitionLineNumber
+            })
     }
 
 }
