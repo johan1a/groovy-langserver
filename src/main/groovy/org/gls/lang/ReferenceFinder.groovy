@@ -67,9 +67,6 @@ class ReferenceFinder {
 
     List<ImmutableLocation> getClassReferences(ReferenceParams params) {
         Set<ClassDefinition> definitions = storage.getClassDefinitions()
-        if (definitions == null) {
-            return []
-        }
         Optional<ClassDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<ClassDefinition>
         definitionOptional.map { definition ->
             Set<ClassUsage> classUsages = storage.getClassUsages()
@@ -80,9 +77,6 @@ class ReferenceFinder {
 
     List<ImmutableLocation> getFuncReferences(ReferenceParams params) {
         Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        if (definitions == null) {
-            return []
-        }
         Optional<FuncDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<FuncDefinition>
         definitionOptional.map { definition ->
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
@@ -93,9 +87,6 @@ class ReferenceFinder {
 
     private List<ImmutableLocation> getVarReferences(ReferenceParams params) {
         Set<VarDefinition> definitions = storage.getVarDefinitions()
-        if (definitions == null) {
-            return []
-        }
         Optional<VarDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<VarDefinition>
         definitionOptional.map{ definition ->
             Set<VarUsage> allUsages = storage.getVarUsages()
@@ -107,7 +98,6 @@ class ReferenceFinder {
     List<ImmutableLocation> getFuncDefinition(TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
         Optional<FuncCall> funcCallOptional = findMatchingReference(references, params) as Optional<FuncCall>
-        log.info "matching func ref: $funcCallOptional"
         funcCallOptional.map { funcCall ->
             Set<FuncDefinition> definitions = storage.getFuncDefinitions()
             Optional<FuncDefinition> definition = findMatchingFuncDefinition(definitions, funcCall)
@@ -119,11 +109,9 @@ class ReferenceFinder {
 
     private List<ImmutableLocation> getVarDefinition(TextDocumentPositionParams params) {
         Set<VarUsage> references = storage.getVarUsages()
-        log.info "var refs size: ${references.size()}"
         references.findAll { it.varName == "storage" }.each { log.info("debug print: $it") }
         Optional<VarUsage> usageOptional = findMatchingReference(references, params) as Optional<VarUsage>
         usageOptional.map { matchingUsage ->
-            log.info "matching var ref: $matchingUsage"
             Set<VarDefinition> definitions = storage.getVarDefinitions()
             Optional<VarDefinition> definition = findMatchingDefinition(definitions, matchingUsage) as Optional<VarDefinition>
             definition.map {
@@ -137,7 +125,6 @@ class ReferenceFinder {
         Optional<ClassUsage> referenceOptional = findMatchingReference(references, params) as Optional<ClassUsage>
         List<ImmutableLocation> locations = referenceOptional.map { ClassUsage matchingReference ->
             List<ImmutableLocation> result
-            log.info "matching class ref: $matchingReference"
             ClassDefinition definition = storage.getClassDefinitions().find {
                 it.getFullClassName() == matchingReference.fullReferencedClassName
             }
