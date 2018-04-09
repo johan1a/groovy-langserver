@@ -11,6 +11,7 @@ class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
     VarReferenceFinder varReferenceFinder = new VarReferenceFinder()
+    FuncReferenceFinder funcReferenceFinder = new FuncReferenceFinder()
 
     Set<ClassUsage> getClassUsages(String fileUri) {
         return storage.getClassUsages()
@@ -51,7 +52,7 @@ class ReferenceFinder {
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return getFuncDefinition(params)
+        return funcReferenceFinder.getFuncDefinition(storage, params)
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
@@ -63,7 +64,7 @@ class ReferenceFinder {
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return getFuncReferences(params)
+        return funcReferenceFinder.getFuncReferences(storage, params)
     }
 
     List<ImmutableLocation> getClassReferences(ReferenceParams params) {
@@ -73,28 +74,6 @@ class ReferenceFinder {
             Set<ClassUsage> classUsages = storage.getClassUsages()
             Set<ClassUsage> matchingClassReferences = findMatchingClassUsages(classUsages, definition)
             return matchingClassReferences.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
-    }
-
-    List<ImmutableLocation> getFuncReferences(ReferenceParams params) {
-        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        Optional<FuncDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<FuncDefinition>
-        definitionOptional.map { definition ->
-            Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
-            return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
-    }
-
-    List<ImmutableLocation> getFuncDefinition(TextDocumentPositionParams params) {
-        Set<FuncCall> references = storage.getFuncCalls()
-        Optional<FuncCall> funcCallOptional = findMatchingReference(references, params) as Optional<FuncCall>
-        funcCallOptional.map { funcCall ->
-            Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-            Optional<FuncDefinition> definition = findMatchingFuncDefinition(definitions, funcCall)
-            definition.map {
-                Arrays.asList(it.getLocation())
-            }.orElse([])
         }.orElse([])
     }
 
@@ -123,21 +102,6 @@ class ReferenceFinder {
     }
 
 
-    static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
-        funcCalls.findAll {
-            it.definingClass == definition.definingClass &&
-                    it.functionName == definition.functionName &&
-                    it.argumentTypes == definition.parameterTypes
-        }
-    }
-
-    static Optional<FuncDefinition> findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
-        return Optional.ofNullable(definitions.find {
-            it.definingClass == reference.definingClass &&
-                    it.functionName == reference.functionName &&
-                    it.parameterTypes == reference.argumentTypes
-        })
-    }
 
 
     static <T extends HasLocation> Optional<T> findMatchingReference(Set<? extends HasLocation> references, TextDocumentPositionParams params) {
