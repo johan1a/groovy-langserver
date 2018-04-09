@@ -7,19 +7,22 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
  * Created by johan on 4/9/18.
  */
 class FuncReferenceFinder {
+
+    ReferenceMatcher matcher = new ReferenceMatcher<FuncCall, FuncDefinition>()
+
     List<ImmutableLocation> getFuncReferences(ReferenceStorage storage, ReferenceParams params) {
         Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        Optional<FuncDefinition> definitionOptional = findMatchingDefinition(definitions, params)
+        Optional<FuncDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
+            Set<FuncCall> matchingFuncCalls = findMatchingReferences(allFuncCalls, definition)
             return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
 
     List<ImmutableLocation> getFuncDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
-        Optional<FuncCall> funcCallOptional = findMatchingReference(references, params)
+        Optional<FuncCall> funcCallOptional = matcher.findMatchingReference(references, params)
         funcCallOptional.map { funcCall ->
             Set<FuncDefinition> definitions = storage.getFuncDefinitions()
             Optional<FuncDefinition> definition = findMatchingDefinition(definitions, funcCall)
@@ -29,7 +32,7 @@ class FuncReferenceFinder {
         }.orElse([])
     }
 
-    static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
+    static Set<FuncCall> findMatchingReferences(Set<FuncCall> funcCalls, FuncDefinition definition) {
         funcCalls.findAll {
             it.definingClass == definition.definingClass &&
                     it.functionName == definition.functionName &&
@@ -37,31 +40,11 @@ class FuncReferenceFinder {
         }
     }
 
-    static Optional<FuncCall> findMatchingReference(Set<FuncCall> references, TextDocumentPositionParams params) {
-        return Optional.ofNullable(references.find {
-            it.getSourceFileURI() == params.textDocument.uri &&
-                    it.columnNumber <= params.position.character &&
-                    it.lastColumnNumber >= params.position.character &&
-                    it.lineNumber <= params.position.line &&
-                    it.lastLineNumber >= params.position.line
-        })
-    }
-
     static Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
         return Optional.ofNullable(definitions.find {
             it.definingClass == reference.definingClass &&
                     it.functionName == reference.functionName &&
                     it.parameterTypes == reference.argumentTypes
-        })
-    }
-
-    static Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions, ReferenceParams params) {
-        return Optional.ofNullable(definitions.find {
-            it.getSourceFileURI() == params.textDocument.uri &&
-                    it.columnNumber <= params.position.character &&
-                    it.lastColumnNumber >= params.position.character &&
-                    it.lineNumber <= params.position.line &&
-                    it.lastLineNumber >= params.position.line
         })
     }
 
