@@ -73,7 +73,7 @@ class ReferenceSpec extends Specification {
         where:
         _dir  | _pos                 | _class               | _expectedLine | _expectedChar
         9     | new Position(7, 28)  | "ClassDefinition1"   | 4             | 31
-        10    | new Position(11, 17) | "FunctionReference" | 8             | 15
+        10    | new Position(11, 17) | "FunctionReference"  | 8             | 15
     }
 
     def "Multiple function references 1"() {
@@ -103,6 +103,7 @@ class ReferenceSpec extends Specification {
         'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
         'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
         'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
+        'functions/two'     | new Position(12, 21)  | "ReferenceStorage"   |  1
     }
 
     def "test VarRef indexing"() {

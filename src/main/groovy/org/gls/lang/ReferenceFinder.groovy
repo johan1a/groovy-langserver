@@ -58,7 +58,25 @@ class ReferenceFinder {
         if (!varReferences.isEmpty()) {
             return varReferences
         }
+        List<ImmutableLocation> classReferences = getClassReferences(params)
+        if (!classReferences.isEmpty()) {
+            return classReferences
+        }
         return getFuncReferences(params)
+    }
+
+    List<ImmutableLocation> getClassReferences(ReferenceParams params) {
+        Set<ClassDefinition> definitions = storage.getClassDefinitions()
+        if (definitions == null) {
+            return []
+        }
+        ClassDefinition definition = findMatchingDefinition(definitions, params) as ClassDefinition
+        if (definition != null) {
+            Set<ClassUsage> classUsages = storage.getClassUsages()
+            Set<ClassUsage> matchingClassReferences = findMatchingClassUsages(classUsages, definition)
+            return matchingClassReferences.collect { it.getLocation() }.sort { it.range.start.line }
+        }
+        return []
     }
 
     List<ImmutableLocation> getFuncReferences(ReferenceParams params) {
@@ -145,6 +163,13 @@ class ReferenceFinder {
         }
     }
 
+    static Set<ClassUsage> findMatchingClassUsages(Set<ClassUsage> classUsages, ClassDefinition definition) {
+        classUsages.findAll {
+            it.fullReferencedClassName == definition.fullClassName
+        }
+    }
+
+
     static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
         funcCalls.findAll {
             it.definingClass == definition.definingClass &&
@@ -182,12 +207,6 @@ class ReferenceFinder {
 
     static <T extends HasLocation> T findMatchingDefinition(Set<? extends HasLocation> definitions, ReferenceParams params) {
         return definitions.find {
-            if(it.getSourceFileURI() == params.textDocument.uri &&
-                    it.lineNumber <= params.position.line) {
-                log.info("during search: $it")
-            }
-
-
             it.getSourceFileURI() == params.textDocument.uri &&
                     it.columnNumber <= params.position.character &&
                     it.lastColumnNumber >= params.position.character &&
