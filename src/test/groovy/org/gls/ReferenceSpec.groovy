@@ -24,7 +24,7 @@ class ReferenceSpec extends Specification {
         String testFilePath = new File(path + "/FunctionReturnType.groovy").getCanonicalPath()
 
         ClassDefinition definition = finder.storage.getClassDefinitions().find{it.getFullClassName() == "Box"}
-        def usages = finder.getClassUsages(testFilePath)
+        def usages = finder.getClassUsages()
         ClassUsage usage = usages.first()
 
         expect:
@@ -40,7 +40,7 @@ class ReferenceSpec extends Specification {
         indexer.index()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
-        Set<ClassUsage> usages = finder.getClassUsages(testFilePath)
+        Set<ClassUsage> usages = finder.getClassUsages()
         ClassUsage usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
 
         expect:
