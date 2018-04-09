@@ -10,6 +10,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
+    VarReferenceFinder varReferenceFinder = new VarReferenceFinder()
 
     Set<ClassUsage> getClassUsages(String fileUri) {
         return storage.getClassUsages()
@@ -40,7 +41,7 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = getVarDefinition(params)
+        List<ImmutableLocation> varDefinitions = varReferenceFinder.getVarDefinition(storage, params)
         log.info("varDefinitions: ${varDefinitions}")
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
@@ -54,7 +55,7 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = getVarReferences(params)
+        List<ImmutableLocation> varReferences = varReferenceFinder.getVarReferences(storage, params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
@@ -85,35 +86,12 @@ class ReferenceFinder {
         }.orElse([])
     }
 
-    private List<ImmutableLocation> getVarReferences(ReferenceParams params) {
-        Set<VarDefinition> definitions = storage.getVarDefinitions()
-        Optional<VarDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<VarDefinition>
-        definitionOptional.map{ definition ->
-            Set<VarUsage> allUsages = storage.getVarUsages()
-            Set<VarUsage> usages = findMatchingVarUsages(allUsages, definition)
-            return usages.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
-    }
-
     List<ImmutableLocation> getFuncDefinition(TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
         Optional<FuncCall> funcCallOptional = findMatchingReference(references, params) as Optional<FuncCall>
         funcCallOptional.map { funcCall ->
             Set<FuncDefinition> definitions = storage.getFuncDefinitions()
             Optional<FuncDefinition> definition = findMatchingFuncDefinition(definitions, funcCall)
-            definition.map {
-                Arrays.asList(it.getLocation())
-            }.orElse([])
-        }.orElse([])
-    }
-
-    private List<ImmutableLocation> getVarDefinition(TextDocumentPositionParams params) {
-        Set<VarUsage> references = storage.getVarUsages()
-        references.findAll { it.varName == "storage" }.each { log.info("debug print: $it") }
-        Optional<VarUsage> usageOptional = findMatchingReference(references, params) as Optional<VarUsage>
-        usageOptional.map { matchingUsage ->
-            Set<VarDefinition> definitions = storage.getVarDefinitions()
-            Optional<VarDefinition> definition = findMatchingDefinition(definitions, matchingUsage) as Optional<VarDefinition>
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])
@@ -136,14 +114,6 @@ class ReferenceFinder {
             return result
         }.orElse(new ArrayList<ImmutableLocation>())
         return locations
-    }
-
-    static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
-        return varUsages.findAll {
-            it.getSourceFileURI() == varDefinition.getSourceFileURI() &&
-                    it.typeName == varDefinition.typeName &&
-                    it.definitionLineNumber == varDefinition.lineNumber
-        }
     }
 
     static Set<ClassUsage> findMatchingClassUsages(Set<ClassUsage> classUsages, ClassDefinition definition) {
@@ -169,14 +139,6 @@ class ReferenceFinder {
         })
     }
 
-    static Optional<VarDefinition> findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
-        return Optional.ofNullable(definitions.find {
-            it.getSourceFileURI() == reference.getSourceFileURI() &&
-                    it.typeName == reference.typeName &&
-                    it.varName == reference.varName &&
-                    it.lineNumber == reference.definitionLineNumber
-        })
-    }
 
     static <T extends HasLocation> Optional<T> findMatchingReference(Set<? extends HasLocation> references, TextDocumentPositionParams params) {
         return Optional.ofNullable(references.find {
