@@ -20,7 +20,7 @@ class ClassDefinition implements Definition<ClassUsage> {
     }
 
     String getFullClassName() {
-        if(packageName != null) {
+        if (packageName != null) {
             return packageName + "." + className
         }
         return className
@@ -28,7 +28,9 @@ class ClassDefinition implements Definition<ClassUsage> {
 
     @Override
     Set<ClassUsage> findMatchingReferences(Set<ClassUsage> references) {
-        return null
+        references.findAll {
+            it.fullReferencedClassName == getFullClassName()
+        }
     }
 
     @Override

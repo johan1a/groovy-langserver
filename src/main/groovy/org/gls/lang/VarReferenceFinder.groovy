@@ -11,7 +11,6 @@ class VarReferenceFinder {
 
     ReferenceMatcher matcher = new ReferenceMatcher<VarUsage, VarDefinition>()
 
-
     List<ImmutableLocation> getVarReferences(ReferenceStorage storage, ReferenceParams params) {
         Set<VarDefinition> definitions = storage.getVarDefinitions()
         Optional<VarDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
