@@ -9,7 +9,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 class ClassReferenceFinder {
     List<ImmutableLocation> getClassReferences(ReferenceStorage storage, ReferenceParams params) {
         Set<ClassDefinition> definitions = storage.getClassDefinitions()
-        Optional<ClassDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<ClassDefinition>
+        Optional<ClassDefinition> definitionOptional = findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<ClassUsage> classUsages = storage.getClassUsages()
             Set<ClassUsage> matchingClassReferences = findMatchingClassUsages(classUsages, definition)
@@ -19,7 +19,7 @@ class ClassReferenceFinder {
 
     List<ImmutableLocation> getClassDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<ClassUsage> references = storage.getClassUsages()
-        Optional<ClassUsage> referenceOptional = findMatchingReference(references, params) as Optional<ClassUsage>
+        Optional<ClassUsage> referenceOptional = findMatchingReference(references, params)
         List<ImmutableLocation> locations = referenceOptional.map { ClassUsage matchingReference ->
             List<ImmutableLocation> result
             ClassDefinition definition = storage.getClassDefinitions().find {

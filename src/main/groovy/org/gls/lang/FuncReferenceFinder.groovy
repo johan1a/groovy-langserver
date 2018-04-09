@@ -3,15 +3,13 @@ package org.gls.lang
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
 
-import java.sql.Ref
-
 /**
  * Created by johan on 4/9/18.
  */
 class FuncReferenceFinder {
     List<ImmutableLocation> getFuncReferences(ReferenceStorage storage, ReferenceParams params) {
         Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        Optional<FuncDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<FuncDefinition>
+        Optional<FuncDefinition> definitionOptional = findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
             Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
@@ -21,15 +19,16 @@ class FuncReferenceFinder {
 
     List<ImmutableLocation> getFuncDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<FuncCall> references = storage.getFuncCalls()
-        Optional<FuncCall> funcCallOptional = findMatchingReference(references, params) as Optional<FuncCall>
+        Optional<FuncCall> funcCallOptional = findMatchingReference(references, params)
         funcCallOptional.map { funcCall ->
             Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-            Optional<FuncDefinition> definition = findMatchingFuncDefinition(definitions, funcCall)
+            Optional<FuncDefinition> definition = findMatchingDefinition(definitions, funcCall)
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])
         }.orElse([])
     }
+
     static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
         funcCalls.findAll {
             it.definingClass == definition.definingClass &&
@@ -38,15 +37,7 @@ class FuncReferenceFinder {
         }
     }
 
-    static Optional<FuncDefinition> findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
-        return Optional.ofNullable(definitions.find {
-            it.definingClass == reference.definingClass &&
-                    it.functionName == reference.functionName &&
-                    it.parameterTypes == reference.argumentTypes
-        })
-    }
-
-    static <T extends HasLocation> Optional<T> findMatchingReference(Set<? extends HasLocation> references, TextDocumentPositionParams params) {
+    static Optional<FuncCall> findMatchingReference(Set<FuncCall> references, TextDocumentPositionParams params) {
         return Optional.ofNullable(references.find {
             it.getSourceFileURI() == params.textDocument.uri &&
                     it.columnNumber <= params.position.character &&
@@ -56,7 +47,15 @@ class FuncReferenceFinder {
         })
     }
 
-    static <T extends HasLocation> Optional<T> findMatchingDefinition(Set<? extends HasLocation> definitions, ReferenceParams params) {
+    static Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
+        return Optional.ofNullable(definitions.find {
+            it.definingClass == reference.definingClass &&
+                    it.functionName == reference.functionName &&
+                    it.parameterTypes == reference.argumentTypes
+        })
+    }
+
+    static Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions, ReferenceParams params) {
         return Optional.ofNullable(definitions.find {
             it.getSourceFileURI() == params.textDocument.uri &&
                     it.columnNumber <= params.position.character &&

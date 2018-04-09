@@ -13,10 +13,10 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 class VarReferenceFinder {
     List<ImmutableLocation> getVarReferences(ReferenceStorage storage, ReferenceParams params) {
         Set<VarDefinition> definitions = storage.getVarDefinitions()
-        Optional<VarDefinition> definitionOptional = findMatchingDefinition(definitions, params) as Optional<VarDefinition>
+        Optional<VarDefinition> definitionOptional = findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<VarUsage> allUsages = storage.getVarUsages()
-            Set<VarUsage> usages = findMatchingVarUsages(allUsages, definition)
+            Set<VarUsage> usages = findMatchingReferences(allUsages, definition)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
@@ -24,10 +24,10 @@ class VarReferenceFinder {
     List<ImmutableLocation> getVarDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
         Set<VarUsage> references = storage.getVarUsages()
         references.findAll { it.varName == "storage" }.each { log.info("debug print: $it") }
-        Optional<VarUsage> usageOptional = findMatchingReference(references, params) as Optional<VarUsage>
+        Optional<VarUsage> usageOptional = findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
             Set<VarDefinition> definitions = storage.getVarDefinitions()
-            Optional<VarDefinition> definition = findMatchingDefinition(definitions, matchingUsage) as Optional<VarDefinition>
+            Optional<VarDefinition> definition = findMatchingDefinition(definitions, matchingUsage)
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])
@@ -35,7 +35,7 @@ class VarReferenceFinder {
     }
 
     private
-    static <T extends HasLocation> Optional<T> findMatchingReference(Set<? extends HasLocation> references, TextDocumentPositionParams params) {
+    static Optional<VarUsage> findMatchingReference(Set<VarUsage> references, TextDocumentPositionParams params) {
         return Optional.ofNullable(references.find {
             it.getSourceFileURI() == params.textDocument.uri &&
                     it.columnNumber <= params.position.character &&
@@ -45,7 +45,7 @@ class VarReferenceFinder {
         })
     }
 
-    private static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
+    private static Set<VarUsage> findMatchingReferences(Set<VarUsage> varUsages, VarDefinition varDefinition) {
         return varUsages.findAll {
             it.getSourceFileURI() == varDefinition.getSourceFileURI() &&
                     it.typeName == varDefinition.typeName &&
