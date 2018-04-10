@@ -77,6 +77,11 @@ class FuncDefinition implements Definition<FuncReference> {
     }
 
     @Override
+    void setName(String name) {
+        this.functionName = name
+    }
+
+    @Override
     Set<FuncReference> getReferences() {
         return references
     }

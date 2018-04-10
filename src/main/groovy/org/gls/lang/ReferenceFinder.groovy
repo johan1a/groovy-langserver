@@ -5,6 +5,7 @@ import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.eclipse.lsp4j.TextEdit
 import org.eclipse.lsp4j.WorkspaceEdit
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.definition.FuncDefinition
@@ -71,9 +72,7 @@ class ReferenceFinder {
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-
-        List<ImmutableLocation> references = funcReferenceFinder.getReferenceLocations(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
-        return references
+        return funcReferenceFinder.getReferenceLocations(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
     }
 
     void correlate() {
@@ -82,9 +81,8 @@ class ReferenceFinder {
         classReferenceFinder.correlate(storage.getClassDefinitions(), storage.getClassReferences())
     }
 
-    WorkspaceEdit rename(RenameParams params) {
-
-
+    Map<String, List<TextEdit>> rename(RenameParams params) {
+        return varReferenceFinder.rename(storage.getVarReferences(), params)
     }
 }
 

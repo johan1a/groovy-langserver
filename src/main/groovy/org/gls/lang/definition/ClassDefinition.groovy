@@ -29,9 +29,15 @@ class ClassDefinition implements Definition<ClassReference> {
     }
 
     @Override
+    void setName(String name) {
+        this.className = name
+    }
+
+    @Override
     Set<ClassReference> getReferences() {
         return references
     }
+
 
     String getFullClassName() {
         if (packageName != null) {

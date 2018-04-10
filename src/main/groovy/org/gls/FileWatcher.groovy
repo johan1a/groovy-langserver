@@ -8,6 +8,7 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams
 import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.DidSaveTextDocumentParams
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent
+import org.eclipse.lsp4j.TextEdit
 
 @Slf4j
 @TypeChecked
@@ -22,8 +23,8 @@ class FileWatcher {
 
     void didChange(DidChangeTextDocumentParams params) {
         log.info("didChange: ")
-        TextDocumentContentChangeEvent event = params.contentChanges.first()
-        changedFiles.put(params.textDocument.uri, event.text)
+        // TODO every change
+        changedFiles.put(params.textDocument.uri, params.contentChanges.first().text)
     }
 
     void didClose(DidCloseTextDocumentParams params) {
@@ -34,4 +35,7 @@ class FileWatcher {
     void didOpen(DidOpenTextDocumentParams params) {
     }
 
+    void didEdit(Map<String, List<TextEdit>> edits) {
+        edits.keySet().each { changedFiles.remove(it) }
+    }
 }

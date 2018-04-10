@@ -41,6 +41,11 @@ class VarDefinition implements Definition<VarReference> {
     }
 
     @Override
+    void setName(String name) {
+        varName = name
+    }
+
+    @Override
     void setReferences(Set<VarReference> references) {
         this.references = references
     }
