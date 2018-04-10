@@ -104,6 +104,7 @@ class ReferenceSpec extends Specification {
         'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
         'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
         'functions/two'     | new Position(12, 21)  | "ReferenceStorage"   |  1
+        'functions/two'     | new Position(61, 23)  | "ReferenceFinder"   |  1
     }
 
     def "test VarRef indexing"() {

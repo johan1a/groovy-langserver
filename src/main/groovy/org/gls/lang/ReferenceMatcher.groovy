@@ -6,10 +6,10 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    static List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> allUsages, ReferenceParams params) {
-        Optional<D> definitionOptional = findMatchingDefinition(definitions, params)
+    static List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> references, ReferenceParams params) {
+        Optional<D> definitionOptional = findMatchingDefinition(definitions, references, params)
         definitionOptional.map { definition ->
-            Set<R> usages = definition.findMatchingReferences(allUsages)
+            Set<R> usages = definition.findMatchingReferences(references)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
@@ -30,10 +30,19 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         })
     }
 
-    static Optional<D> findMatchingDefinition(Set<D> definitions, ReferenceParams params) {
-        return Optional.ofNullable(definitions.find {
+    static Optional<D> findMatchingDefinition(Set<D> definitions, Set<R> references, ReferenceParams params) {
+        Optional<D> definition = Optional.ofNullable(definitions.find {
             mathesPosition(it, params.textDocument.uri, params.position)
         })
+        if (definition.isPresent()) {
+            return definition
+        }
+        return findDefinitionOfReference(definitions, references, params)
+    }
+
+    static Optional<D> findDefinitionOfReference(Set<D> definitions, Set<R> references, ReferenceParams params) {
+        Optional<R> reference = findMatchingReference(references, params)
+        reference.map { it.findMatchingDefinition(definitions) }.orElse(Optional.empty())
     }
 
     static boolean mathesPosition(HasLocation hasLocation, String uri, Position position) {
