@@ -11,6 +11,7 @@ import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutableRange
 import org.gls.lang.ReferenceFinder
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.util.concurrent.CompletableFuture
 
@@ -33,7 +34,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     public static void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
         diagnostics.keySet().each {
-                PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnostics.get(it))
+            PublishDiagnosticsParams params = new PublishDiagnosticsParams(it, diagnostics.get(it))
             client?.publishDiagnostics(params)
         }
     }
@@ -160,6 +161,21 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         log.info "rename"
+        long start = System.currentTimeMillis()
+        CompletableFuture<WorkspaceEdit> result
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+        log.info "rename params: ${params}"
+        try {
+            def edit = finder.rename(params)
+            log.info "Edited document: ${edit}"
+            result = CompletableFuture.completedFuture(edit)
+        } catch (Exception e) {
+            log.error("Exception", e)
+            throw new NotImplementedException()
+        }
+        def elapsed = (System.currentTimeMillis() - start) / 1000.0
+        log.info("Completed in $elapsed ms")
+        return result
     }
 
     @Override
@@ -194,7 +210,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
         ReferenceFinder finder = new ReferenceFinder()
         GroovyIndexer indexer = new GroovyIndexer(sourcePaths, finder)
-        Map<String, List<Diagnostic> > diagnostics = indexer.index(changedFiles)
+        Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
         this.finder = finder
         sendDiagnostics(diagnostics, client)
     }

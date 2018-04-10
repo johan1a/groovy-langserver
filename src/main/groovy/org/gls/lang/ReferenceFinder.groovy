@@ -3,7 +3,9 @@ package org.gls.lang
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.ReferenceParams
+import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.eclipse.lsp4j.WorkspaceEdit
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.definition.FuncDefinition
 import org.gls.lang.definition.VarDefinition
@@ -79,6 +81,13 @@ class ReferenceFinder {
         funcReferenceFinder.correlate(storage.getFuncDefinitions(), storage.getFuncReferences())
         classReferenceFinder.correlate(storage.getClassDefinitions(), storage.getClassReferences())
     }
+
+    WorkspaceEdit rename(RenameParams params) {
+
+
+    }
 }
+
+
 
 
