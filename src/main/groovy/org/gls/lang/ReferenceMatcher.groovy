@@ -12,6 +12,10 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         return getReferences(definitions, references, params).collect { it.getLocation() }.sort { it.range.start.line }
     }
 
+    static List<ImmutableLocation> getDefinitionLocations(Set<R> references, TextDocumentPositionParams params) {
+        return getDefinition(references, params).collect { it.getLocation() }.sort { it.range.start.line }
+    }
+
     static List<R> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
         definitionOptional.map { definition ->
@@ -19,12 +23,12 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         }.orElse([])
     }
 
-    static List<ImmutableLocation> getDefinition(Set<R> references, TextDocumentPositionParams params) {
+    static List<D> getDefinition(Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
             Optional<D> definition = matchingUsage.getDefinition()
             definition.map {
-                Arrays.asList(it.getLocation())
+                Arrays.asList(it)
             }.orElse([])
         }.orElse([])
     }
