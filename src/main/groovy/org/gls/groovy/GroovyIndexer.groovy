@@ -5,6 +5,7 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
 import org.codehaus.groovy.control.Phases
+import org.gls.lang.DiagnosticsParser
 import org.gls.lang.ReferenceFinder
 import org.gls.lang.ReferenceStorage
 import org.codehaus.groovy.control.ErrorCollector
@@ -64,7 +65,7 @@ class GroovyIndexer {
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
-            diagnostics = getDiagnostics(e.getErrorCollector())
+            diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics
@@ -97,46 +98,6 @@ class GroovyIndexer {
             return changedFiles.get(fileName).split('\n').toList() //TODO proper line end split
         }
         return new File(fileName).readLines()
-    }
-
-    private static Map<String, List<Diagnostic>> getDiagnostics(ErrorCollector errorCollector) {
-        Map<String, List<Diagnostic>> diagnosticMap = new HashMap<>()
-        try {
-            if (errorCollector == null) {
-                return diagnosticMap
-            }
-            List<SyntaxErrorMessage> errors = errorCollector.getErrors()
-            List<Message> warnings = errorCollector.getWarnings()
-            errors?.each {
-                SyntaxException exception = it.getCause()
-                String uri = "file://" + exception.getSourceLocator()
-                Diagnostic diagnostic = asDiagnostic(exception)
-
-                List<Diagnostic> diagnostics = diagnosticMap.get(uri)
-                if (diagnostics == null) {
-                    diagnostics = new LinkedList<>()
-                    diagnosticMap.put(uri, diagnostics)
-                }
-                diagnostics.add(diagnostic)
-            }
-            warnings?.each {
-                log.info it.toString()
-                log.info "TODO implement warning diagnostics"
-            }
-        } catch (Exception e) {
-            log.error("Error", e)
-        }
-        return diagnosticMap
-    }
-
-    private static Diagnostic asDiagnostic(SyntaxException exception) {
-        int line = exception.getLine() - 1
-        Position start = new Position(line, exception.getStartColumn())
-        Position end = new Position(line, exception.getEndColumn())
-        Range range = new Range(start, end)
-
-        Diagnostic diagnostic = new Diagnostic(range, exception.getMessage(), DiagnosticSeverity.Error, "Groovy")
-        return diagnostic
     }
 
 }
