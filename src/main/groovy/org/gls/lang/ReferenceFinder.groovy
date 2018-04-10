@@ -10,9 +10,9 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
-    VarReferenceFinder varReferenceFinder = new VarReferenceFinder()
-    FuncReferenceFinder funcReferenceFinder = new FuncReferenceFinder()
-    ClassReferenceFinder classReferenceFinder = new ClassReferenceFinder()
+    ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncCall, FuncDefinition>()
+    ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarUsage, VarDefinition>()
+    ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassUsage, ClassUsage>()
 
     Set<ClassUsage> getClassUsages() {
         return storage.getClassUsages()
@@ -43,28 +43,26 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage, params)
-        log.info("varDefinitions: ${varDefinitions}")
+        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage.getVarDefinitions(), storage.getVarUsages(), params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<ImmutableLocation> classDefinitions = classReferenceFinder.getClassDefinition(storage, params)
-        log.info("classDefinitions: ${classDefinitions}")
+        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinition(storage.getClassDefinitions(), storage.getClassUsages(), params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getFuncDefinition(storage, params)
+        return funcReferenceFinder.getDefinition(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage, params)
+        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarUsages(), params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<ImmutableLocation> classReferences = classReferenceFinder.getClassReferences(storage, params)
+        List<ImmutableLocation> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassUsages(), params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return funcReferenceFinder.getFuncReferences(storage, params)
+        return funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
     }
 }
