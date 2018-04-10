@@ -1,4 +1,4 @@
-package org.gls.lang
+package org.gls.lang.reference
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -9,6 +9,9 @@ import org.codehaus.groovy.ast.expr.DeclarationExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
+import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
 
 @Slf4j
 @TypeChecked
@@ -60,6 +63,11 @@ class ClassReference implements Reference<ClassDefinition> {
     @Override
     void setDefinition(ClassDefinition definition){
         this.definition = definition
+    }
+
+    @Override
+    Optional<ClassDefinition> getDefinition() {
+        return Optional.ofNullable(definition)
     }
 
     @Override

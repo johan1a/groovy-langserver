@@ -1,13 +1,16 @@
-package org.gls.lang
+package org.gls.lang.definition
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.*
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
+import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
-class VarDefinition implements Definition<VarReference>  {
+class VarDefinition implements Definition<VarReference> {
 
     ImmutableLocation location
 
@@ -40,6 +43,11 @@ class VarDefinition implements Definition<VarReference>  {
     @Override
     void setReferences(Set<VarReference> references) {
         this.references = references
+    }
+
+    @Override
+    Set<VarReference> getReferences() {
+        return references
     }
 
     @Override

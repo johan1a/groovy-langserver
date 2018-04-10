@@ -1,4 +1,4 @@
-package org.gls.lang
+package org.gls.lang.definition
 
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
@@ -6,6 +6,9 @@ import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
+import org.gls.lang.reference.FuncReference
 
 class FuncDefinition implements Definition<FuncReference> {
 
@@ -71,6 +74,11 @@ class FuncDefinition implements Definition<FuncReference> {
     @Override
     void setReferences(Set<FuncReference> references) {
         this.references = references
+    }
+
+    @Override
+    Set<FuncReference> getReferences() {
+        return references
     }
 
     @Override

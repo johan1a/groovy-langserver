@@ -1,4 +1,4 @@
-package org.gls.lang
+package org.gls.lang.reference
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -8,10 +8,13 @@ import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.DynamicVariable
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
+import org.gls.lang.definition.VarDefinition
 
 @Slf4j
 @TypeChecked
-class VarReference implements Reference<VarDefinition>  {
+class VarReference implements Reference<VarDefinition> {
 
     ImmutableLocation location
 
@@ -100,6 +103,11 @@ class VarReference implements Reference<VarDefinition>  {
     @Override
     void setDefinition(VarDefinition definition) {
         this.definition = definition
+    }
+
+    @Override
+    Optional<VarDefinition> getDefinition() {
+        return Optional.ofNullable(definition)
     }
 
     @Override

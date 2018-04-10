@@ -1,9 +1,12 @@
-package org.gls.lang
+package org.gls.lang.reference
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.*
+import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
 
 @Slf4j
 @TypeChecked
@@ -71,6 +74,11 @@ class FuncReference implements Reference<FuncDefinition> {
     @Override
     void setDefinition(FuncDefinition definition){
         this.definition = definition
+    }
+
+    @Override
+    Optional<FuncDefinition> getDefinition() {
+        return Optional.ofNullable(definition)
     }
 
     @Override

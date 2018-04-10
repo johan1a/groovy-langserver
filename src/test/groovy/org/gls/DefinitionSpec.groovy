@@ -2,7 +2,7 @@ package org.gls
 
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ClassReference
+import org.gls.lang.reference.ClassReference
 import org.gls.lang.ImmutablePosition
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification

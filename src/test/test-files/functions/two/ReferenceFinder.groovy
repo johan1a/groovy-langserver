@@ -12,23 +12,23 @@ class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
 
-    Set<ClassReference> getClassUsages(String fileUri) {
+    Set<org.gls.lang.reference.ClassReference> getClassUsages(String fileUri) {
         return storage.getClassReferences()
     }
 
-    void addClassDefinition(ClassDefinition definition) {
+    void addClassDefinition(org.gls.lang.definition.ClassDefinition definition) {
         storage.addClassDefinitionToFile(definition)
     }
 
-    void addClassUsage(ClassReference reference) {
+    void addClassUsage(org.gls.lang.reference.ClassReference reference) {
         storage.addClassReference(reference)
     }
 
-    void addVarUsage(VarReference usage) {
+    void addVarUsage(org.gls.lang.reference.VarReference usage) {
         storage.addVarReference(usage)
     }
 
-    void addFuncDefinition(FuncDefinition funcDefinition) {
+    void addFuncDefinition(org.gls.lang.definition.FuncDefinition funcDefinition) {
         storage.addFuncDefinitionToFile(funcDefinition)
     }
 
@@ -36,7 +36,7 @@ class ReferenceFinder {
         storage.addFuncCall(funcCall)
     }
 
-    void addVarDefinition(VarDefinition definition) {
+    void addVarDefinition(org.gls.lang.definition.VarDefinition definition) {
         storage.addVarDefinitionToFile(definition)
     }
 
@@ -63,11 +63,11 @@ class ReferenceFinder {
     }
 
     List<Location> getFuncReferences(ReferenceParams params) {
-        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
+        Set<org.gls.lang.definition.FuncDefinition> definitions = storage.getFuncDefinitions()
         if (definitions == null) {
             return []
         }
-        FuncDefinition definition = findMatchingDefinition(definitions, params) as FuncDefinition
+        org.gls.lang.definition.FuncDefinition definition = findMatchingDefinition(definitions, params) as org.gls.lang.definition.FuncDefinition
         if (definition != null) {
             Set<FuncCall> allFuncCalls = storage.getFuncCalls()
             Set<FuncCall> matchingFuncCalls = findMatchingFuncCalls(allFuncCalls, definition)
@@ -76,14 +76,14 @@ class ReferenceFinder {
         return []
     }
     private List<Location> getVarReferences(ReferenceParams params) {
-        Set<VarDefinition> definitions = storage.getVarDefinitions()
+        Set<org.gls.lang.definition.VarDefinition> definitions = storage.getVarDefinitions()
         if (definitions == null) {
             return []
         }
-        VarDefinition definition = findMatchingDefinition(definitions, params) as VarDefinition
+        org.gls.lang.definition.VarDefinition definition = findMatchingDefinition(definitions, params) as org.gls.lang.definition.VarDefinition
         if (definition != null) {
-            Set<VarReference> allUsages = storage.getVarReferences()
-            Set<VarReference> usages = findMatchingVarUsages(allUsages, definition)
+            Set<org.gls.lang.reference.VarReference> allUsages = storage.getVarReferences()
+            Set<org.gls.lang.reference.VarReference> usages = findMatchingVarUsages(allUsages, definition)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }
         return []
@@ -95,8 +95,8 @@ class ReferenceFinder {
         if (matchingFuncCall == null) {
             return []
         }
-        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        FuncDefinition definition = findMatchingFuncDefinition(definitions, matchingFuncCall)
+        Set<org.gls.lang.definition.FuncDefinition> definitions = storage.getFuncDefinitions()
+        org.gls.lang.definition.FuncDefinition definition = findMatchingFuncDefinition(definitions, matchingFuncCall)
         if (definition == null) {
             return []
         }
@@ -104,13 +104,13 @@ class ReferenceFinder {
     }
 
     private List<Location> getVarDefinition(TextDocumentPositionParams params) {
-        Set<VarReference> references = storage.getVarReferences()
-        VarReference matchingUsage = findMatchingReference(references, params) as VarReference
+        Set<org.gls.lang.reference.VarReference> references = storage.getVarReferences()
+        org.gls.lang.reference.VarReference matchingUsage = findMatchingReference(references, params) as org.gls.lang.reference.VarReference
         if (matchingUsage == null) {
             return []
         }
-        Set<VarDefinition> definitions = storage.getVarDefinitions()
-        VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as VarDefinition
+        Set<org.gls.lang.definition.VarDefinition> definitions = storage.getVarDefinitions()
+        org.gls.lang.definition.VarDefinition definition = findMatchingDefinition(definitions, matchingUsage) as org.gls.lang.definition.VarDefinition
         if (definition == null) {
             return []
         }
@@ -119,13 +119,13 @@ class ReferenceFinder {
 
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassReference> references = storage.getClassReferences()
-        ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
+        Set<org.gls.lang.reference.ClassReference> references = storage.getClassReferences()
+        org.gls.lang.reference.ClassReference matchingReference = findMatchingReference(references, params) as org.gls.lang.reference.ClassReference
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
             return []
         }
-        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.fullReferencedClassName}
+        org.gls.lang.definition.ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.fullReferencedClassName}
         if(definition == null) {
             return []
         }
@@ -134,23 +134,23 @@ class ReferenceFinder {
         return Arrays.asList(new Location(definition.getSourceFileURI(), new Range(start, end)))
     }
 
-    static Set<VarReference> findMatchingVarUsages(Set<VarReference> varUsages, VarDefinition varDefinition) {
+    static Set<org.gls.lang.reference.VarReference> findMatchingVarUsages(Set<org.gls.lang.reference.VarReference> varUsages, org.gls.lang.definition.VarDefinition varDefinition) {
         return varUsages.findAll {
             it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
         }
     }
 
-    static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, FuncDefinition definition) {
+    static Set<FuncCall> findMatchingFuncCalls(Set<FuncCall> funcCalls, org.gls.lang.definition.FuncDefinition definition) {
         funcCalls.findAll{ it.definingClass == definition.definingClass && it.functionName == definition.functionName && it.argumentTypes == definition.parameterTypes }
     }
 
-    static FuncDefinition findMatchingFuncDefinition(Set<FuncDefinition> definitions, FuncCall reference) {
+    static org.gls.lang.definition.FuncDefinition findMatchingFuncDefinition(Set<org.gls.lang.definition.FuncDefinition> definitions, FuncCall reference) {
         return definitions.find {
             it.definingClass == reference.definingClass && it.functionName == reference.functionName && it.parameterTypes == reference.argumentTypes
         }
     }
 
-    static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarReference reference) {
+    static org.gls.lang.definition.VarDefinition findMatchingDefinition(Set<org.gls.lang.definition.VarDefinition> definitions, org.gls.lang.reference.VarReference reference) {
         return definitions.find {
             it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }

@@ -3,21 +3,23 @@ package org.gls.lang
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.gls.lang.definition.Definition
+import org.gls.lang.reference.Reference
 
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    static List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> references, ReferenceParams params) {
-        Optional<D> definitionOptional = findMatchingDefinition(definitions, references, params)
+    static List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {
+        Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
         definitionOptional.map { definition ->
-            Set<R> usages = definition.findMatchingReferences(references)
-            return usages.collect { it.getLocation() }.sort { it.range.start.line }
+            Set<R> references = definition.getReferences()
+            return references.collect { it.getLocation() }.sort { it.range.start.line }
         }.orElse([])
     }
 
-    static List<ImmutableLocation> getDefinition(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
+    static List<ImmutableLocation> getDefinition(Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
-            Optional<D> definition = matchingUsage.findMatchingDefinition(definitions)
+            Optional<D> definition = matchingUsage.getDefinition()
             definition.map {
                 Arrays.asList(it.getLocation())
             }.orElse([])

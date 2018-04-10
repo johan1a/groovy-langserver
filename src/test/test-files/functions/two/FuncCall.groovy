@@ -6,7 +6,7 @@ import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.gls.lang.*
-import org.gls.lang.VarReference
+import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked

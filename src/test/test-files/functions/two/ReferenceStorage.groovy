@@ -12,22 +12,22 @@ import org.gls.lang.*
 @TypeChecked
 class ReferenceStorage {
 
-    Set<ClassDefinition> classDefinitions = new HashSet<>()
-    Set<ClassReference> classUsages = new HashSet<>()
-    Set<VarDefinition> varDefinitions = new HashSet<>()
-    Set<VarReference> varUsages = new HashSet<>()
-    Set<FuncDefinition> funcDefinitions = new HashSet<>()
+    Set<org.gls.lang.definition.ClassDefinition> classDefinitions = new HashSet<>()
+    Set<org.gls.lang.reference.ClassReference> classUsages = new HashSet<>()
+    Set<org.gls.lang.definition.VarDefinition> varDefinitions = new HashSet<>()
+    Set<org.gls.lang.reference.VarReference> varUsages = new HashSet<>()
+    Set<org.gls.lang.definition.FuncDefinition> funcDefinitions = new HashSet<>()
     Set<FuncCall> funcCalls = new HashSet<>()
 
-    void addVarUsage(VarReference usage) {
+    void addVarUsage(org.gls.lang.reference.VarReference usage) {
         varUsages.add(usage)
     }
 
-    void addVarDefinitionToFile(VarDefinition varDefinition) {
+    void addVarDefinitionToFile(org.gls.lang.definition.VarDefinition varDefinition) {
         getVarDefinitions().add(varDefinition)
     }
 
-    void addFuncDefinitionToFile(FuncDefinition funcDefinition) {
+    void addFuncDefinitionToFile(org.gls.lang.definition.FuncDefinition funcDefinition) {
         getFuncDefinitions().add(funcDefinition)
     }
 
@@ -35,11 +35,11 @@ class ReferenceStorage {
         getFuncCalls().add(call)
     }
 
-    void addClassUsage(ClassReference reference) {
+    void addClassUsage(org.gls.lang.reference.ClassReference reference) {
         getClassUsages().add(reference)
     }
 
-    void addClassDefinitionToFile(ClassDefinition definition) {
+    void addClassDefinitionToFile(org.gls.lang.definition.ClassDefinition definition) {
         classDefinitions.add(definition)
     }
 

@@ -4,6 +4,12 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.definition.VarDefinition
+import org.gls.lang.reference.ClassReference
+import org.gls.lang.reference.FuncReference
+import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
@@ -43,15 +49,15 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage.getVarDefinitions(), storage.getVarReferences(), params)
+        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage.getVarReferences(), params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinition(storage.getClassDefinitions(), storage.getClassReferences(), params)
+        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinition(storage.getClassReferences(), params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getDefinition(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        return funcReferenceFinder.getDefinition(storage.getFuncReferences(), params)
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {

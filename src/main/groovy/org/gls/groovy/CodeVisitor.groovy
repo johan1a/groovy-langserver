@@ -9,6 +9,12 @@ import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.SourceUnit
 import org.gls.lang.*
+import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.definition.VarDefinition
+import org.gls.lang.reference.ClassReference
+import org.gls.lang.reference.FuncReference
+import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked

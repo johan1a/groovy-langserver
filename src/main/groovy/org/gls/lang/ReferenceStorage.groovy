@@ -2,6 +2,12 @@ package org.gls.lang
 
 import groovy.util.logging.Slf4j
 import groovy.transform.TypeChecked
+import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.definition.VarDefinition
+import org.gls.lang.reference.ClassReference
+import org.gls.lang.reference.FuncReference
+import org.gls.lang.reference.VarReference
 
 /**
  * Created by joha on 27-03-2018.

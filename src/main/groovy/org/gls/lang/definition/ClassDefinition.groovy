@@ -1,8 +1,11 @@
-package org.gls.lang
+package org.gls.lang.definition
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.LocationFinder
+import org.gls.lang.reference.ClassReference
 
 @Slf4j
 @TypeChecked
@@ -23,6 +26,11 @@ class ClassDefinition implements Definition<ClassReference> {
     @Override
     void setReferences(Set<ClassReference> references) {
         this.references = references
+    }
+
+    @Override
+    Set<ClassReference> getReferences() {
+        return references
     }
 
     String getFullClassName() {

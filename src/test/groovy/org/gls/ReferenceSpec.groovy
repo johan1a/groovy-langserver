@@ -2,10 +2,10 @@ package org.gls
 
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ClassDefinition
-import org.gls.lang.ClassReference
+import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.reference.ClassReference
 import org.gls.lang.ReferenceFinder
-import org.gls.lang.VarReference
+import org.gls.lang.reference.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
