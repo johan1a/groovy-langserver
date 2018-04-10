@@ -8,7 +8,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
  */
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    List<ImmutableLocation> getVarReferences(Set<D> definitions, Set<R> allUsages, ReferenceParams params) {
+    List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> allUsages, ReferenceParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(definitions, params)
         definitionOptional.map { definition ->
             Set<R> usages = definition.findMatchingReferences(allUsages)
@@ -16,7 +16,7 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         }.orElse([])
     }
 
-    List<ImmutableLocation> getVarDefinition(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
+    List<ImmutableLocation> getDefinition(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
             Optional<D> definition = matchingUsage.findMatchingDefinition(definitions)

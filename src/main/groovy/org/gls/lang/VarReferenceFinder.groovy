@@ -12,11 +12,11 @@ class VarReferenceFinder {
     ReferenceMatcher matcher = new ReferenceMatcher<VarUsage, VarDefinition>()
 
     List<ImmutableLocation> getReferences(ReferenceStorage storage, ReferenceParams params) {
-        return matcher.getVarReferences(storage.getVarDefinitions(), storage.getVarUsages(), params)
+        return matcher.getReferences(storage.getVarDefinitions(), storage.getVarUsages(), params)
     }
 
     List<ImmutableLocation> getDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
-        return matcher.getVarDefinition(storage.getVarDefinitions(), storage.getVarUsages(), params)
+        return matcher.getDefinition(storage.getVarDefinitions(), storage.getVarUsages(), params)
     }
 
 }

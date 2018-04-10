@@ -12,26 +12,11 @@ class ClassReferenceFinder {
     ReferenceMatcher matcher = new ReferenceMatcher<ClassUsage, ClassDefinition>()
 
     List<ImmutableLocation> getClassReferences(ReferenceStorage storage, ReferenceParams params) {
-        Set<ClassDefinition> definitions = storage.getClassDefinitions()
-        Optional<ClassDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
-        definitionOptional.map { definition ->
-            Set<ClassUsage> classUsages = storage.getClassUsages()
-            Set<ClassUsage> matchingClassReferences = definition.findMatchingReferences(classUsages)
-            return matchingClassReferences.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
+        return matcher.getReferences(storage.getClassDefinitions(), storage.getClassUsages(), params)
     }
 
     List<ImmutableLocation> getClassDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
-        Set<ClassUsage> references = storage.getClassUsages()
-        Optional<ClassUsage> referenceOptional = matcher.findMatchingReference(references, params)
-        referenceOptional.map { matchingReference ->
-            Set<ClassDefinition> definitions = storage.getClassDefinitions()
-            Optional<ClassDefinition> definition = matchingReference.findMatchingDefinition(definitions)
-            definition.map{
-                Arrays.asList(it.getLocation())
-
-            }.orElse([])
-        }.orElse([])
+        return matcher.getDefinition(storage.getClassDefinitions(), storage.getClassUsages(), params)
     }
 
 }

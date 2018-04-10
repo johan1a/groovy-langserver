@@ -12,26 +12,11 @@ class FuncReferenceFinder {
     ReferenceMatcher matcher = new ReferenceMatcher<FuncCall, FuncDefinition>()
 
     List<ImmutableLocation> getFuncReferences(ReferenceStorage storage, ReferenceParams params) {
-        Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-        Optional<FuncDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
-        definitionOptional.map { definition ->
-            Set<FuncCall> allFuncCalls = storage.getFuncCalls()
-            Set<FuncCall> matchingFuncCalls = definition.findMatchingReferences(allFuncCalls)
-            return matchingFuncCalls.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
+        return matcher.getReferences(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
     }
 
     List<ImmutableLocation> getFuncDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
-        Set<FuncCall> references = storage.getFuncCalls()
-        Optional<FuncCall> funcCallOptional = matcher.findMatchingReference(references, params)
-        funcCallOptional.map { funcCall ->
-            Set<FuncDefinition> definitions = storage.getFuncDefinitions()
-            Optional<FuncDefinition> definition = funcCall.findMatchingDefinition(definitions)
-            definition.map {
-                Arrays.asList(it.getLocation())
-            }.orElse([])
-        }.orElse([])
+        return matcher.getDefinition(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
     }
-
 
 }
