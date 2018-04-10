@@ -171,13 +171,23 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             Map<String, List<TextEdit>> edits = finder.rename(params)
             fileWriterService.changeFiles(edits)
             fileWatcher.didEdit(edits)
-            result = CompletableFuture.completedFuture(new WorkspaceEdit(edits))
+
+            WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
+            result = CompletableFuture.completedFuture(edit)
         } catch (Exception e) {
             log.error("Exception", e)
             throw new NotImplementedException()
         }
         def elapsed = (System.currentTimeMillis() - start) / 1000.0
         log.info("Completed in $elapsed ms")
+        return result
+    }
+
+    static Map<String, List<TextEdit>> externalUris(Map<String, List<TextEdit>> edits) {
+        Map<String, List<TextEdit>> result = new HashMap<>()
+        edits.entrySet().each {
+            result.put("file://" + it, edits.get(it))
+        }
         return result
     }
 
