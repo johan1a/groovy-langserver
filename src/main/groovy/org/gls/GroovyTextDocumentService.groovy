@@ -96,7 +96,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         }
     }
 
-    List<ImmutableLocation> externalURIs(List<ImmutableLocation> locations) {
+    static List<ImmutableLocation> externalURIs(List<ImmutableLocation> locations) {
         locations.collect { location ->
             Position start = new Position(location.range.start.line, location.range.start.character)
             Position end = new Position(location.range.end.line, location.range.end.character)

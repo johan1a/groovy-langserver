@@ -23,7 +23,6 @@ class FileWatcher {
     void didChange(DidChangeTextDocumentParams params) {
         log.info("didChange: ")
         TextDocumentContentChangeEvent event = params.contentChanges.first()
-        log.info(event.text)
         changedFiles.put(params.textDocument.uri, event.text)
     }
 

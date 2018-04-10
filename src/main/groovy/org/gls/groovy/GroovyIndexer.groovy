@@ -4,18 +4,11 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
+import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.codehaus.groovy.control.Phases
+import org.eclipse.lsp4j.Diagnostic
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.ReferenceFinder
-import org.gls.lang.ReferenceStorage
-import org.codehaus.groovy.control.ErrorCollector
-import org.codehaus.groovy.control.MultipleCompilationErrorsException
-import org.eclipse.lsp4j.*
-import org.codehaus.groovy.syntax.*
-import org.codehaus.groovy.control.messages.*
-
-import java.util.concurrent.ExecutionException
-
 
 @Slf4j
 @TypeChecked
