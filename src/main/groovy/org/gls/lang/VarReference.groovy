@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
-class VarUsage implements Reference<VarDefinition>  {
+class VarReference implements Reference<VarDefinition>  {
 
     ImmutableLocation location
 
@@ -19,7 +19,7 @@ class VarUsage implements Reference<VarDefinition>  {
     int definitionLineNumber
     Optional<String> declaringClass = Optional.empty()
 
-    VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
 
         if(expression instanceof ClassExpression) {
             initDeclarationReference(currentClass, expression as ClassExpression)
@@ -31,7 +31,7 @@ class VarUsage implements Reference<VarDefinition>  {
         }
     }
 
-    VarUsage(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
         initDeclarationReference(currentClass, expression)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
@@ -97,7 +97,7 @@ class VarUsage implements Reference<VarDefinition>  {
 
     @Override
     public String toString() {
-        return """VarUsage[
+        return """VarReference[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,

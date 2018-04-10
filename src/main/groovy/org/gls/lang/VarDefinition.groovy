@@ -2,22 +2,12 @@ package org.gls.lang
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.ast.ASTNode
-import org.codehaus.groovy.ast.GroovyCodeVisitor
-import org.codehaus.groovy.ast.builder.AstBuilder
 import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.classgen.*
-import org.codehaus.groovy.control.CompilationUnit
-import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.*
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
 
 @Slf4j
 @TypeChecked
-class VarDefinition implements Definition<VarUsage>  {
+class VarDefinition implements Definition<VarReference>  {
 
     ImmutableLocation location
 
@@ -47,7 +37,7 @@ class VarDefinition implements Definition<VarUsage>  {
     }
 
     @Override
-    Set<VarUsage> findMatchingReferences(Set<VarUsage> varUsages) {
+    Set<VarReference> findMatchingReferences(Set<VarReference> varUsages) {
         return varUsages.findAll {
             it.getSourceFileURI() == getSourceFileURI() &&
                     it.typeName == typeName &&

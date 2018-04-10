@@ -23,14 +23,14 @@ class FuncCall implements Reference<FuncDefinition> {
         initArguments(call.getArguments())
     }
 
-    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
+    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarReference receiver) {
         functionName = call.getMethodAsString()
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         initDefiningClass(currentClassNode, receiver)
         initArguments(call.getArguments())
     }
 
-    private void initDefiningClass(ClassNode currentClassNode, VarUsage receiver) {
+    private void initDefiningClass(ClassNode currentClassNode, VarReference receiver) {
         if(receiver.varName == "this"){
             definingClass = currentClassNode.getName()
         } else if (receiver.varName == "super") {

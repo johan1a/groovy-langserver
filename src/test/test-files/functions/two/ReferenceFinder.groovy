@@ -24,7 +24,7 @@ class ReferenceFinder {
         storage.addClassUsage(reference)
     }
 
-    void addVarUsage(VarUsage usage) {
+    void addVarUsage(VarReference usage) {
         storage.addVarUsage(usage)
     }
 
@@ -82,8 +82,8 @@ class ReferenceFinder {
         }
         VarDefinition definition = findMatchingDefinition(definitions, params) as VarDefinition
         if (definition != null) {
-            Set<VarUsage> allUsages = storage.getVarUsages()
-            Set<VarUsage> usages = findMatchingVarUsages(allUsages, definition)
+            Set<VarReference> allUsages = storage.getVarUsages()
+            Set<VarReference> usages = findMatchingVarUsages(allUsages, definition)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }
         return []
@@ -104,8 +104,8 @@ class ReferenceFinder {
     }
 
     private List<Location> getVarDefinition(TextDocumentPositionParams params) {
-        Set<VarUsage> references = storage.getVarUsages()
-        VarUsage matchingUsage = findMatchingReference(references, params) as VarUsage
+        Set<VarReference> references = storage.getVarUsages()
+        VarReference matchingUsage = findMatchingReference(references, params) as VarReference
         if (matchingUsage == null) {
             return []
         }
@@ -134,7 +134,7 @@ class ReferenceFinder {
         return Arrays.asList(new Location(definition.getSourceFileURI(), new Range(start, end)))
     }
 
-    static Set<VarUsage> findMatchingVarUsages(Set<VarUsage> varUsages, VarDefinition varDefinition) {
+    static Set<VarReference> findMatchingVarUsages(Set<VarReference> varUsages, VarDefinition varDefinition) {
         return varUsages.findAll {
             it.typeName == varDefinition.typeName && it.definitionLineNumber == varDefinition.lineNumber
         }
@@ -150,7 +150,7 @@ class ReferenceFinder {
         }
     }
 
-    static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarUsage reference) {
+    static VarDefinition findMatchingDefinition(Set<VarDefinition> definitions, VarReference reference) {
         return definitions.find {
             it.typeName == reference.typeName && it.varName == reference.varName && it.lineNumber == reference.definitionLineNumber
         }

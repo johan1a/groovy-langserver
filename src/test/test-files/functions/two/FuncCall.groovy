@@ -6,7 +6,7 @@ import org.codehaus.groovy.ast.ClassNode
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.gls.lang.*
-import org.gls.lang.VarUsage
+import org.gls.lang.VarReference
 
 @Slf4j
 @TypeChecked
@@ -32,7 +32,7 @@ class FuncCall implements HasLocation {
         initArguments(call.getArguments())
     }
 
-    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarUsage receiver) {
+    FuncCall(String sourceFileURI, ClassNode currentClassNode, MethodCallExpression call, VarReference receiver) {
         this.sourceFileURI = sourceFileURI
         functionName = call.getMethodAsString()
         initPosition(call)
@@ -40,7 +40,7 @@ class FuncCall implements HasLocation {
         initArguments(call.getArguments())
     }
 
-    private void initDefiningClass(ClassNode currentClassNode, VarUsage receiver) {
+    private void initDefiningClass(ClassNode currentClassNode, VarReference receiver) {
         if(receiver.varName == "this"){
             definingClass = currentClassNode.getName()
         } else if (receiver.varName == "super") {

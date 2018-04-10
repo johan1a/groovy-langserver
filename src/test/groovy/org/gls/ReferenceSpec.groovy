@@ -5,7 +5,7 @@ import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassDefinition
 import org.gls.lang.ClassReference
 import org.gls.lang.ReferenceFinder
-import org.gls.lang.VarUsage
+import org.gls.lang.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -113,8 +113,8 @@ class ReferenceSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
         indexer.index()
 
-        Set<VarUsage> usages = finder.storage.getVarUsages()
-        VarUsage reference = usages.find { it.varName == 'theString' }
+        Set<VarReference> usages = finder.storage.getVarUsages()
+        VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
         usages.size() == 2
