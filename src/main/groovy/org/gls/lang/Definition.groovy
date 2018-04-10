@@ -7,4 +7,6 @@ interface Definition<R> extends HasLocation {
 
     Set<R> findMatchingReferences(Set<R> references)
 
+    void setReferences(Set<R> references)
+
 }

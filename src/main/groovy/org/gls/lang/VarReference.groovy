@@ -19,6 +19,7 @@ class VarReference implements Reference<VarDefinition>  {
     String typeName
     int definitionLineNumber
     Optional<String> declaringClass = Optional.empty()
+    private VarDefinition definition
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
 
@@ -94,6 +95,11 @@ class VarReference implements Reference<VarDefinition>  {
             // Seems to be true for method arguments.
             this.declaringClass = Optional.of(currentClass.getName())
         }
+    }
+
+    @Override
+    void setDefinition(VarDefinition definition) {
+        this.definition = definition
     }
 
     @Override

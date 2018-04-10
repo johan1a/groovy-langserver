@@ -15,6 +15,7 @@ class FuncDefinition implements Definition<FuncReference> {
     String functionName
     String definingClass
     List<String> parameterTypes
+    private Set<FuncReference> references
 
     FuncDefinition() {
 
@@ -65,6 +66,11 @@ class FuncDefinition implements Definition<FuncReference> {
 
     void initParameterTypes(Parameter[] parameters) {
         this.parameterTypes = parameters.collect { it.getType().name }
+    }
+
+    @Override
+    void setReferences(Set<FuncReference> references) {
+        this.references = references
     }
 
     @Override

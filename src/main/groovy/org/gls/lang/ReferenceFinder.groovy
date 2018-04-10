@@ -14,8 +14,8 @@ class ReferenceFinder {
     ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarReference, VarDefinition>()
     ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassReference>()
 
-    Set<ClassReference> getClassUsages() {
-        return storage.getClassUsages()
+    Set<ClassReference> getClassReferences() {
+        return storage.getClassReferences()
     }
 
     void addClassDefinition(ClassDefinition definition) {
@@ -23,11 +23,11 @@ class ReferenceFinder {
     }
 
     void addClassUsage(ClassReference reference) {
-        storage.addClassUsage(reference)
+        storage.addClassReference(reference)
     }
 
     void addVarUsage(VarReference usage) {
-        storage.addVarUsage(usage)
+        storage.addVarReference(usage)
     }
 
     void addFuncDefinition(FuncDefinition funcDefinition) {
@@ -43,11 +43,11 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage.getVarDefinitions(), storage.getVarUsages(), params)
+        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinition(storage.getClassDefinitions(), storage.getClassUsages(), params)
+        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinition(storage.getClassDefinitions(), storage.getClassReferences(), params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
@@ -55,17 +55,23 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarUsages(), params)
+        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<ImmutableLocation> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassUsages(), params)
+        List<ImmutableLocation> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassReferences(), params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
 
         List<ImmutableLocation> references = funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
         return references
+    }
+
+    void correlate() {
+        varReferenceFinder.correlate(storage.getVarDefinitions(), storage.getVarReferences())
+        funcReferenceFinder.correlate(storage.getFuncDefinitions(), storage.getFuncReferences())
+        classReferenceFinder.correlate(storage.getClassDefinitions(), storage.getClassReferences())
     }
 }
 

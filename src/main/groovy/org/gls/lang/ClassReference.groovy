@@ -17,6 +17,7 @@ class ClassReference implements Reference<ClassDefinition> {
     ImmutableLocation location
 
     String fullReferencedClassName
+    ClassDefinition definition
 
     String getShortReferencedClassName() {
         return fullReferencedClassName.split("\\.").last()
@@ -54,6 +55,11 @@ class ClassReference implements Reference<ClassDefinition> {
     ClassReference(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
         this.fullReferencedClassName = expression.type.name
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
+    }
+
+    @Override
+    void setDefinition(ClassDefinition definition){
+        this.definition = definition
     }
 
     @Override

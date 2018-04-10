@@ -13,6 +13,7 @@ class VarDefinition implements Definition<VarReference>  {
 
     String typeName
     String varName
+    private Set<VarReference> references
 
     VarDefinition(String sourceFileURI, List<String> source, Parameter node) {
         typeName = node.getType().getName()
@@ -34,6 +35,11 @@ class VarDefinition implements Definition<VarReference>  {
         typeName = node.getType().getName()
         varName = node.getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
+    }
+
+    @Override
+    void setReferences(Set<VarReference> references) {
+        this.references = references
     }
 
     @Override

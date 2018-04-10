@@ -53,4 +53,11 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
                 hasLocation.lastLineNumber >= position.line
     }
 
+    static void correlate(Set<D> definitions, Set<R> references) {
+        definitions.each { definition ->
+            Set<R> matchingReferences = definition.findMatchingReferences(references)
+            definition.setReferences(matchingReferences)
+            matchingReferences.each { it.setDefinition(definition) }
+        }
+    }
 }

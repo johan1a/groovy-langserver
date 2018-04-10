@@ -54,7 +54,7 @@ class DefinitionSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
         indexer.index()
         List<Location> definitions = finder.getDefinition(params)
-        Set<ClassReference> usages = finder.storage.getClassUsages()
+        Set<ClassReference> usages = finder.getClassReferences()
 
         then:
         definitions.size() == 1
@@ -132,7 +132,7 @@ class DefinitionSpec extends Specification {
         List<Location> definitions2 = finder.getReferences(params2)
 
         then:
-        finder.storage.varUsages.every { it.location.uri.startsWith("/") }
+        finder.storage.varReferences.every { it.location.uri.startsWith("/") }
         finder.storage.varDefinitions.every { it.location.uri.startsWith("/") }
         definitions1.size() == 1
         definitions1.first().uri.startsWith("/")

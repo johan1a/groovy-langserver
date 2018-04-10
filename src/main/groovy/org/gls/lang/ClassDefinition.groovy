@@ -12,11 +12,17 @@ class ClassDefinition implements Definition<ClassReference> {
 
     private String packageName
     private String className
+    private Set<ClassReference> references
 
     ClassDefinition(ClassNode node, String sourceFileURI, List<String> source) {
         className = node.getNameWithoutPackage()
         packageName = node.getPackageName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, className)
+    }
+
+    @Override
+    void setReferences(Set<ClassReference> references) {
+        this.references = references
     }
 
     String getFullClassName() {

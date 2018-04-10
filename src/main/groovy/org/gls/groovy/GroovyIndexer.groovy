@@ -55,6 +55,7 @@ class GroovyIndexer {
         try {
             long start = System.currentTimeMillis()
             compile(files, changedFiles)
+            finder.correlate()
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {

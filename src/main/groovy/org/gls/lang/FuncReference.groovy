@@ -15,6 +15,7 @@ class FuncReference implements Reference<FuncDefinition> {
 
     String definingClass
     List<String> argumentTypes
+    private FuncDefinition definition
 
     FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode, StaticMethodCallExpression call) {
         functionName = call.getMethodAsString()
@@ -64,7 +65,12 @@ class FuncReference implements Reference<FuncDefinition> {
 
     void initArguments(TupleExpression expression) {
         List<Expression> expressions = expression.expressions
-        this.argumentTypes = expressions.collect{ it.getType().getName() }
+        this.argumentTypes = expressions.collect { it.getType().getName() }
+    }
+
+    @Override
+    void setDefinition(FuncDefinition definition){
+        this.definition = definition
     }
 
     @Override

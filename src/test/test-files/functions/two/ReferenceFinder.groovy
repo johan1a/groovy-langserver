@@ -13,7 +13,7 @@ class ReferenceFinder {
     ReferenceStorage storage = new ReferenceStorage()
 
     Set<ClassReference> getClassUsages(String fileUri) {
-        return storage.getClassUsages()
+        return storage.getClassReferences()
     }
 
     void addClassDefinition(ClassDefinition definition) {
@@ -21,11 +21,11 @@ class ReferenceFinder {
     }
 
     void addClassUsage(ClassReference reference) {
-        storage.addClassUsage(reference)
+        storage.addClassReference(reference)
     }
 
     void addVarUsage(VarReference usage) {
-        storage.addVarUsage(usage)
+        storage.addVarReference(usage)
     }
 
     void addFuncDefinition(FuncDefinition funcDefinition) {
@@ -82,7 +82,7 @@ class ReferenceFinder {
         }
         VarDefinition definition = findMatchingDefinition(definitions, params) as VarDefinition
         if (definition != null) {
-            Set<VarReference> allUsages = storage.getVarUsages()
+            Set<VarReference> allUsages = storage.getVarReferences()
             Set<VarReference> usages = findMatchingVarUsages(allUsages, definition)
             return usages.collect { it.getLocation() }.sort { it.range.start.line }
         }
@@ -104,7 +104,7 @@ class ReferenceFinder {
     }
 
     private List<Location> getVarDefinition(TextDocumentPositionParams params) {
-        Set<VarReference> references = storage.getVarUsages()
+        Set<VarReference> references = storage.getVarReferences()
         VarReference matchingUsage = findMatchingReference(references, params) as VarReference
         if (matchingUsage == null) {
             return []
@@ -119,7 +119,7 @@ class ReferenceFinder {
 
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassReference> references = storage.getClassUsages()
+        Set<ClassReference> references = storage.getClassReferences()
         ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
