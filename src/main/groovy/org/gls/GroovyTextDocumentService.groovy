@@ -7,9 +7,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.TextDocumentService
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutableRange
@@ -25,7 +22,6 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     private ReferenceFinder finder = new ReferenceFinder()
     private LanguageClient client
     FileWatcher fileWacher = new FileWatcher()
-
 
     List<URI> getSourcePaths() {
         return sourcePaths

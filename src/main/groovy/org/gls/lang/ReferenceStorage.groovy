@@ -1,4 +1,5 @@
 package org.gls.lang
+
 import groovy.util.logging.Slf4j
 import groovy.transform.TypeChecked
 

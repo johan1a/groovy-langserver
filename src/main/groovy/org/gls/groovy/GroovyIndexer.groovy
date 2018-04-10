@@ -84,6 +84,7 @@ class GroovyIndexer {
                 codeVisitor.visitClass(classNode)
             }
         }
+
     }
 
     static List<String> getFileContent(String fileName, Map<String, String> changedFiles) {

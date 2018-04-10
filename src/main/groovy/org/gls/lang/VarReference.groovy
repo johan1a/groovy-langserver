@@ -1,12 +1,13 @@
 package org.gls.lang
 
+import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.*
-import groovy.transform.TypeChecked
-import org.eclipse.lsp4j.Location
+import org.codehaus.groovy.ast.ClassNode
+import org.codehaus.groovy.ast.DynamicVariable
+import org.codehaus.groovy.ast.expr.ClassExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
 
 @Slf4j
 @TypeChecked

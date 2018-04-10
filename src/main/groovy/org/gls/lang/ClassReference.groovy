@@ -1,11 +1,14 @@
 package org.gls.lang
 
-import groovy.util.logging.Slf4j
-import org.codehaus.groovy.ast.ASTNode
 import groovy.transform.TypeChecked
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.*
-import org.eclipse.lsp4j.Location
+import groovy.util.logging.Slf4j
+import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.ast.expr.DeclarationExpression
+import org.codehaus.groovy.ast.expr.Expression
+import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
 
 @Slf4j
 @TypeChecked
