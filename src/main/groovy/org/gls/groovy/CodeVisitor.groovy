@@ -44,18 +44,18 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitField(FieldNode node){
-        finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, node))
+        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
         super.visitField(node)
     }
 
     @Override
     void visitMethod(MethodNode node){
-        finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, node))
+        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.getName(), node))
         node.parameters.each { Parameter it ->
             finder.addVarDefinition( new VarDefinition(sourceFileURI, fileContents, it))
-            finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, it))
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
         }
         super.visitMethod(node)
     }
@@ -167,7 +167,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
         } else {
             VariableExpression left = expression.getVariableExpression()
             finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
-            finder.addClassUsage(new ClassUsage(sourceFileURI, fileContents, expression))
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
         }
         super.visitDeclarationExpression(expression)
     }

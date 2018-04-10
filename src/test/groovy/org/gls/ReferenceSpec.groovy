@@ -3,7 +3,7 @@ package org.gls
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ClassDefinition
-import org.gls.lang.ClassUsage
+import org.gls.lang.ClassReference
 import org.gls.lang.ReferenceFinder
 import org.gls.lang.VarUsage
 import spock.lang.Specification
@@ -25,7 +25,7 @@ class ReferenceSpec extends Specification {
 
         ClassDefinition definition = finder.storage.getClassDefinitions().find{it.getFullClassName() == "Box"}
         def usages = finder.getClassUsages()
-        ClassUsage usage = usages.first()
+        ClassReference usage = usages.first()
 
         expect:
         definition.lineNumber == 0
@@ -40,8 +40,8 @@ class ReferenceSpec extends Specification {
         indexer.index()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
-        Set<ClassUsage> usages = finder.getClassUsages()
-        ClassUsage usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
+        Set<ClassReference> usages = finder.getClassUsages()
+        ClassReference usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
 
         expect:
         usage.lineNumber == 7

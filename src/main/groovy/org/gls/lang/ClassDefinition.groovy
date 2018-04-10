@@ -6,7 +6,7 @@ import org.codehaus.groovy.ast.ClassNode
 
 @Slf4j
 @TypeChecked
-class ClassDefinition implements Definition<ClassUsage> {
+class ClassDefinition implements Definition<ClassReference> {
 
     ImmutableLocation location
 
@@ -27,7 +27,7 @@ class ClassDefinition implements Definition<ClassUsage> {
     }
 
     @Override
-    Set<ClassUsage> findMatchingReferences(Set<ClassUsage> references) {
+    Set<ClassReference> findMatchingReferences(Set<ClassReference> references) {
         references.findAll {
             it.fullReferencedClassName == getFullClassName()
         }

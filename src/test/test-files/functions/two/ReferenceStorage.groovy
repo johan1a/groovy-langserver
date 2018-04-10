@@ -13,7 +13,7 @@ import org.gls.lang.*
 class ReferenceStorage {
 
     Set<ClassDefinition> classDefinitions = new HashSet<>()
-    Set<ClassUsage> classUsages = new HashSet<>()
+    Set<ClassReference> classUsages = new HashSet<>()
     Set<VarDefinition> varDefinitions = new HashSet<>()
     Set<VarUsage> varUsages = new HashSet<>()
     Set<FuncDefinition> funcDefinitions = new HashSet<>()
@@ -35,7 +35,7 @@ class ReferenceStorage {
         getFuncCalls().add(call)
     }
 
-    void addClassUsage(ClassUsage reference) {
+    void addClassUsage(ClassReference reference) {
         getClassUsages().add(reference)
     }
 

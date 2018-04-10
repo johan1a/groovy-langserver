@@ -12,7 +12,7 @@ class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
 
-    Set<ClassUsage> getClassUsages(String fileUri) {
+    Set<ClassReference> getClassUsages(String fileUri) {
         return storage.getClassUsages()
     }
 
@@ -20,7 +20,7 @@ class ReferenceFinder {
         storage.addClassDefinitionToFile(definition)
     }
 
-    void addClassUsage(ClassUsage reference) {
+    void addClassUsage(ClassReference reference) {
         storage.addClassUsage(reference)
     }
 
@@ -119,8 +119,8 @@ class ReferenceFinder {
 
     private List<Location> getClassDefinition(TextDocumentPositionParams params) {
         String path = params.textDocument.uri.replace("file://", "")
-        Set<ClassUsage> references = storage.getClassUsages()
-        ClassUsage matchingReference = findMatchingReference(references, params) as ClassUsage
+        Set<ClassReference> references = storage.getClassUsages()
+        ClassReference matchingReference = findMatchingReference(references, params) as ClassReference
         log.info "matchingReference: $matchingReference"
         if (matchingReference == null) {
             return []

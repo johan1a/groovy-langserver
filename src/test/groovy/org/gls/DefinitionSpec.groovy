@@ -2,7 +2,7 @@ package org.gls
 
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ClassUsage
+import org.gls.lang.ClassReference
 import org.gls.lang.ImmutablePosition
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
@@ -54,13 +54,13 @@ class DefinitionSpec extends Specification {
         GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
         indexer.index()
         List<Location> definitions = finder.getDefinition(params)
-        Set<ClassUsage> usages = finder.storage.getClassUsages()
+        Set<ClassReference> usages = finder.storage.getClassUsages()
 
         then:
         definitions.size() == 1
         definitions.first().range.start.line == 1
         usages.size() == 3
-        ClassUsage usage = usages.find { it.lineNumber == 4 }
+        ClassReference usage = usages.find { it.lineNumber == 4 }
         usage.columnNumber == 8
         usage.lastColumnNumber == 23
     }

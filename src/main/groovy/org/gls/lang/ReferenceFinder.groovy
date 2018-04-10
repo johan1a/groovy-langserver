@@ -12,9 +12,9 @@ class ReferenceFinder {
     ReferenceStorage storage = new ReferenceStorage()
     ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncCall, FuncDefinition>()
     ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarUsage, VarDefinition>()
-    ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassUsage, ClassUsage>()
+    ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassReference>()
 
-    Set<ClassUsage> getClassUsages() {
+    Set<ClassReference> getClassUsages() {
         return storage.getClassUsages()
     }
 
@@ -22,7 +22,7 @@ class ReferenceFinder {
         storage.addClassDefinitionToFile(definition)
     }
 
-    void addClassUsage(ClassUsage reference) {
+    void addClassUsage(ClassReference reference) {
         storage.addClassUsage(reference)
     }
 

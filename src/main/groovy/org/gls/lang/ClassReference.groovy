@@ -9,7 +9,7 @@ import org.eclipse.lsp4j.Location
 
 @Slf4j
 @TypeChecked
-class ClassUsage implements Reference<ClassDefinition> {
+class ClassReference implements Reference<ClassDefinition> {
 
     ImmutableLocation location
 
@@ -19,36 +19,36 @@ class ClassUsage implements Reference<ClassDefinition> {
         return fullReferencedClassName.split("\\.").last()
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, Parameter node) {
+    ClassReference(String sourceFileURI, List<String> source, Parameter node) {
         this.fullReferencedClassName = node.getType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, FieldNode node) {
+    ClassReference(String sourceFileURI, List<String> source, FieldNode node) {
         this.fullReferencedClassName = node.getType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
-    ClassUsage(String sourceFileURI, Expression expression) {
+    ClassReference(String sourceFileURI, Expression expression) {
         throw new Exception()
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, VariableExpression expression) {
+    ClassReference(String sourceFileURI, List<String> source, VariableExpression expression) {
         this.fullReferencedClassName = expression.getType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, DeclarationExpression expression) {
+    ClassReference(String sourceFileURI, List<String> source, DeclarationExpression expression) {
         this.fullReferencedClassName = expression.getLeftExpression().getType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, MethodNode node) {
+    ClassReference(String sourceFileURI, List<String> source, MethodNode node) {
         this.fullReferencedClassName = node.getReturnType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
-    ClassUsage(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
+    ClassReference(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
         this.fullReferencedClassName = expression.type.name
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
     }
@@ -65,7 +65,7 @@ class ClassUsage implements Reference<ClassDefinition> {
     }
 
     String toString() {
-        return """ClassUsage[
+        return """ClassReference[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,
