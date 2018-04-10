@@ -11,26 +11,12 @@ class VarReferenceFinder {
 
     ReferenceMatcher matcher = new ReferenceMatcher<VarUsage, VarDefinition>()
 
-    List<ImmutableLocation> getVarReferences(ReferenceStorage storage, ReferenceParams params) {
-        Set<VarDefinition> definitions = storage.getVarDefinitions()
-        Optional<VarDefinition> definitionOptional = matcher.findMatchingDefinition(definitions, params)
-        definitionOptional.map { definition ->
-            Set<VarUsage> allUsages = storage.getVarUsages()
-            Set<VarUsage> usages = definition.findMatchingReferences(allUsages)
-            return usages.collect { it.getLocation() }.sort { it.range.start.line }
-        }.orElse([])
+    List<ImmutableLocation> getReferences(ReferenceStorage storage, ReferenceParams params) {
+        return matcher.getVarReferences(storage.getVarDefinitions(), storage.getVarUsages(), params)
     }
 
-    List<ImmutableLocation> getVarDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
-        Set<VarUsage> references = storage.getVarUsages()
-        Optional<VarUsage> usageOptional = matcher.findMatchingReference(references, params)
-        usageOptional.map { matchingUsage ->
-            Set<VarDefinition> definitions = storage.getVarDefinitions()
-            Optional<VarDefinition> definition = matchingUsage.findMatchingDefinition(definitions)
-            definition.map {
-                Arrays.asList(it.getLocation())
-            }.orElse([])
-        }.orElse([])
+    List<ImmutableLocation> getDefinition(ReferenceStorage storage, TextDocumentPositionParams params) {
+        return matcher.getVarDefinition(storage.getVarDefinitions(), storage.getVarUsages(), params)
     }
 
 }

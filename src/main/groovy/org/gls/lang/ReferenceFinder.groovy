@@ -43,7 +43,7 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = varReferenceFinder.getVarDefinition(storage, params)
+        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinition(storage, params)
         log.info("varDefinitions: ${varDefinitions}")
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
@@ -57,7 +57,7 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = varReferenceFinder.getVarReferences(storage, params)
+        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage, params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
