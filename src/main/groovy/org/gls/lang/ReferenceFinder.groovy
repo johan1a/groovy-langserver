@@ -63,16 +63,16 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarReferences(), params)
+        List<ImmutableLocation> varReferences = varReferenceFinder.getReferenceLocations(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<ImmutableLocation> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassReferences(), params)
+        List<ImmutableLocation> classReferences = classReferenceFinder.getReferenceLocations(storage.getClassDefinitions(), storage.getClassReferences(), params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
 
-        List<ImmutableLocation> references = funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        List<ImmutableLocation> references = funcReferenceFinder.getReferenceLocations(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
         return references
     }
 

@@ -8,11 +8,14 @@ import org.gls.lang.reference.Reference
 
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    static List<ImmutableLocation> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {
+    static List<ImmutableLocation> getReferenceLocations(Set<D> definitions, Set<R> references, ReferenceParams params) {
+        return getReferences(definitions, references, params).collect { it.getLocation() }.sort { it.range.start.line }
+    }
+
+    static List<R> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
         definitionOptional.map { definition ->
-            Set<R> references = definition.getReferences()
-            return references.collect { it.getLocation() }.sort { it.range.start.line }
+            definition.getReferences().toList()
         }.orElse([])
     }
 
@@ -62,4 +65,5 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
             matchingReferences.each { it.setDefinition(definition) }
         }
     }
+
 }
