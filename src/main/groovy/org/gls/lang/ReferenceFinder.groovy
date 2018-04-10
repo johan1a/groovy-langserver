@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.TextDocumentPositionParams
 class ReferenceFinder {
 
     ReferenceStorage storage = new ReferenceStorage()
-    ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncCall, FuncDefinition>()
+    ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncReference, FuncDefinition>()
     ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarReference, VarDefinition>()
     ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassReference>()
 
@@ -34,8 +34,8 @@ class ReferenceFinder {
         storage.addFuncDefinitionToFile(funcDefinition)
     }
 
-    void addFuncCall(FuncCall funcCall) {
-        storage.addFuncCall(funcCall)
+    void addFuncCall(FuncReference funcCall) {
+        storage.addFuncReference(funcCall)
     }
 
     void addVarDefinition(VarDefinition definition) {
@@ -51,7 +51,7 @@ class ReferenceFinder {
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getDefinition(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
+        return funcReferenceFinder.getDefinition(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
@@ -63,6 +63,8 @@ class ReferenceFinder {
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncCalls(), params)
+
+        List<ImmutableLocation> references = funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        return references
     }
 }

@@ -62,6 +62,10 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitProperty(PropertyNode node){
+        FuncDefinition getter = FuncDefinition.makeGetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
+        finder.addFuncDefinition(getter)
+        FuncDefinition setter = FuncDefinition.makeSetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
+        finder.addFuncDefinition(setter)
         super.visitProperty(node)
     }
 
@@ -221,7 +225,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitMethodCallExpression(MethodCallExpression call){
         VarReference usage = new VarReference(sourceFileURI, fileContents, currentClassNode, call.getReceiver())
 
-        FuncCall funcCall = new FuncCall(sourceFileURI, fileContents, currentClassNode, call, usage)
+        FuncReference funcCall = new FuncReference(sourceFileURI, fileContents, currentClassNode, call, usage)
         finder.addFuncCall(funcCall)
         super.visitMethodCallExpression(call)
     }
@@ -278,7 +282,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitStaticMethodCallExpression(StaticMethodCallExpression expression){
-        finder.addFuncCall(new FuncCall(sourceFileURI, fileContents, currentClassNode, expression))
+        finder.addFuncCall(new FuncReference(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitStaticMethodCallExpression(expression)
     }
 

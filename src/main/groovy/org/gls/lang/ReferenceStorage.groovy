@@ -15,7 +15,7 @@ class ReferenceStorage {
     Set<VarDefinition> varDefinitions = new HashSet<>()
     Set<VarReference> varUsages = new HashSet<>()
     Set<FuncDefinition> funcDefinitions = new HashSet<>()
-    Set<FuncCall> funcCalls = new HashSet<>()
+    Set<FuncReference> funcReferences = new HashSet<>()
 
     void addVarUsage(VarReference usage) {
         varUsages.add(usage)
@@ -29,8 +29,8 @@ class ReferenceStorage {
         getFuncDefinitions().add(funcDefinition)
     }
 
-    void addFuncCall(FuncCall call) {
-        getFuncCalls().add(call)
+    void addFuncReference(FuncReference reference) {
+        getFuncReferences().add(reference)
     }
 
     void addClassUsage(ClassReference reference) {

@@ -7,7 +7,7 @@ import org.codehaus.groovy.ast.expr.*
 
 @Slf4j
 @TypeChecked
-class FuncCall implements Reference<FuncDefinition> {
+class FuncReference implements Reference<FuncDefinition> {
 
     ImmutableLocation location
 
@@ -16,14 +16,14 @@ class FuncCall implements Reference<FuncDefinition> {
     String definingClass
     List<String> argumentTypes
 
-    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, StaticMethodCallExpression call) {
+    FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode, StaticMethodCallExpression call) {
         functionName = call.getMethodAsString()
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         definingClass = currentClassNode.getName()
         initArguments(call.getArguments())
     }
 
-    FuncCall(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarReference receiver) {
+    FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call, VarReference receiver) {
         functionName = call.getMethodAsString()
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         initDefiningClass(currentClassNode, receiver)
