@@ -66,30 +66,40 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public CompletableFuture<List<? extends ImmutableLocation>> definition(TextDocumentPositionParams params) {
+        long start = System.currentTimeMillis()
+        CompletableFuture<List<? extends ImmutableLocation>> result
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
             log.info "definition params: ${params}"
             def definition = externalURIs(finder.getDefinition(params))
             log.info "found definition: ${definition}"
-            return CompletableFuture.completedFuture(definition)
+            result = CompletableFuture.completedFuture(definition)
         } catch (Exception e) {
             log.error("Exception", e)
-            return CompletableFuture.completedFuture([])
+            result = CompletableFuture.completedFuture([])
         }
+        def elapsed = (System.currentTimeMillis() - start) / 1000.0
+        log.info("Completed in $elapsed ms")
+        return result
     }
 
     @Override
     public CompletableFuture<List<? extends ImmutableLocation>> references(ReferenceParams params) {
+        long start = System.currentTimeMillis()
+        CompletableFuture<List<? extends ImmutableLocation>> result
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         log.info "reference params: ${params}"
         try {
             def references = externalURIs(finder.getReferences(params))
             log.info "Found references: ${references}"
-            return CompletableFuture.completedFuture(references)
+            result = CompletableFuture.completedFuture(references)
         } catch (Exception e) {
             log.error("Exception", e)
-            return CompletableFuture.completedFuture([])
+            result = CompletableFuture.completedFuture([])
         }
+        def elapsed = (System.currentTimeMillis() - start) / 1000.0
+        log.info("Completed in $elapsed ms")
+        return result
     }
 
     static List<ImmutableLocation> externalURIs(List<ImmutableLocation> locations) {
