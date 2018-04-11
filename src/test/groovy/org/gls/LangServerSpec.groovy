@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.InitializeParams
 import spock.lang.Specification
 
 @TypeChecked
-class LangServerSpec extends Specification{
+class LangServerSpec extends Specification {
     def "test initialize"() {
         LangServer langServer = new LangServer()
 

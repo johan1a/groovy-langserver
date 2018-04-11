@@ -97,12 +97,12 @@ class ReferenceSpec extends Specification {
 
         where:
         _dir                | _pos                  | _class               |  _expected
-//        'functions/1'       | new Position(16, 23)  | "MultipleFuncRefs1"  |  4
-//        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
-//        'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
-//        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
+        'functions/1'       | new Position(16, 23)  | "MultipleFuncRefs1"  |  4
+        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
+        'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
+        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
         'functions/two'     | new Position(12, 21)  | "ReferenceStorage"   |  1
-   //     'functions/two'     | new Position(61, 23)  | "ReferenceFinder"    |  1
+        'functions/two'     | new Position(61, 23)  | "ReferenceFinder"    |  1
     }
 
     def "test VarRef indexing"() {
