@@ -1,7 +1,7 @@
 
 # groovy-langserver
 
-A LSP server implementation for groovy
+An LSP server implementation for groovy
 
 # Build
 
@@ -17,7 +17,7 @@ java -jar build/libs/groovy-langserver-all.jar
 
 # Use with Neovim
 
-Install a LSP client:
+Install an LSP client:
 
 https://github.com/autozimu/LanguageClient-neovim
 
