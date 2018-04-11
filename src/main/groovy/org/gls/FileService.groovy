@@ -37,7 +37,7 @@ class FileService {
         fileWatcher.didEdit(edits)
     }
 
-    void writeFiles(Map<String, List<TextEdit>> allEdits) {
+    static void writeFiles(Map<String, List<TextEdit>> allEdits) {
 
         allEdits.each { fileName, List<TextEdit> edits ->
             log.info fileName

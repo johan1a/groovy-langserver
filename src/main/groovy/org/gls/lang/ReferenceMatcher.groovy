@@ -103,7 +103,9 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
             edits = new LinkedList<>()
             changes.put(sourceUri, edits)
         }
-        edits.add(textEdit)
+        if (textEdit.range.start.line > 0) {
+            edits.add(textEdit)
+        }
     }
 
     private static TextDocumentPositionParams toTextDocumentPositionParams(RenameParams params) {
