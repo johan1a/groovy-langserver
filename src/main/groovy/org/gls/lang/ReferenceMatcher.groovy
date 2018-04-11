@@ -8,17 +8,17 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
 
     static List<ImmutableLocation> getReferenceLocations(Set<D> definitions, Set<R> references, ReferenceParams params) {
         return getReferences(definitions, references, params).collect { it.getLocation() }
-                .findAll{ it.range.start.line > 0 && it.range.start.character > 0}
+                .findAll { it.range.start.line > 0 && it.range.start.character > 0 }
                 .sort { it.range.start.line }
     }
 
     static List<ImmutableLocation> getDefinitionLocations(Set<R> references, TextDocumentPositionParams params) {
         return getDefinitions(references, params).collect { it.getLocation() }
-                .findAll{ it.range.start.line > 0 && it.range.start.character > 0}
+                .findAll { it.range.start.line > 0 && it.range.start.character > 0 }
                 .sort { it.range.start.line }
     }
 
-    static List<R> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {
+    static List<R> getReferences(Set<D> definitions, Set<R> allReferences, TextDocumentPositionParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
         definitionOptional.map { definition ->
             definition.getReferences().toList()
@@ -72,28 +72,34 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         }
     }
 
-    static Map<String, List<TextEdit>> rename(Set<R> references, RenameParams params) {
+    static Map<String, List<TextEdit>> rename(Set<D> allDefinitions, Set<R> allReferences, RenameParams params) {
         Map<String, List<TextEdit>> changes = new HashMap<>()
-        List<Definition> definitions = getDefinitions(references, toTextDocumentPositionParams(params))
-        addTextEdits(definitions, changes, params.newName)
+
+        TextDocumentPositionParams params1 = toTextDocumentPositionParams(params)
+        List<R> references = getReferences(allDefinitions, allReferences, params1)
+        addTextEdits(references, changes, params.newName)
         return changes
     }
 
-    private static void addTextEdits(List<D> definitions, Map<String, List<TextEdit>> changes, String newName) {
-        definitions.forEach() { D definition ->
-            Range range = definition.location.range
+    private static void addTextEdits(List<R> references, Map<String, List<TextEdit>> changes, String newName) {
+        references.forEach() { R reference ->
+            Range range = reference.location.range
             TextEdit defEdit = new TextEdit(range, newName)
-            addOrCreate(changes, definition.getSourceFileURI(), defEdit)
-            definition.getReferences().each { R reference ->
-                TextEdit edit = new TextEdit(reference.location.range, newName)
-                addOrCreate(changes, reference.getSourceFileURI(), edit)
+            addOrCreate(changes, reference.getSourceFileURI(), defEdit)
+        }
+
+        List<Optional<D>> unique = references.collect { it.getDefinition() }.unique().toList()
+        unique.forEach { Optional<D> definitionOptional ->
+            definitionOptional.map { definition ->
+                TextEdit edit = new TextEdit(definition.location.range, newName)
+                addOrCreate(changes, definition.getSourceFileURI(), edit)
             }
         }
     }
 
     static void addOrCreate(Map<String, List<TextEdit>> changes, String sourceUri, TextEdit textEdit) {
         List<TextEdit> edits = changes.get(sourceUri)
-        if(edits == null){
+        if (edits == null) {
             edits = new LinkedList<>()
             changes.put(sourceUri, edits)
         }

@@ -82,15 +82,15 @@ class ReferenceFinder {
     }
 
     Map<String, List<TextEdit>> rename(RenameParams params) {
-        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.getVarReferences(), params)
+        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varEdits.isEmpty()) {
             return varEdits
         }
-        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage.getFuncReferences(), params)
+        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
         if (!funcEdits.isEmpty()) {
             return funcEdits
         }
-        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.getClassReferences(), params)
+        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.getClassDefinitions(), storage.getClassReferences(), params)
         return classEdits
     }
 }

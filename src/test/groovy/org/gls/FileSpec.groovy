@@ -4,9 +4,11 @@ import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import static org.gls.util.TestUtil.uriList
 
+@Unroll
 class FileSpec extends Specification {
 
     def "Rename file"() {
@@ -39,6 +41,9 @@ class FileSpec extends Specification {
         where:
         _pos                  | _newText     | _class            | _size | _edits
         new Position(122, 78) | "coolerName" | "ReferenceFinder" | 3     | [[line: 119, start: 73, end: 78],
+                                                                            [line: 120, start: 73, end: 78],
+                                                                            [line: 122, start: 77, end: 83]]
+        new Position(119, 73) | "coolerName" | "ReferenceFinder" | 3     | [[line: 119, start: 73, end: 78],
                                                                             [line: 120, start: 73, end: 78],
                                                                             [line: 122, start: 77, end: 83]]
 
