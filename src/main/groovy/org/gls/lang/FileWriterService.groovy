@@ -1,12 +1,7 @@
 package org.gls.lang
 
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.control.io.FileReaderSource
 import org.eclipse.lsp4j.TextEdit
-
-import java.nio.file.Files
-import java.nio.file.Paths
-
 /**
  * Created by johan on 4/10/18.
  */
