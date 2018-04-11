@@ -72,7 +72,7 @@ class GroovyIndexer {
         notChanged.each { unit.addSource(it) }
         changedFiles.each { path, name -> unit.addSource(path, name) }
 
-        unit.compile(Phases.CANONICALIZATION)
+        unit.compile(Phases.CLASS_GENERATION)
 
         unit.iterator().each { sourceUnit ->
             ModuleNode moduleNode = sourceUnit.getAST()

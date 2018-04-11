@@ -10,7 +10,7 @@ import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
-class FuncCall implements HasLocation {
+class FuncCall {
 
     String sourceFileURI
 

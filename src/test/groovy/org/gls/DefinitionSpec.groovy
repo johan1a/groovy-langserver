@@ -59,7 +59,7 @@ class DefinitionSpec extends Specification {
         then:
         definitions.size() == 1
         definitions.first().range.start.line == 1
-        usages.size() == 3
+        usages.size() == 18
         ClassReference usage = usages.find { it.lineNumber == 4 }
         usage.columnNumber == 8
         usage.lastColumnNumber == 23
@@ -96,7 +96,7 @@ class DefinitionSpec extends Specification {
         'functions/two' | new ImmutablePosition(72, 46) | "ReferenceFinder"  | new ImmutablePosition(142, 25) | 45
         'functions/two' | new ImmutablePosition(12, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 6)   | 21
         'functions/two' | new ImmutablePosition(19, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
-        'functions/two' | new ImmutablePosition(71, 49) | "ReferenceFinder"  | new ImmutablePosition(19, 18)  | 26
+        'functions/two' | new ImmutablePosition(71, 47) | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
     }
 
     def "Repeated query"() {
@@ -134,8 +134,8 @@ class DefinitionSpec extends Specification {
         then:
         finder.storage.varReferences.every { it.location.uri.startsWith("/") }
         finder.storage.varDefinitions.every { it.location.uri.startsWith("/") }
-        definitions1.size() == 1
-        definitions1.first().uri.startsWith("/")
+        definitions2.size() == 17
+        definitions2.first().uri.startsWith("/")
         Range range2 = definitions2.first().range
         range2.start == new ImmutablePosition(15, 15)
         range2.end.character == 21

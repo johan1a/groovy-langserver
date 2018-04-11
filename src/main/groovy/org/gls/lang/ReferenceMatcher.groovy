@@ -7,11 +7,15 @@ import org.gls.lang.reference.Reference
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
     static List<ImmutableLocation> getReferenceLocations(Set<D> definitions, Set<R> references, ReferenceParams params) {
-        return getReferences(definitions, references, params).collect { it.getLocation() }.sort { it.range.start.line }
+        return getReferences(definitions, references, params).collect { it.getLocation() }
+                .findAll{ it.range.start.line > 0 && it.range.start.character > 0}
+                .sort { it.range.start.line }
     }
 
     static List<ImmutableLocation> getDefinitionLocations(Set<R> references, TextDocumentPositionParams params) {
-        return getDefinitions(references, params).collect { it.getLocation() }.sort { it.range.start.line }
+        return getDefinitions(references, params).collect { it.getLocation() }
+                .findAll{ it.range.start.line > 0 && it.range.start.character > 0}
+                .sort { it.range.start.line }
     }
 
     static List<R> getReferences(Set<D> definitions, Set<R> allReferences, ReferenceParams params) {

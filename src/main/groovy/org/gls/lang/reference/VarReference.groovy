@@ -76,7 +76,7 @@ class VarReference implements Reference<VarDefinition> {
                 this.definitionLineNumber = superClass.getLineNumber() - superClass.getAnnotations().size()
             } else {
                 log.error "No parentLineNumber: ${expression.getName()}"
-                log.error "type: ${expression.getType()}"
+                log.error("expression: ${expression}")
                 //TODO what then?
             }
         } catch (Exception e) {
