@@ -8,7 +8,6 @@ import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.TextDocumentService
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.FileWriterService
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutableRange
 import org.gls.lang.ReferenceFinder
@@ -23,8 +22,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     private List<URI> sourcePaths
     private ReferenceFinder finder = new ReferenceFinder()
     private LanguageClient client
-    FileWatcher fileWatcher = new FileWatcher()
-    FileWriterService fileWriterService = new FileWriterService()
+    private FileService fileService = new FileService()
 
     List<URI> getSourcePaths() {
         return sourcePaths
@@ -169,8 +167,8 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         log.info "rename params: ${params}"
         try {
             Map<String, List<TextEdit>> edits = finder.rename(params)
-            fileWriterService.changeFiles(edits)
-            fileWatcher.didEdit(edits)
+            log.info("edits: ${edits}")
+            fileService.changeFiles(edits)
 
             WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
             result = CompletableFuture.completedFuture(edit)
@@ -194,27 +192,27 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileWatcher.didOpen(params)
+        fileService.didOpen(params)
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileWatcher.didChange(params)
+        fileService.didChange(params)
     }
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileWatcher.didClose(params)
+        fileService.didClose(params)
     }
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
         try {
             params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-            fileWatcher.didSave(params)
-            index(fileWatcher.changedFiles)
+            fileService.didSave(params)
+            index(fileService.getChangedFiles())
         } catch (Exception e) {
             log.error("error", e)
         }

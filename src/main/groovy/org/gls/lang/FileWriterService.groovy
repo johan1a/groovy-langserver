@@ -15,7 +15,7 @@ class FileWriterService {
 
             File file = new File(fileName)
             List<String> lines = file.readLines()
-            edits.each { doEdit(lines, it) }
+            edits.sort{ it.range.start.line }.each { doEdit(lines, it) }
             log.info("$lines")
             file.text = lines.join(System.lineSeparator())
         }
