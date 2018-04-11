@@ -46,8 +46,22 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     @Override
-    CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams completionRequest) {
-        log.info "completion"
+    CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams params) {
+        long start = System.currentTimeMillis()
+        params.textDocument.uri = params.textDocument.uri.replace("file://", "")
+        CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
+        CompletionList list = new CompletionList()
+
+        CompletionItem item = new CompletionItem("testLabel")
+        item.setKind(CompletionItemKind.Variable)
+        list.items = Arrays.asList(
+                item
+        )
+        result = CompletableFuture.completedFuture(Either.forRight(list))
+        def elapsed = (System.currentTimeMillis() - start) / 1000.0
+        log.info("Completed in $elapsed ms")
+        log.info("Returning: ${result}")
+        return result
     }
 
     @Override
