@@ -1,5 +1,6 @@
 package org.gls
 
+import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.DidChangeTextDocumentParams
 import org.eclipse.lsp4j.DidCloseTextDocumentParams
@@ -8,6 +9,7 @@ import org.eclipse.lsp4j.DidSaveTextDocumentParams
 import org.eclipse.lsp4j.TextEdit
 
 @Slf4j
+@TypeChecked
 class FileService {
 
     private FileWatcher fileWatcher = new FileWatcher()
@@ -37,17 +39,32 @@ class FileService {
         fileWatcher.didEdit(edits)
     }
 
-    static void writeFiles(Map<String, List<TextEdit>> allEdits) {
+    void writeFiles(Map<String, List<TextEdit>> allEdits) {
 
-        allEdits.each { fileName, List<TextEdit> edits ->
+        allEdits.each { String fileName, List<TextEdit> edits ->
             log.info fileName
 
-            File file = new File(fileName)
-            List<String> lines = file.readLines()
+            List<String> lines = readFileLines(fileName)
             edits.sort{ it.range.start.line }.each { doEdit(lines, it) }
             log.info("$lines")
-            file.text = lines.join(System.lineSeparator())
+            writeToFile(fileName, lines)
         }
+    }
+
+    void writeToFile(String fileName, List<String> lines) {
+        File file = new File(fileName)
+        file.text = lines.join(System.lineSeparator())
+        if(getChangedFiles().containsKey(fileName)){
+            getChangedFiles().remove(fileName)
+        }
+    }
+
+    private List<String> readFileLines(String fileName) {
+        if(getChangedFiles().containsKey(fileName)){
+            return getChangedFiles().get(fileName).split(System.lineSeparator()).toList()
+        }
+        File file = new File(fileName)
+        return file.readLines()
     }
 
     static void doEdit(List<String> fileLines, TextEdit textEdit) {
@@ -58,9 +75,8 @@ class FileService {
         String newText = textEdit.newText
         String line = fileLines.get(lineNbr)
         String pre = line.substring(0, characterNbr)
-        String post = line.substring(characterNbr + originalSize)
+        String post = line.substring(characterNbr + originalSize + 1)
         fileLines[lineNbr] = pre + newText + post
     }
 
 }
-

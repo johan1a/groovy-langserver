@@ -183,6 +183,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             Map<String, List<TextEdit>> edits = finder.rename(params)
             log.info("edits: ${edits}")
             fileService.changeFiles(edits)
+            index(fileService.getChangedFiles())
 
             WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
             result = CompletableFuture.completedFuture(edit)
