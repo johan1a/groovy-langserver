@@ -11,7 +11,7 @@ import static org.gls.util.TestUtil.uriList
 @Unroll
 class FileSpec extends Specification {
 
-    def "Rename file"() {
+    def "Rename in file"() {
         given:
         ReferenceFinder finder = new ReferenceFinder()
         String dirPath = "src/test/test-files/functions/two"

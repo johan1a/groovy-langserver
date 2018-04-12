@@ -45,7 +45,14 @@ class FileService {
             log.info fileName
 
             List<String> lines = readFileLines(fileName)
-            edits.sort{ it.range.start.line }.each { doEdit(lines, it) }
+            List<Integer> offsetByLine = [0] * lines.size()
+            edits.sort{ a, b ->
+                    if(a.range.start.line == b.range.start.line) {
+                        a.range.start.character <=> b.range.start.character
+                    } else {
+                        a.range.start.line <=> b.range.start.line
+                    }
+                }.each { doEdit(lines, offsetByLine, it) }
             log.info("$lines")
             writeToFile(fileName, lines)
         }
@@ -67,22 +74,19 @@ class FileService {
         return file.readLines()
     }
 
-    static void doEdit(List<String> fileLines, TextEdit textEdit) {
+    static void doEdit(List<String> fileLines, List<Integer> offsetByLine, TextEdit textEdit) {
         int lineNbr = textEdit.range.start.line
-        log.info("lineNbr: ${lineNbr}")
-        int characterNbr = textEdit.range.start.character
-        int lastCharacterNbr = textEdit.range.end.character
-        int originalSize = lastCharacterNbr - characterNbr
-        String newText = textEdit.newText
+        int offset = offsetByLine[lineNbr]
+
         String line = fileLines.get(lineNbr)
-        String pre = line.substring(0, characterNbr)
-        String post = line.substring(characterNbr + originalSize + 1)
-        log.info("fileLines[lineNbr]: ${fileLines[lineNbr]}")
-        fileLines[lineNbr] = pre + newText + post
-        log.info("post: ${post}")
-        log.info("newText: ${newText}")
-        log.info("pre: ${pre}")
-        log.info("fileLines[lineNbr]: ${fileLines[lineNbr]}")
+        int start = textEdit.range.start.character + offset
+        int end = textEdit.range.end.character + offset
+        int oldTextSize = end - start + 1
+        String post = line.substring(start + oldTextSize)
+        String pre = line.substring(0, start)
+        fileLines[lineNbr] = pre + textEdit.newText + post
+
+        offsetByLine[lineNbr] += textEdit.newText.size() - oldTextSize
     }
 
 }
