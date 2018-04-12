@@ -3,6 +3,7 @@ package org.gls
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
@@ -180,13 +181,14 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         log.info "rename params: ${params}"
         try {
-            Map<String, List<TextEdit>> edits = finder.rename(params)
-            log.info("edits: ${edits}")
-            fileService.changeFiles(edits)
-            index(fileService.getChangedFiles())
-
-            WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
-            result = CompletableFuture.completedFuture(edit)
+            result = CompletableFuture.supplyAsync {
+                Map<String, List<TextEdit>> edits = finder.rename(params)
+                log.info("edits: ${edits}")
+                fileService.changeFiles(edits)
+                index(fileService.getChangedFiles())
+                WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
+                edit
+            }
         } catch (Exception e) {
             log.error("Exception", e)
             throw new NotImplementedException()

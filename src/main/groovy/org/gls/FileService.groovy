@@ -69,6 +69,7 @@ class FileService {
 
     static void doEdit(List<String> fileLines, TextEdit textEdit) {
         int lineNbr = textEdit.range.start.line
+        log.info("lineNbr: ${lineNbr}")
         int characterNbr = textEdit.range.start.character
         int lastCharacterNbr = textEdit.range.end.character
         int originalSize = lastCharacterNbr - characterNbr
@@ -76,7 +77,12 @@ class FileService {
         String line = fileLines.get(lineNbr)
         String pre = line.substring(0, characterNbr)
         String post = line.substring(characterNbr + originalSize + 1)
+        log.info("fileLines[lineNbr]: ${fileLines[lineNbr]}")
         fileLines[lineNbr] = pre + newText + post
+        log.info("post: ${post}")
+        log.info("newText: ${newText}")
+        log.info("pre: ${pre}")
+        log.info("fileLines[lineNbr]: ${fileLines[lineNbr]}")
     }
 
 }
