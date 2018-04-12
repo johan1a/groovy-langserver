@@ -103,7 +103,7 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
             edits = new LinkedList<>()
             changes.put(sourceUri, edits)
         }
-        if (textEdit.range.start.line > 0) {
+        if (textEdit.range.start.line > 0 && !edits.contains(textEdit)) {
             edits.add(textEdit)
         }
     }
