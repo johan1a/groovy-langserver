@@ -35,7 +35,6 @@ class GradleBuild implements BuildType {
     }
 
     List<String> findJarLocation(List<Dependency> dependencies) {
-        List<String> names = dependencies*.getJarFileName()
         List<String> result = new LinkedList<>()
         libraries.each { library ->
             File directory = new File(library)
