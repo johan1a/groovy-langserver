@@ -8,4 +8,8 @@ class Dependency {
     String group
     String name
     Optional<String> version
+
+    String getJarFileName(){
+        return "${name}-${version.get()}.jar"
+    }
 }

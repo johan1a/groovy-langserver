@@ -1,0 +1,34 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+
+repositories {
+   mavenCentral()
+   jcenter()
+}
+
+dependencies {
+   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+}
+
+mainClassName = 'org.gls.LangServer'
+
+run {
+   standardInput = System.in
+   standardOutput = System.out
+}
+
+
+
+

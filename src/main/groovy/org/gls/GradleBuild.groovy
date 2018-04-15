@@ -9,6 +9,7 @@ import java.util.regex.Matcher
 @TypeChecked
 class GradleBuild implements BuildType {
 
+    String gradleHome = "~/.gradle/"
     URI configPath
 
     public GradleBuild(URI configPath) {
@@ -17,9 +18,30 @@ class GradleBuild implements BuildType {
 
     @Override
     List<String> resolveClassPath() {
-        List<Dependency> names = parseDependencies()
-        // TODO find on disk
-        return null
+        List<Dependency> dependencies = parseDependencies()
+        List<String> classPath = new LinkedList<>()
+        dependencies.collect { Dependency it ->
+            findJarLocation(it)
+        }.each {
+            it.map { path ->
+                classPath.add(path)
+            }
+        }
+        classPath
+    }
+
+    Optional<String> findJarLocation(Dependency dependency) {
+        String name = dependency.getJarFileName()
+        def directory = new File(gradleHome)
+        Optional<String> result = Optional.empty()
+        if (directory.isDirectory()) {
+            directory.eachFileRecurse { File file ->
+                if (file.name == name) {
+                    result = Optional.of(file.absolutePath)
+                }
+            }
+        }
+        return result
     }
 
     List<Dependency> parseDependencies() {
@@ -32,7 +54,7 @@ class GradleBuild implements BuildType {
         dependencies
     }
 
-    Optional<Dependency> parseJarName(String line) {
+    static Optional<Dependency> parseJarName(String line) {
         if (line.contains("compile") ||
                 line.contains("testCompile") ||
                 line.contains("testRuntime")) {
