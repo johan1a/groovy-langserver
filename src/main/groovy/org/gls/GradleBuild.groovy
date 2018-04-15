@@ -52,7 +52,10 @@ class GradleBuild implements BuildType {
 
     static boolean jarNameMatch(File file, List<Dependency> dependencies) {
         String fileName = file.name
-        if (file.isDirectory() || fileName.endsWith("sources.jar")) {
+        if (file.isDirectory() ||
+                !fileName.endsWith(".jar") ||
+                fileName.endsWith("sources.jar")||
+                fileName.endsWith("javadoc.jar")) {
             return false
         }
         dependencies.any {

@@ -22,6 +22,7 @@ class GroovyIndexer {
     ReferenceFinder finder = new ReferenceFinder()
     URI rootUri
     ConfigService configService = new ConfigService()
+    String buildConfigLocation = "build.gradle"
 
     GroovyIndexer(URI rootUri, ReferenceFinder finder, boolean scanAllSubDirs = false) {
         this.rootUri = rootUri
@@ -63,7 +64,7 @@ class GroovyIndexer {
         try {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
-            List<String> classpath = configService.resolveClassPath(rootUri)
+            List<String> classpath = configService.resolveClassPath(rootUri, buildConfigLocation)
             compile(files, changedFiles, classpath)
             finder.correlate()
             long elapsed = System.currentTimeMillis() - start
@@ -86,11 +87,14 @@ class GroovyIndexer {
 
         CompilerConfiguration configuration = new CompilerConfiguration()
         configuration.setRecompileGroovySource(true)
-        configuration.classpath = classpath
 
         unit.configure(configuration)
         notChanged.each { unit.addSource(it) }
         changedFiles.each { path, name -> unit.addSource(path, name) }
+
+        classpath.each{
+            unit.classLoader.addClasspath(it)
+        }
 
         unit.compile(Phases.CLASS_GENERATION)
 

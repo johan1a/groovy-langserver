@@ -11,18 +11,19 @@ import java.nio.file.Paths
 class ConfigService {
     BuildType buildType
 
-    List<String> resolveClassPath(URI rootUri) {
+    List<String> resolveClassPath(URI rootUri, String configLocation) {
         try {
-            buildType = getBuildType(rootUri)
+            buildType = getBuildType(rootUri, configLocation)
             return buildType.resolveClassPath()
         } catch (Exception e){
+            log.error("Error", e)
             return []
         }
     }
 
-    static BuildType getBuildType(URI rootUri) {
+    static BuildType getBuildType(URI rootUri, String configLocation) {
         log.info("Searching for gradle...")
-        URI gradlePath = UriUtils.appendURI(rootUri, "build.gradle")
+        URI gradlePath = UriUtils.appendURI(rootUri, configLocation)
         if(Files.exists(Paths.get(gradlePath))){
             log.info "Found gradle."
             return new GradleBuild(gradlePath)
