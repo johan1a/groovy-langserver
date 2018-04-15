@@ -63,10 +63,10 @@ class GradleBuild implements BuildType {
 
     static Optional<Dependency> parseJarName(String line) {
         try {
-            if (!isComment(line) &&
+            if (!unwantend(line) &&
                     (line.contains("compile") ||
-                    line.contains("testCompile") ||
-                    line.contains("testRuntime"))) {
+                            line.contains("testCompile") ||
+                            line.contains("testRuntime"))) {
                 if (line.contains("group")) {
                     return parseSplitJarName(line)
                 } else {
@@ -79,8 +79,9 @@ class GradleBuild implements BuildType {
         return Optional.empty()
     }
 
-    static boolean isComment(String line) {
-        return line.trim().startsWith("//")
+    static boolean unwantend(String line) {
+        return line.trim().startsWith("//") ||
+                line.contains("=")
     }
 
     static Optional<Dependency> parseSplitJarName(String line) {

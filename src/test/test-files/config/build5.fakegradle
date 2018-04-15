@@ -12,6 +12,9 @@ buildscript {
 }
 
 
+
+compileGroovy.groovyOptions.optimizationOptions.all = false
+
 repositories {
    mavenCentral()
    jcenter()
