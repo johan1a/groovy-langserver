@@ -22,7 +22,7 @@ class FileSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder, true)
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<TextEdit> edits = finder.rename(params).values().flatten()
 

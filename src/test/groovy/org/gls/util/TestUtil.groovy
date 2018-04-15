@@ -6,5 +6,4 @@ class TestUtil {
     static URI uri(String path) {
         return Paths.get(path).toUri()
     }
-
 }

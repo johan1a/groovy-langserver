@@ -6,4 +6,6 @@ import spock.lang.Specification
 
 @TypeChecked
 class LangServerSpec extends Specification {
+
+
 }

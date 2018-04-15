@@ -24,6 +24,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     private ReferenceFinder finder = new ReferenceFinder()
     private LanguageClient client
     private FileService fileService = new FileService()
+    private IndexerConfig indexerConfig = new IndexerConfig()
 
     public void showClientMessage(String message) {
         client?.showMessage(new MessageParams(MessageType.Info, message))
@@ -233,7 +234,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
         ReferenceFinder finder = new ReferenceFinder()
-        GroovyIndexer indexer = new GroovyIndexer(rootUri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig.scanAllSubDirs)
         Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
         this.finder = finder
         sendDiagnostics(diagnostics, client)

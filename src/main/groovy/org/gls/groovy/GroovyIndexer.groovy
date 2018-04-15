@@ -9,6 +9,7 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.codehaus.groovy.control.Phases
 import org.eclipse.lsp4j.Diagnostic
 import org.gls.ConfigService
+import org.gls.UriUtils
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.ReferenceFinder
 
@@ -22,15 +23,18 @@ class GroovyIndexer {
     URI rootUri
     ConfigService configService = new ConfigService()
 
-    GroovyIndexer(URI rootUri, ReferenceFinder finder) {
+    GroovyIndexer(URI rootUri, ReferenceFinder finder, boolean scanAllSubDirs = false) {
         this.rootUri = rootUri
-        sourcePaths = [new URI(rootUri.toString() + "src/main/groovy"),
-                                 new URI(rootUri.toString() + "grails-app")]
-        sourcePaths = [rootUri]
+        sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),
+                       UriUtils.appendURI(rootUri, "/grails-app")]
+        if (scanAllSubDirs) {
+            sourcePaths = [rootUri]
+        }
         log.info "sourcePaths: ${sourcePaths}"
 
         this.finder = finder
     }
+
 
     Map<String, List<Diagnostic>> index(Map<String, String> changedFiles = [:]) {
         List<File> files = findFilesRecursive()
@@ -66,9 +70,9 @@ class GroovyIndexer {
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
             diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
-        //    if (diagnostics.isEmpty()) {
-            log.error("Compilation error without diagnostics:", e)
-         //   }
+            if (diagnostics.isEmpty()) {
+                log.error("Compilation error without diagnostics:", e)
+            }
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics

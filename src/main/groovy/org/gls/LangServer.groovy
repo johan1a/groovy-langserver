@@ -42,6 +42,7 @@ class LangServer implements LanguageServer {
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
         textDocumentService.showClientMessage("Initializing langserver capabilities...")
+        log.info("new URI(initializeParams.getRootUri()): ${new URI(initializeParams.getRootUri())}")
 
         textDocumentService.setRootUri(new URI(initializeParams.getRootUri()))
         textDocumentService.index()
