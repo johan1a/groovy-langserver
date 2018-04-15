@@ -45,6 +45,24 @@ class GradleBuild implements BuildType {
     }
 
     static Optional<Dependency> parseSplitJarName(String line) {
+        String[] split = line.split(",")
+        Dependency dependency = new Dependency(version: Optional.empty())
+        split.each { String part ->
+            parseVersionPart(dependency, part)
+        }
+        Optional.of(dependency)
+    }
+
+    static def parseVersionPart(Dependency dependency, String part ){
+        Matcher matcher = (part =~ /.*['"](.*)['"].*/)
+        matcher.find()
+        if(part.contains("group")){
+            dependency.group = matcher.group(1)
+        } else if(part.contains("name")){
+            dependency.name = matcher.group(1)
+        } else if(part.contains("version")){
+            dependency.version = Optional.of(matcher.group(1))
+        }
     }
 
     static Optional<Dependency> parseSimpleJarName(String line) {

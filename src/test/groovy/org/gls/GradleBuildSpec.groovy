@@ -32,6 +32,7 @@ class GradleBuildSpec extends Specification {
         'build1' | 'org.codehaus.groovy' | 'groovy-all' | '2.4.14'
         'build2' | 'org.codehaus.groovy' | 'groovy-all' | '2.4.14'
         'build3' | 'org.codehaus.groovy' | 'groovy-all' | null
+        'build4' | 'org.slf4j'           | 'slf4j-api'  | '1.7.25'
 
     }
 }
