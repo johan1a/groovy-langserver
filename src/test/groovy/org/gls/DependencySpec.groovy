@@ -21,7 +21,7 @@ class DependencySpec extends Specification {
         where:
         _group | _name | _version | _expected
         "a"    | "b"   | "1.2"    | "b-1.2.jar"
-        "a"    | "b"   | null     | "b.jar"
+        "a"    | "b"   | null     | "b"
 
     }
 }

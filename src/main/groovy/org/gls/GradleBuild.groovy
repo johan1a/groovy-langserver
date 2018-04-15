@@ -42,13 +42,23 @@ class GradleBuild implements BuildType {
             log.info("Searching for jars in: ${directory.absolutePath}")
             if (directory.isDirectory()) {
                 directory.eachFileRecurse { File file ->
-                    if (names.contains(file.name)) {
+                    if (jarNameMatch(file, dependencies)) {
                         result.add(file.absolutePath)
                     }
                 }
             }
         }
         return result
+    }
+
+    static boolean jarNameMatch(File file, List<Dependency> dependencies) {
+        String fileName = file.name
+        if (file.isDirectory() || fileName.endsWith("sources.jar")) {
+            return false
+        }
+        dependencies.any {
+            fileName.contains(it.jarFileName)
+        }
     }
 
     List<Dependency> parseDependencies() {
@@ -63,7 +73,7 @@ class GradleBuild implements BuildType {
 
     static Optional<Dependency> parseJarName(String line) {
         try {
-            if (!unwantend(line) &&
+            if (!unWantend(line) &&
                     (line.contains("compile") ||
                             line.contains("testCompile") ||
                             line.contains("testRuntime"))) {
@@ -79,7 +89,7 @@ class GradleBuild implements BuildType {
         return Optional.empty()
     }
 
-    static boolean unwantend(String line) {
+    static boolean unWantend(String line) {
         return line.trim().startsWith("//") ||
                 line.contains("=")
     }

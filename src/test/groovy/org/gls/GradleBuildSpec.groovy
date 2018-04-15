@@ -74,4 +74,21 @@ class GradleBuildSpec extends Specification {
         classPath.first().split("groovy-langserver")[1] == expected
     }
 
+    def "find jar without specifying version"() {
+        given:
+        String path = "src/test/test-files/config/build7.fakegradle"
+        GradleBuild gradleBuild = new GradleBuild(uri(path))
+        gradleBuild.gradleHome = "src/test/test-files/config/gradle_home"
+        gradleBuild.libraries = ["/does/not/exist", gradleBuild.gradleHome]
+
+        when:
+        List<String> classPath = gradleBuild.resolveClassPath()
+
+        then:
+        classPath.size() == 1
+
+        String expected = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
+        classPath.first().split("groovy-langserver")[1] == expected
+    }
+
 }

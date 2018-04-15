@@ -13,6 +13,6 @@ class Dependency {
         if (version.present) {
             return "${name}-${version.get()}.jar"
         }
-        return "${name}.jar"
+        return "${name}"
     }
 }
