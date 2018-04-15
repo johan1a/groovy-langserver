@@ -63,7 +63,8 @@ class GradleBuild implements BuildType {
 
     static Optional<Dependency> parseJarName(String line) {
         try {
-            if (!isComment(line) && (line.contains("compile") ||
+            if (!isComment(line) &&
+                    (line.contains("compile") ||
                     line.contains("testCompile") ||
                     line.contains("testRuntime"))) {
                 if (line.contains("group")) {
