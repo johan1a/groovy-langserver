@@ -17,12 +17,12 @@ class GradleBuild implements BuildType {
 
     @Override
     List<String> resolveClassPath() {
-        List<Dependency> names = parseJarNames()
+        List<Dependency> names = parseDependencies()
         // TODO find on disk
         return null
     }
 
-    List<Dependency> parseJarNames() {
+    List<Dependency> parseDependencies() {
         List<String> configLines = Files.readAllLines(Paths.get(configPath))
         List<Dependency> dependencies = new LinkedList<>()
 
@@ -33,7 +33,9 @@ class GradleBuild implements BuildType {
     }
 
     Optional<Dependency> parseJarName(String line) {
-        if (line.contains("compile") || line.contains("testCompile")) {
+        if (line.contains("compile") ||
+                line.contains("testCompile") ||
+                line.contains("testRuntime")) {
             if (line.contains("group")) {
                 parseSplitJarName(line)
             } else {
@@ -53,14 +55,14 @@ class GradleBuild implements BuildType {
         Optional.of(dependency)
     }
 
-    static def parseVersionPart(Dependency dependency, String part ){
+    static def parseVersionPart(Dependency dependency, String part) {
         Matcher matcher = (part =~ /.*['"](.*)['"].*/)
         matcher.find()
-        if(part.contains("group")){
+        if (part.contains("group")) {
             dependency.group = matcher.group(1)
-        } else if(part.contains("name")){
+        } else if (part.contains("name")) {
             dependency.name = matcher.group(1)
-        } else if(part.contains("version")){
+        } else if (part.contains("version")) {
             dependency.version = Optional.of(matcher.group(1))
         }
     }
