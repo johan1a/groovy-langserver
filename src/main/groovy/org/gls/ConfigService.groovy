@@ -16,7 +16,7 @@ class ConfigService {
             buildType = getBuildType(rootUri, configLocation)
             return buildType.resolveClassPath()
         } catch (Exception e){
-            log.error("Error", e)
+            log.error("Error: Build type not found.")
             return []
         }
     }

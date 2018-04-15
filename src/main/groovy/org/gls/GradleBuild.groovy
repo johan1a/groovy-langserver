@@ -68,7 +68,7 @@ class GradleBuild implements BuildType {
         gradleOutput.collect { line ->
             parseJarName(line).map { dependencies.add(it) }
         }
-        dependencies
+        dependencies.unique()
     }
 
     private static List<String> callGradle() {
