@@ -1,15 +1,14 @@
 package org.gls.lang
 
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 
-/**
- * Created by johan on 4/8/18.
- */
 @TypeChecked
+@Slf4j
 class LocationFinder {
 
     static ImmutableLocation findLocation(String sourceFilePath, List<String> source, AnnotatedNode node, String name) {
@@ -23,8 +22,14 @@ class LocationFinder {
         int lastColumnNumber
         if (lineNumber > 0) {
             String firstLine = source[lineNumber]
-            columnNumber = firstLine.indexOf(name, node.columnNumber - 1)
-            lastColumnNumber = columnNumber + name.size() - 1
+            if(firstLine != null && name != null && firstLine.contains(name)){
+                columnNumber = firstLine.indexOf(name, node.columnNumber - 1)
+                lastColumnNumber = columnNumber + name.size() - 1
+            } else {
+                log.warn("line doesn't contain name: $name, line: $firstLine")
+                columnNumber = node.columnNumber
+                lastColumnNumber = node.lastColumnNumber
+            }
         } else {
             columnNumber = node.columnNumber
             lastColumnNumber = node.lastColumnNumber

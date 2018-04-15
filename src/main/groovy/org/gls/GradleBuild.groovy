@@ -3,10 +3,6 @@ package org.gls
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.regex.Matcher
-
 @TypeChecked
 @Slf4j
 class GradleBuild implements BuildType {
@@ -24,11 +20,11 @@ class GradleBuild implements BuildType {
     @Override
     List<String> resolveClassPath() {
         try {
-            log.info("Parsing jars from build.gradle...")
+            log.info("Parsing jars from gradle")
             List<Dependency> dependencies = parseDependencies()
-            log.info("Parsed jars from build.gradle: ${dependencies*.name})}")
+            log.info("Parsed jars: ${dependencies*.name})}")
             List<String> classPath = findJarLocation(dependencies)
-            log.info("Found jars: ${classPath}")
+            log.info("Found jars on filesystem: ${classPath}")
             return classPath
         } catch (Exception e) {
             log.error("Error", e)
@@ -65,27 +61,28 @@ class GradleBuild implements BuildType {
         }
     }
 
-    List<Dependency> parseDependencies() {
-        List<String> configLines = Files.readAllLines(Paths.get(configPath))
+    static List<Dependency> parseDependencies() {
+        List<String> gradleOutput = callGradle()
         List<Dependency> dependencies = new LinkedList<>()
 
-        configLines.collect { line ->
+        gradleOutput.collect { line ->
             parseJarName(line).map { dependencies.add(it) }
         }
         dependencies
     }
 
+    private static List<String> callGradle() {
+        def sout = new StringBuilder(), serr = new StringBuilder()
+        Process proc = './gradlew -q dependencies'.execute()
+        proc.consumeProcessOutput(sout, serr)
+        proc.waitForOrKill(10000)
+        sout.toString().split(System.lineSeparator()).toList()
+    }
+
     static Optional<Dependency> parseJarName(String line) {
         try {
-            if (!unWantend(line) &&
-                    (line.contains("compile") ||
-                            line.contains("testCompile") ||
-                            line.contains("testRuntime"))) {
-                if (line.contains("group")) {
-                    return parseSplitJarName(line)
-                } else {
-                    return parseSimpleJarName(line)
-                }
+            if (isDependencyLine(line)){
+                return Optional.of(parseSplitJarName(line))
             }
         } catch (Exception e) {
             log.error("Error while parsing $line", e)
@@ -93,51 +90,29 @@ class GradleBuild implements BuildType {
         return Optional.empty()
     }
 
-    static boolean unWantend(String line) {
-        return line.trim().startsWith("//") ||
-                line.contains("=")
+    static boolean isDependencyLine(String line) {
+        return line.contains("+---") || line.contains("\\---")
     }
 
-    static Optional<Dependency> parseSplitJarName(String line) {
-        String[] split = line.split(",")
-        Dependency dependency = new Dependency(version: Optional.empty())
-        split.each { String part ->
-            parseVersionPart(dependency, part)
-        }
-        Optional.of(dependency)
+    static Dependency parseSplitJarName(String line) {
+        String trimmed = trimLine(line)
+        String[] split = trimmed.split(":")
+        Dependency dependency = new Dependency(
+                group: split[0],
+                name: split[1],
+                version: parseVersion(split[2])
+        )
+        return dependency
     }
 
-    static def parseVersionPart(Dependency dependency, String part) {
-        Matcher matcher = (part =~ /.*['"](.*)['"].*/)
-        matcher.find()
-        if (part.contains("group")) {
-            dependency.group = matcher.group(1)
-        } else if (part.contains("name")) {
-            dependency.name = matcher.group(1)
-        } else if (part.contains("version")) {
-            dependency.version = Optional.of(matcher.group(1))
+    static String parseVersion(String version) {
+        if(version.contains("->")){
+            return version.split("->")[1].trim()
         }
+        return version.trim()
     }
 
-    static Optional<Dependency> parseSimpleJarName(String line) {
-        String group
-        String name
-        Optional<String> version
-
-        Matcher matcher = (line =~ /.*['"](.*):(.*):(.*)['"]/)
-        matcher.find()
-        if (matcher.matches()) {
-            group = matcher.group(1)
-            name = matcher.group(2)
-            version = Optional.of(matcher.group(3))
-        } else {
-            matcher = (line =~ /.*['"](.*):(.*)['"]/)
-            matcher.find()
-            group = matcher.group(1)
-            name = matcher.group(2)
-            version = Optional.empty()
-        }
-        return Optional.of(new Dependency(group: group, name: name, version: version))
-
+    static String trimLine(String line) {
+        line.split("---")[1].replace("(*)", "").trim()
     }
 }

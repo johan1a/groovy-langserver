@@ -2,9 +2,6 @@ package org.gls
 
 import spock.lang.Specification
 
-/**
- * Created by johan on 4/15/18.
- */
 class DependencySpec extends Specification {
 
     def "test jar file name"() {
@@ -12,7 +9,7 @@ class DependencySpec extends Specification {
         Dependency dependency = new Dependency(
                 group: _group,
                 name: _name,
-                version: Optional.ofNullable(_version)
+                version: _version
         )
 
         expect:
@@ -21,7 +18,6 @@ class DependencySpec extends Specification {
         where:
         _group | _name | _version | _expected
         "a"    | "b"   | "1.2"    | "b-1.2.jar"
-        "a"    | "b"   | null     | "b"
 
     }
 }
