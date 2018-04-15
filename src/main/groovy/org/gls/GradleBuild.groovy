@@ -21,11 +21,17 @@ class GradleBuild implements BuildType {
 
     @Override
     List<String> resolveClassPath() {
-        List<Dependency> dependencies = parseDependencies()
-        log.info("Parsed jars from build.gradle: ${dependencies*.name})}")
-        List<String> classPath = findJarLocation(dependencies)
-        log.info("Found jars: ${classPath}")
-        classPath
+        try {
+            log.info("Parsing jars from build.gradle...")
+            List<Dependency> dependencies = parseDependencies()
+            log.info("Parsed jars from build.gradle: ${dependencies*.name})}")
+            List<String> classPath = findJarLocation(dependencies)
+            log.info("Found jars: ${classPath}")
+            classPath
+        } catch (Exception e) {
+            log.error("Error", e)
+            Collections.emptyList()
+        }
     }
 
     List<String> findJarLocation(List<Dependency> dependencies) {
@@ -56,17 +62,24 @@ class GradleBuild implements BuildType {
     }
 
     static Optional<Dependency> parseJarName(String line) {
-        if (line.contains("compile") ||
-                line.contains("testCompile") ||
-                line.contains("testRuntime")) {
-            if (line.contains("group")) {
-                parseSplitJarName(line)
-            } else {
-                parseSimpleJarName(line)
+        try {
+            if (!isComment(line) && (line.contains("compile") ||
+                    line.contains("testCompile") ||
+                    line.contains("testRuntime"))) {
+                if (line.contains("group")) {
+                    return parseSplitJarName(line)
+                } else {
+                    return parseSimpleJarName(line)
+                }
             }
-        } else {
-            return Optional.empty()
+        } catch (Exception e) {
+            log.error("Error while parsing $line", e)
         }
+        return Optional.empty()
+    }
+
+    static boolean isComment(String line) {
+        return line.trim().startsWith("//")
     }
 
     static Optional<Dependency> parseSplitJarName(String line) {
