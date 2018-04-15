@@ -7,5 +7,5 @@ class Dependency {
 
     String group
     String name
-    String version
+    Optional<String> version
 }

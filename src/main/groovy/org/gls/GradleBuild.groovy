@@ -4,7 +4,6 @@ import groovy.transform.TypeChecked
 
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.regex.MatchResult
 import java.util.regex.Matcher
 
 @TypeChecked
@@ -49,12 +48,23 @@ class GradleBuild implements BuildType {
     }
 
     static Optional<Dependency> parseSimpleJarName(String line) {
-        Matcher matcher = (line =~ /.*['"](.*):(.*):(.*)['"]/)
+        String group
+        String name
+        Optional<String> version
 
+        Matcher matcher = (line =~ /.*['"](.*):(.*):(.*)['"]/)
         matcher.find()
-        String group = matcher.group(1)
-        String name = matcher.group(2)
-        String version = matcher.group(3)
+        if (matcher.matches()) {
+            group = matcher.group(1)
+            name = matcher.group(2)
+            version = Optional.of(matcher.group(3))
+        } else {
+            matcher = (line =~ /.*['"](.*):(.*)['"]/)
+            matcher.find()
+            group = matcher.group(1)
+            name = matcher.group(2)
+            version = Optional.empty()
+        }
         return Optional.of(new Dependency(group: group, name: name, version: version))
 
     }
