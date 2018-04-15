@@ -1,15 +1,18 @@
 package org.gls
 
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.regex.Matcher
 
 @TypeChecked
+@Slf4j
 class GradleBuild implements BuildType {
 
-    String gradleHome = "~/.gradle/"
+    String gradleHome = System.getProperty("user.home") + "/.gradle/"
+    List<String> libraries = [gradleHome, '/usr/share/grails']
     URI configPath
 
     public GradleBuild(URI configPath) {
@@ -19,25 +22,23 @@ class GradleBuild implements BuildType {
     @Override
     List<String> resolveClassPath() {
         List<Dependency> dependencies = parseDependencies()
-        List<String> classPath = new LinkedList<>()
-        dependencies.collect { Dependency it ->
-            findJarLocation(it)
-        }.each {
-            it.map { path ->
-                classPath.add(path)
-            }
-        }
+        log.info("Parsed jars from build.gradle: ${dependencies*.name})}")
+        List<String> classPath = findJarLocation(dependencies)
+        log.info("Found jars: ${classPath}")
         classPath
     }
 
-    Optional<String> findJarLocation(Dependency dependency) {
-        String name = dependency.getJarFileName()
-        def directory = new File(gradleHome)
-        Optional<String> result = Optional.empty()
-        if (directory.isDirectory()) {
-            directory.eachFileRecurse { File file ->
-                if (file.name == name) {
-                    result = Optional.of(file.absolutePath)
+    List<String> findJarLocation(List<Dependency> dependencies) {
+        List<String> names = dependencies*.getJarFileName()
+        List<String> result = new LinkedList<>()
+        libraries.each { library ->
+            File directory = new File(library)
+            log.info("Searching for jars in: ${directory.absolutePath}")
+            if (directory.isDirectory()) {
+                directory.eachFileRecurse { File file ->
+                    if (names.contains(file.name)) {
+                        result.add(file.absolutePath)
+                    }
                 }
             }
         }

@@ -1,11 +1,13 @@
 package org.gls
 
 import groovy.transform.TypeChecked
+import groovy.util.logging.Slf4j
 
 import java.nio.file.Files
 import java.nio.file.Paths
 
 @TypeChecked
+@Slf4j
 class ConfigService {
     BuildType buildType
 
@@ -19,8 +21,10 @@ class ConfigService {
     }
 
     static BuildType getBuildType(URI rootUri) {
-        URI gradlePath = new URI(rootUri.toString() + "build.gradle")
+        log.info("Searching for gradle...")
+        URI gradlePath = UriUtils.appendURI(rootUri, "build.gradle")
         if(Files.exists(Paths.get(gradlePath))){
+            log.info "Found gradle."
             return new GradleBuild(gradlePath)
         }
         throw new Exception("Build type not supported.")

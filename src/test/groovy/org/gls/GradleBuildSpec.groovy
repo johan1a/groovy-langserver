@@ -62,6 +62,7 @@ class GradleBuildSpec extends Specification {
         String path = "src/test/test-files/config/build6.fakegradle"
         GradleBuild gradleBuild = new GradleBuild(uri(path))
         gradleBuild.gradleHome = "src/test/test-files/config/gradle_home"
+        gradleBuild.libraries = [gradleBuild.gradleHome]
 
         when:
         List<String> classPath = gradleBuild.resolveClassPath()

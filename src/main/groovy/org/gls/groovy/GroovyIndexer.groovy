@@ -64,7 +64,7 @@ class GroovyIndexer {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
             List<String> classpath = configService.resolveClassPath(rootUri)
-            compile(files, changedFiles)
+            compile(files, changedFiles, classpath)
             finder.correlate()
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
@@ -79,13 +79,14 @@ class GroovyIndexer {
     }
 
 
-    private void compile(List<File> files, Map<String, String> changedFiles) {
+    private void compile(List<File> files, Map<String, String> changedFiles, List<String> classpath) {
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
 
         CompilationUnit unit = new CompilationUnit()
 
         CompilerConfiguration configuration = new CompilerConfiguration()
         configuration.setRecompileGroovySource(true)
+        configuration.classpath = classpath
 
         unit.configure(configuration)
         notChanged.each { unit.addSource(it) }
