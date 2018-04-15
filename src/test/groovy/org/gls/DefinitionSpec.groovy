@@ -8,7 +8,7 @@ import org.gls.lang.ReferenceFinder
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.gls.util.TestUtil.uriList
+import static org.gls.util.TestUtil.uri
 
 @Unroll
 class DefinitionSpec extends Specification {
@@ -27,7 +27,7 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 
@@ -51,7 +51,7 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         indexer.index()
         List<Location> definitions = finder.getDefinition(params)
         Set<ClassReference> usages = finder.getClassReferences()
@@ -78,7 +78,7 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         def errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 
@@ -112,7 +112,7 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyTextDocumentService service = new GroovyTextDocumentService()
-        service.setSourcePaths(uriList(dirPath))
+        service.setRootUri(uri(dirPath))
         service.index()
         ReferenceFinder finder = service.finder
         List<Location> definitions1 = finder.getDefinition(params1)
@@ -156,7 +156,7 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
 

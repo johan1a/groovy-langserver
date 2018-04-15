@@ -43,11 +43,7 @@ class LangServer implements LanguageServer {
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
         textDocumentService.showClientMessage("Initializing langserver capabilities...")
 
-        List<URI> sourcePaths = [new URI(initializeParams.getRootUri() + "/src/main/groovy"),
-                    new URI(initializeParams.getRootUri() + "/grails-app")]
-        log.info "sourcePaths: ${sourcePaths}"
-
-        textDocumentService.setSourcePaths(sourcePaths)
+        textDocumentService.setRootUri(new URI(initializeParams.getRootUri()))
         textDocumentService.index()
 
         ServerCapabilities capabilities = new ServerCapabilities()

@@ -9,7 +9,7 @@ import org.gls.lang.reference.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.gls.util.TestUtil.uriList
+import static org.gls.util.TestUtil.uri
 
 @Unroll
 class ReferenceSpec extends Specification {
@@ -18,7 +18,7 @@ class ReferenceSpec extends Specification {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/3"
 
-        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder)
         indexer.index()
 
         Set<ClassDefinition> definitions = finder.storage.getClassDefinitions().findAll {it.getFullClassName() == "Box"}
@@ -34,7 +34,7 @@ class ReferenceSpec extends Specification {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "src/test/test-files/4"
 
-        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder)
         indexer.index()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
@@ -58,7 +58,7 @@ class ReferenceSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         indexer.index()
         List<Location> definitions = finder.getReferences(params)
 
@@ -87,7 +87,7 @@ class ReferenceSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> references = finder.getReferences(params)
 
@@ -109,7 +109,7 @@ class ReferenceSpec extends Specification {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/2"
 
-        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder)
         indexer.index()
 
         Set<VarReference> usages = finder.storage.getVarReferences()
@@ -133,7 +133,7 @@ class ReferenceSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         indexer.index()
         List<Location> references = finder.getReferences(params)
 
@@ -156,7 +156,7 @@ class ReferenceSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(dirPath), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder)
         indexer.index()
         List<Location> references = finder.getReferences(params)
 

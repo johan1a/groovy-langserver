@@ -94,3 +94,4 @@ class ReferenceFinder {
         return classEdits
     }
 }
+

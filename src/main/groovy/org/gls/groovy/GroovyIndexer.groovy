@@ -4,9 +4,11 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.codehaus.groovy.control.Phases
 import org.eclipse.lsp4j.Diagnostic
+import org.gls.ConfigService
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.ReferenceFinder
 
@@ -17,14 +19,16 @@ class GroovyIndexer {
     List<URI> sourcePaths
 
     ReferenceFinder finder = new ReferenceFinder()
+    URI rootUri
+    ConfigService configService = new ConfigService()
 
+    GroovyIndexer(URI rootUri, ReferenceFinder finder) {
+        this.rootUri = rootUri
+        sourcePaths = [new URI(rootUri.toString() + "src/main/groovy"),
+                                 new URI(rootUri.toString() + "grails-app")]
+        sourcePaths = [rootUri]
+        log.info "sourcePaths: ${sourcePaths}"
 
-    List<URI> getRootUri() {
-        return sourcePaths
-    }
-
-    GroovyIndexer(List<URI> sourcePaths, ReferenceFinder finder) {
-        this.sourcePaths = sourcePaths
         this.finder = finder
     }
 
@@ -53,22 +57,33 @@ class GroovyIndexer {
     Map<String, List<Diagnostic>> index(List<File> files, Map<String, String> changedFiles) {
         Map<String, List<Diagnostic>> diagnostics = new HashMap<>()
         try {
+            log.info("Starting indexing")
             long start = System.currentTimeMillis()
+            List<String> classpath = configService.resolveClassPath(rootUri)
             compile(files, changedFiles)
             finder.correlate()
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
             diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
+        //    if (diagnostics.isEmpty()) {
+            log.error("Compilation error without diagnostics:", e)
+         //   }
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics
     }
 
+
     private void compile(List<File> files, Map<String, String> changedFiles) {
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
 
         CompilationUnit unit = new CompilationUnit()
+
+        CompilerConfiguration configuration = new CompilerConfiguration()
+        configuration.setRecompileGroovySource(true)
+
+        unit.configure(configuration)
         notChanged.each { unit.addSource(it) }
         changedFiles.each { path, name -> unit.addSource(path, name) }
 
@@ -88,7 +103,7 @@ class GroovyIndexer {
     }
 
     static List<String> getFileContent(String fileName, Map<String, String> changedFiles) {
-        if(changedFiles.containsKey(fileName)){
+        if (changedFiles.containsKey(fileName)) {
             return changedFiles.get(fileName).split('\n').toList() //TODO proper line end split
         }
         return new File(fileName).readLines()

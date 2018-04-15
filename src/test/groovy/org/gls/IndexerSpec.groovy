@@ -2,9 +2,9 @@ package org.gls
 
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ReferenceFinder
-import org.gls.util.TestUtil
 import spock.lang.Specification
-import static org.gls.util.TestUtil.uriList
+
+import static org.gls.util.TestUtil.uri
 
 class IndexerSpec extends Specification {
 
@@ -12,7 +12,7 @@ class IndexerSpec extends Specification {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/1"
 
-        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder)
         indexer.index()
 
         expect:
@@ -25,7 +25,7 @@ class IndexerSpec extends Specification {
         String path = "src/test/test-files/5"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uriList(path), finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder)
         indexer.index()
 
         then:
