@@ -24,6 +24,7 @@ class ConfigService {
     static BuildType getBuildType(URI rootUri, String configLocation) {
         log.info("Searching for gradle...")
         URI gradlePath = UriUtils.appendURI(rootUri, configLocation)
+        log.info("Trying path: $gradlePath")
         if(Files.exists(Paths.get(gradlePath))){
             log.info "Found gradle."
             return new GradleBuild(gradlePath)

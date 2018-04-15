@@ -12,7 +12,9 @@ import java.util.regex.Matcher
 class GradleBuild implements BuildType {
 
     String gradleHome = System.getProperty("user.home") + "/.gradle/"
-    List<String> libraries = [gradleHome, '/usr/share/grails']
+    String mavenHome = System.getProperty("user.home") + "/.m2/"
+    List<String> libraries = [gradleHome, '/usr/share/grails', mavenHome]
+
     URI configPath
 
     public GradleBuild(URI configPath) {
@@ -54,7 +56,7 @@ class GradleBuild implements BuildType {
         String fileName = file.name
         if (file.isDirectory() ||
                 !fileName.endsWith(".jar") ||
-                fileName.endsWith("sources.jar")||
+                fileName.endsWith("sources.jar") ||
                 fileName.endsWith("javadoc.jar")) {
             return false
         }

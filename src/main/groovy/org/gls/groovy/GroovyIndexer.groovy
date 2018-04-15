@@ -71,6 +71,10 @@ class GroovyIndexer {
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
             diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
+            if (diagnostics.isEmpty()) {
+                log.error("Compilation error without diagnostics:", e)
+            }
+        } catch (NoClassDefFoundError e) {
             log.error("Compilation error:", e)
         }
         log.info("diagnostics: ${diagnostics}")
@@ -79,7 +83,7 @@ class GroovyIndexer {
 
 
     private void compile(List<File> files, Map<String, String> changedFiles, List<String> classpath) {
-        log.info("Compiling...")
+        log.info("compiling...")
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
 
         CompilationUnit unit = new CompilationUnit()
@@ -91,7 +95,7 @@ class GroovyIndexer {
         notChanged.each { unit.addSource(it) }
         changedFiles.each { path, name -> unit.addSource(path, name) }
 
-        classpath.each{
+        classpath.each {
             unit.classLoader.addClasspath(it)
         }
 

@@ -233,15 +233,19 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     }
 
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
-        ReferenceFinder finder = new ReferenceFinder()
-        GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig.scanAllSubDirs)
-        Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
-        this.finder = finder
-        sendDiagnostics(diagnostics, client)
+        try {
+            ReferenceFinder finder = new ReferenceFinder()
+            GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig.scanAllSubDirs)
+            Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
+            this.finder = finder
+            sendDiagnostics(diagnostics, client)
+        } catch (Exception e) {
+            log.error("ERROR", e)
+        }
     }
 
     void setRootUri(URI uri) {
-       this.rootUri = uri
+        this.rootUri = uri
     }
 
 }
