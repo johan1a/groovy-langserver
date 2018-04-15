@@ -27,7 +27,7 @@ class GradleBuild implements BuildType {
             log.info("Parsed jars from build.gradle: ${dependencies*.name})}")
             List<String> classPath = findJarLocation(dependencies)
             log.info("Found jars: ${classPath}")
-            classPath
+            return classPath
         } catch (Exception e) {
             log.error("Error", e)
             Collections.emptyList()
