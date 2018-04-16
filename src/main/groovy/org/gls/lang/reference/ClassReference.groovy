@@ -2,6 +2,7 @@ package org.gls.lang.reference
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.ast.ConstructorNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
@@ -48,6 +49,11 @@ class ClassReference implements Reference<ClassDefinition> {
     ClassReference(String sourceFileURI, List<String> source, DeclarationExpression expression) {
         this.fullReferencedClassName = expression.getLeftExpression().getType().getName()
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, getShortReferencedClassName())
+    }
+
+    ClassReference(String sourceFileURI, List<String> source, ConstructorNode node) {
+        this.fullReferencedClassName = node.getDeclaringClass()
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, getShortReferencedClassName())
     }
 
     ClassReference(String sourceFileURI, List<String> source, MethodNode node) {

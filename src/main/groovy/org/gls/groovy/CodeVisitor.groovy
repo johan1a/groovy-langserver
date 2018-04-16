@@ -44,35 +44,37 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     }
 
     @Override
-    void visitConstructor(ConstructorNode node){
+    void visitConstructor(ConstructorNode node) {
         super.visitConstructor(node)
-        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
-        node.parameters.each { Parameter it ->
-            finder.addVarDefinition( new VarDefinition(sourceFileURI, fileContents, it))
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
+        if (!node.hasNoRealSourcePosition()) {
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+            node.parameters.each { Parameter it ->
+                finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
+                finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
+            }
         }
     }
 
     @Override
-    void visitField(FieldNode node){
+    void visitField(FieldNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
         super.visitField(node)
     }
 
     @Override
-    void visitMethod(MethodNode node){
+    void visitMethod(MethodNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.getName(), node))
         node.parameters.each { Parameter it ->
-            finder.addVarDefinition( new VarDefinition(sourceFileURI, fileContents, it))
+            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
         }
         super.visitMethod(node)
     }
 
     @Override
-    void visitProperty(PropertyNode node){
+    void visitProperty(PropertyNode node) {
         FuncDefinition getter = FuncDefinition.makeGetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
         finder.addFuncDefinition(getter)
         FuncDefinition setter = FuncDefinition.makeSetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
@@ -81,103 +83,103 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     }
 
     @Override
-    void visitArgumentlistExpression(ArgumentListExpression expression){
+    void visitArgumentlistExpression(ArgumentListExpression expression) {
         super.visitArgumentlistExpression(expression)
     }
 
     @Override
-    void visitArrayExpression(ArrayExpression expression){
+    void visitArrayExpression(ArrayExpression expression) {
         super.visitArrayExpression(expression)
     }
 
     @Override
-    void visitAssertStatement(AssertStatement statement){
+    void visitAssertStatement(AssertStatement statement) {
         super.visitAssertStatement(statement)
     }
 
     @Override
-    void visitAttributeExpression(AttributeExpression attributeExpression){
+    void visitAttributeExpression(AttributeExpression attributeExpression) {
         super.visitAttributeExpression(attributeExpression)
     }
 
     @Override
-    void visitBinaryExpression(BinaryExpression expression){
+    void visitBinaryExpression(BinaryExpression expression) {
         super.visitBinaryExpression(expression)
     }
 
     @Override
-    void visitBitwiseNegationExpression(BitwiseNegationExpression expression){
+    void visitBitwiseNegationExpression(BitwiseNegationExpression expression) {
         super.visitBitwiseNegationExpression(expression)
     }
 
     @Override
-    void visitBlockStatement(BlockStatement statement){
+    void visitBlockStatement(BlockStatement statement) {
         super.visitBlockStatement(statement)
     }
 
     @Override
-    void visitBooleanExpression(BooleanExpression expression){
+    void visitBooleanExpression(BooleanExpression expression) {
         super.visitBooleanExpression(expression)
     }
 
     @Override
-    void visitBreakStatement(BreakStatement statement){
+    void visitBreakStatement(BreakStatement statement) {
         super.visitBreakStatement(statement)
     }
 
     @Override
-    void visitBytecodeExpression(BytecodeExpression expression){
+    void visitBytecodeExpression(BytecodeExpression expression) {
         super.visitBytecodeExpression(expression)
     }
 
     @Override
-    void visitCaseStatement(CaseStatement statement){
+    void visitCaseStatement(CaseStatement statement) {
         super.visitCaseStatement(statement)
     }
 
     @Override
-    void visitCastExpression(CastExpression expression){
+    void visitCastExpression(CastExpression expression) {
         super.visitCastExpression(expression)
     }
 
     @Override
-    void visitCatchStatement(CatchStatement statement){
+    void visitCatchStatement(CatchStatement statement) {
         super.visitCatchStatement(statement)
     }
 
     @Override
-    void visitClassExpression(ClassExpression expression){
+    void visitClassExpression(ClassExpression expression) {
         super.visitClassExpression(expression)
     }
 
     @Override
-    void visitClosureExpression(ClosureExpression expression){
+    void visitClosureExpression(ClosureExpression expression) {
         super.visitClosureExpression(expression)
     }
 
     @Override
-    void visitClosureListExpression(ClosureListExpression closureListExpression){
+    void visitClosureListExpression(ClosureListExpression closureListExpression) {
         super.visitClosureListExpression(closureListExpression)
     }
 
     @Override
-    void visitConstantExpression(ConstantExpression expression){
+    void visitConstantExpression(ConstantExpression expression) {
         super.visitConstantExpression(expression)
     }
 
     @Override
-    void visitConstructorCallExpression(ConstructorCallExpression expression){
+    void visitConstructorCallExpression(ConstructorCallExpression expression) {
         super.visitConstructorCallExpression(expression)
     }
 
     @Override
-    void visitContinueStatement(ContinueStatement statement){
+    void visitContinueStatement(ContinueStatement statement) {
         super.visitContinueStatement(statement)
     }
 
     @Override
-    void visitDeclarationExpression(DeclarationExpression expression){
-        if(expression.isMultipleAssignmentDeclaration()) {
+    void visitDeclarationExpression(DeclarationExpression expression) {
+        if (expression.isMultipleAssignmentDeclaration()) {
             TupleExpression left = expression.getTupleExpression()
         } else {
             VariableExpression left = expression.getVariableExpression()
@@ -188,52 +190,52 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     }
 
     @Override
-    void visitDoWhileLoop(DoWhileStatement loop){
+    void visitDoWhileLoop(DoWhileStatement loop) {
         super.visitDoWhileLoop(loop)
     }
 
     @Override
-    void visitExpressionStatement(ExpressionStatement statement){
+    void visitExpressionStatement(ExpressionStatement statement) {
         super.visitExpressionStatement(statement)
     }
 
     @Override
-    void visitFieldExpression(FieldExpression expression){
+    void visitFieldExpression(FieldExpression expression) {
         super.visitFieldExpression(expression)
     }
 
     @Override
-    void visitForLoop(ForStatement forLoop){
+    void visitForLoop(ForStatement forLoop) {
         super.visitForLoop(forLoop)
     }
 
     @Override
-    void visitGStringExpression(GStringExpression expression){
+    void visitGStringExpression(GStringExpression expression) {
         super.visitGStringExpression(expression)
     }
 
     @Override
-    void visitIfElse(IfStatement ifElse){
+    void visitIfElse(IfStatement ifElse) {
         super.visitIfElse(ifElse)
     }
 
     @Override
-    void visitListExpression(ListExpression expression){
+    void visitListExpression(ListExpression expression) {
         super.visitListExpression(expression)
     }
 
     @Override
-    void visitMapEntryExpression(MapEntryExpression expression){
+    void visitMapEntryExpression(MapEntryExpression expression) {
         super.visitMapEntryExpression(expression)
     }
 
     @Override
-    void visitMapExpression(MapExpression expression){
+    void visitMapExpression(MapExpression expression) {
         super.visitMapExpression(expression)
     }
 
     @Override
-    void visitMethodCallExpression(MethodCallExpression call){
+    void visitMethodCallExpression(MethodCallExpression call) {
         VarReference usage = new VarReference(sourceFileURI, fileContents, currentClassNode, call.getReceiver())
 
         FuncReference funcCall = new FuncReference(sourceFileURI, fileContents, currentClassNode, call, usage)
@@ -242,109 +244,109 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     }
 
     @Override
-    void visitMethodPointerExpression(MethodPointerExpression expression){
+    void visitMethodPointerExpression(MethodPointerExpression expression) {
         super.visitMethodPointerExpression(expression)
     }
 
     @Override
-    void visitNotExpression(NotExpression expression){
+    void visitNotExpression(NotExpression expression) {
         super.visitNotExpression(expression)
     }
 
     @Override
-    void visitPostfixExpression(PostfixExpression expression){
+    void visitPostfixExpression(PostfixExpression expression) {
         super.visitPostfixExpression(expression)
     }
 
     @Override
-    void visitPrefixExpression(PrefixExpression expression){
+    void visitPrefixExpression(PrefixExpression expression) {
         super.visitPrefixExpression(expression)
     }
 
     @Override
-    void visitPropertyExpression(PropertyExpression expression){
+    void visitPropertyExpression(PropertyExpression expression) {
         super.visitPropertyExpression(expression)
     }
 
     @Override
-    void visitRangeExpression(RangeExpression expression){
+    void visitRangeExpression(RangeExpression expression) {
         super.visitRangeExpression(expression)
     }
 
     @Override
-    void visitReturnStatement(ReturnStatement statement){
+    void visitReturnStatement(ReturnStatement statement) {
         super.visitReturnStatement(statement)
     }
 
     @Override
-    void visitShortTernaryExpression(ElvisOperatorExpression expression){
+    void visitShortTernaryExpression(ElvisOperatorExpression expression) {
         super.visitShortTernaryExpression(expression)
     }
 
     @Override
-    void visitSpreadExpression(SpreadExpression expression){
+    void visitSpreadExpression(SpreadExpression expression) {
         super.visitSpreadExpression(expression)
     }
 
     @Override
-    void visitSpreadMapExpression(SpreadMapExpression expression){
+    void visitSpreadMapExpression(SpreadMapExpression expression) {
         super.visitSpreadMapExpression(expression)
     }
 
     @Override
-    void visitStaticMethodCallExpression(StaticMethodCallExpression expression){
+    void visitStaticMethodCallExpression(StaticMethodCallExpression expression) {
         finder.addFuncCall(new FuncReference(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitStaticMethodCallExpression(expression)
     }
 
     @Override
-    void visitSwitch(SwitchStatement statement){
+    void visitSwitch(SwitchStatement statement) {
         super.visitSwitch(statement)
     }
 
     @Override
-    void visitSynchronizedStatement(SynchronizedStatement statement){
+    void visitSynchronizedStatement(SynchronizedStatement statement) {
         super.visitSynchronizedStatement(statement)
     }
 
     @Override
-    void visitTernaryExpression(TernaryExpression expression){
+    void visitTernaryExpression(TernaryExpression expression) {
         super.visitTernaryExpression(expression)
     }
 
     @Override
-    void visitThrowStatement(ThrowStatement statement){
+    void visitThrowStatement(ThrowStatement statement) {
         super.visitThrowStatement(statement)
     }
 
     @Override
-    void visitTryCatchFinally(TryCatchStatement finally1){
+    void visitTryCatchFinally(TryCatchStatement finally1) {
         super.visitTryCatchFinally(finally1)
     }
 
     @Override
-    void visitTupleExpression(TupleExpression expression){
+    void visitTupleExpression(TupleExpression expression) {
         super.visitTupleExpression(expression)
     }
 
     @Override
-    void visitUnaryMinusExpression(UnaryMinusExpression expression){
+    void visitUnaryMinusExpression(UnaryMinusExpression expression) {
         super.visitUnaryMinusExpression(expression)
     }
 
     @Override
-    void visitUnaryPlusExpression(UnaryPlusExpression expression){
+    void visitUnaryPlusExpression(UnaryPlusExpression expression) {
         super.visitUnaryPlusExpression(expression)
     }
 
     @Override
-    void visitVariableExpression(VariableExpression expression){
+    void visitVariableExpression(VariableExpression expression) {
         finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitVariableExpression(expression)
     }
 
     @Override
-    void visitWhileLoop(WhileStatement loop){
+    void visitWhileLoop(WhileStatement loop) {
         super.visitWhileLoop(loop)
     }
 }

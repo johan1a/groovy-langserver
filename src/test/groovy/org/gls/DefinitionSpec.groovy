@@ -60,7 +60,7 @@ class DefinitionSpec extends Specification {
         then:
         definitions.size() == 1
         definitions.first().range.start.line == 1
-        usages.size() == 19
+        usages.size() == 18
         ClassReference usage = usages.find { it.lineNumber == 4 }
         usage.columnNumber == 8
         usage.lastColumnNumber == 23
@@ -98,6 +98,7 @@ class DefinitionSpec extends Specification {
         'functions/two' | new ImmutablePosition(12, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 6)   | 21
         'functions/two' | new ImmutablePosition(19, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
         'functions/two' | new ImmutablePosition(71, 47) | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
+        'definition/1'  | new ImmutablePosition(3, 14)  | "Constructor"      | new ImmutablePosition(1, 6)    | 16
     }
 
     def "Repeated query"() {
