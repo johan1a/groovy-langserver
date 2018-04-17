@@ -53,17 +53,16 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         log.info("completion params: ${params}")
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
-        CompletionList list = new CompletionList()
-        List<CompletionItem> items = finder.getCompletionItems(fileService.completionRequest(params))
-        CompletionItem item = new CompletionItem("testLabel")
-        item.setKind(CompletionItemKind.Variable)
-        list.items = Arrays.asList(
-                item
-        )
-        result = CompletableFuture.completedFuture(Either.forRight(list))
-        def elapsed = (System.currentTimeMillis() - start) / 1000.0
-        log.info("Completed in $elapsed ms")
-        log.info("Returning: ${result}")
+
+        result = CompletableFuture.supplyAsync {
+            index(fileService.getChangedFiles())
+            List<CompletionItem> items = finder.getCompletionItems(fileService.completionRequest(params))
+            def elapsed = (System.currentTimeMillis() - start) / 1000.0
+            log.info("Completed in $elapsed ms")
+            log.info("Returning: ${items}")
+            Either.forLeft(items)
+        }
+
         return result
     }
 

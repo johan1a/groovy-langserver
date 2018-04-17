@@ -117,7 +117,7 @@ class ReferenceFinder {
     List<CompletionItem> getCompletionItems(CompletionRequest request) {
         log.info(request.precedingText)
         Definition precedingToken = findPrecedingToken(request)
-        log.info("preceding token: ${precedingToken}")
+        log.info("preceding token (definition): ${precedingToken}")
 
         []
     }
@@ -131,6 +131,7 @@ class ReferenceFinder {
         } else {
             characterPos = precedingText.size() - 1
         }
+        log.info("characterPos: ${characterPos}")
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
         Position position = new ImmutablePosition(request.position.line, characterPos)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
