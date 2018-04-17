@@ -2,17 +2,23 @@ package org.gls.lang
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.eclipse.lsp4j.CompletionItem
+import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.RenameParams
+import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.eclipse.lsp4j.TextEdit
-import org.eclipse.lsp4j.WorkspaceEdit
+import org.gls.CompletionRequest
 import org.gls.lang.definition.ClassDefinition
+import org.gls.lang.definition.Definition
 import org.gls.lang.definition.FuncDefinition
 import org.gls.lang.definition.VarDefinition
 import org.gls.lang.reference.ClassReference
 import org.gls.lang.reference.FuncReference
 import org.gls.lang.reference.VarReference
+import org.gls.lang.reference.Reference
+
 
 @Slf4j
 @TypeChecked
@@ -52,27 +58,41 @@ class ReferenceFinder {
     }
 
     List<ImmutableLocation> getDefinition(TextDocumentPositionParams params) {
-        List<ImmutableLocation> varDefinitions = varReferenceFinder.getDefinitionLocations(storage.getVarReferences(), params)
-        if (!varDefinitions.isEmpty()) {
-            return varDefinitions
-        }
-        List<ImmutableLocation> classDefinitions = classReferenceFinder.getDefinitionLocations(storage.getClassReferences(), params)
-        if (!classDefinitions.isEmpty()) {
-            return classDefinitions
-        }
-        return funcReferenceFinder.getDefinitionLocations(storage.getFuncReferences(), params)
+        return toLocation(getDefinitionInternal(params))
     }
 
     List<ImmutableLocation> getReferences(ReferenceParams params) {
-        List<ImmutableLocation> varReferences = varReferenceFinder.getReferenceLocations(storage.getVarDefinitions(), storage.getVarReferences(), params)
+        return toLocation(getReferencesInternal(params))
+    }
+
+    List<Definition> getDefinitionInternal(TextDocumentPositionParams params) {
+        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage.getVarReferences(), params)
+        if (!varDefinitions.isEmpty()) {
+            return varDefinitions
+        }
+        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage.getClassReferences(), params)
+        if (!classDefinitions.isEmpty()) {
+            return classDefinitions
+        }
+        return funcReferenceFinder.getDefinitions(storage.getFuncReferences(), params)
+    }
+
+    List<Reference> getReferencesInternal(ReferenceParams params) {
+        List<Reference> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<ImmutableLocation> classReferences = classReferenceFinder.getReferenceLocations(storage.getClassDefinitions(), storage.getClassReferences(), params)
+        List<Reference> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassReferences(), params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return funcReferenceFinder.getReferenceLocations(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        return funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+    }
+
+    static List<ImmutableLocation> toLocation(List<? extends HasLocation> references) {
+        references.collect { it.getLocation() }
+                .findAll { it.range.start.line > 0 && it.range.start.character > 0 }
+                .sort()
     }
 
     void correlate() {
@@ -92,6 +112,30 @@ class ReferenceFinder {
         }
         Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.getClassDefinitions(), storage.getClassReferences(), params)
         return classEdits
+    }
+
+    List<CompletionItem> getCompletionItems(CompletionRequest request) {
+        log.info(request.precedingText)
+        Definition precedingToken = findPrecedingToken(request)
+        log.info("preceding token: ${precedingToken}")
+
+        []
+    }
+
+    Definition findPrecedingToken(CompletionRequest request) {
+        String precedingText = request.precedingText
+        int characterPos
+        if (precedingText.endsWith(".")) {
+            String parsedText = precedingText.split(".")[0].trim()
+            characterPos = parsedText.size() - 1
+        } else {
+            characterPos = precedingText.size() - 1
+        }
+        TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
+        Position position = new ImmutablePosition(request.position.line, characterPos)
+        TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
+
+        return getDefinitionInternal(params).first()
     }
 }
 

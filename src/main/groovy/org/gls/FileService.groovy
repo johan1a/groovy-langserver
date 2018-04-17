@@ -6,6 +6,7 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams
 import org.eclipse.lsp4j.DidCloseTextDocumentParams
 import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.DidSaveTextDocumentParams
+import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.eclipse.lsp4j.TextEdit
 
 @Slf4j
@@ -64,6 +65,17 @@ class FileService {
         if(getChangedFiles().containsKey(fileName)){
             getChangedFiles().remove(fileName)
         }
+    }
+
+    CompletionRequest completionRequest(TextDocumentPositionParams params) {
+        String uri = params.textDocument.uri
+        List<String> fileLines = readFileLines(uri)
+
+        String precedingText = fileLines[params.position.line].substring(0, params.position.character)
+        log.info("precedingText: ${precedingText}")
+        
+
+        return new CompletionRequest(uri: uri, position: params.position, precedingText: precedingText)
     }
 
     private List<String> readFileLines(String fileName) {

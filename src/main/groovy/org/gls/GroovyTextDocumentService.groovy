@@ -49,10 +49,12 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     @Override
     CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams params) {
         long start = System.currentTimeMillis()
+        //TODO reindex first when the file is changed client side?
+        log.info("completion params: ${params}")
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
         CompletionList list = new CompletionList()
-
+        List<CompletionItem> items = finder.getCompletionItems(fileService.completionRequest(params))
         CompletionItem item = new CompletionItem("testLabel")
         item.setKind(CompletionItemKind.Variable)
         list.items = Arrays.asList(

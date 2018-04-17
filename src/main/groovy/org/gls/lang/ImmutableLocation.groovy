@@ -5,11 +5,8 @@ import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Range
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull
 
-/**
- * Created by johan on 4/8/18.
- */
 @TypeChecked
-class ImmutableLocation extends Location {
+class ImmutableLocation extends Location implements Comparable<ImmutableLocation> {
 
     public ImmutableLocation(@NonNull final String uri, @NonNull final ImmutableRange range) {
         super(uri, range)
@@ -21,5 +18,14 @@ class ImmutableLocation extends Location {
 
     @Override
     void setRange(@NonNull Range range) {
+    }
+
+    @Override
+    int compareTo(ImmutableLocation b) {
+        if (range.start.line == b.range.start.line) {
+            range.start.character <=> b.range.start.character
+        } else {
+            range.start.line <=> b.range.start.line
+        }
     }
 }
