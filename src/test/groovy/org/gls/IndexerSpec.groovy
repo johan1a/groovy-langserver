@@ -12,7 +12,7 @@ class IndexerSpec extends Specification {
     def "test indexer init"() {
         ReferenceFinder finder = new ReferenceFinder()
         def uri = TestUtil.uri(".")
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder)
+        GroovyIndexer indexer = new GroovyIndexer(uri, finder, new IndexerConfig(scanAllSubDirs: false))
 
         expect:
         indexer.sourcePaths.collect { it.toString().split("groovy-langserver")[1] }
@@ -23,7 +23,7 @@ class IndexerSpec extends Specification {
         ReferenceFinder finder = new ReferenceFinder()
         String path = "./src/test/test-files/1"
 
-        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, true)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
         indexer.index()
 
         expect:
@@ -36,7 +36,7 @@ class IndexerSpec extends Specification {
         String path = "src/test/test-files/5"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, true)
+        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
         indexer.index()
 
         then:

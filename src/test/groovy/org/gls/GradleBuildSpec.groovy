@@ -50,7 +50,7 @@ class GradleBuildSpec extends Specification {
         String sourcePath = "src/test/test-files/config"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(sourcePath), finder, true)
+        GroovyIndexer indexer = new GroovyIndexer(uri(sourcePath), finder, new IndexerConfig(scanDependencies: true))
         indexer.buildConfigLocation = "build7.fakegradle"
         indexer.index()
 

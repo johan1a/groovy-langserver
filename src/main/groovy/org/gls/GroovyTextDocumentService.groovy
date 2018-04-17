@@ -3,7 +3,6 @@ package org.gls
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.*
-import org.eclipse.lsp4j.jsonrpc.CompletableFutures
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
@@ -28,6 +27,10 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     public void showClientMessage(String message) {
         client?.showMessage(new MessageParams(MessageType.Info, message))
+    }
+
+    GroovyTextDocumentService(IndexerConfig config) {
+        indexerConfig = config
     }
 
     public static void sendDiagnostics(Map<String, List<Diagnostic>> diagnostics, LanguageClient client) {
@@ -235,8 +238,9 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
         try {
             ReferenceFinder finder = new ReferenceFinder()
-            GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig.scanAllSubDirs)
+            GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig)
             Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
+            indexerConfig.scanDependencies = false
             this.finder = finder
             sendDiagnostics(diagnostics, client)
         } catch (Exception e) {

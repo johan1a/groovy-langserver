@@ -36,7 +36,7 @@ class LangServer implements LanguageServer {
 
     LangServer() {
         this.workspaceService = new GroovyWorkspaceService()
-        this.textDocumentService = new GroovyTextDocumentService()
+        this.textDocumentService = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: false, scanDependencies: true))
     }
 
     @Override

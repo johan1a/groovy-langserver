@@ -9,6 +9,7 @@ import org.codehaus.groovy.control.MultipleCompilationErrorsException
 import org.codehaus.groovy.control.Phases
 import org.eclipse.lsp4j.Diagnostic
 import org.gls.ConfigService
+import org.gls.IndexerConfig
 import org.gls.UriUtils
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.ReferenceFinder
@@ -23,12 +24,14 @@ class GroovyIndexer {
     URI rootUri
     ConfigService configService = new ConfigService()
     String buildConfigLocation = "build.gradle"
+    IndexerConfig indexerConfig
 
-    GroovyIndexer(URI rootUri, ReferenceFinder finder, boolean scanAllSubDirs = false) {
+    GroovyIndexer(URI rootUri, ReferenceFinder finder, IndexerConfig indexerConfig) {
         this.rootUri = rootUri
+        this.indexerConfig = indexerConfig
         sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),
                        UriUtils.appendURI(rootUri, "/grails-app")]
-        if (scanAllSubDirs) {
+        if (indexerConfig.scanAllSubDirs) {
             sourcePaths = [rootUri]
         }
         log.info "sourcePaths: ${sourcePaths}"
@@ -64,7 +67,7 @@ class GroovyIndexer {
         try {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
-            List<String> classpath = configService.resolveClassPath(rootUri, buildConfigLocation)
+            List<String> classpath = getClassPath()
             compile(files, changedFiles, classpath)
             finder.correlate()
             long elapsed = System.currentTimeMillis() - start
@@ -79,6 +82,14 @@ class GroovyIndexer {
         }
         log.info("diagnostics: ${diagnostics}")
         return diagnostics
+    }
+
+    private List<String> getClassPath() {
+        if(indexerConfig.scanDependencies) {
+            configService.resolveClassPath(rootUri, buildConfigLocation)
+        } else {
+            return []
+        }
     }
 
 

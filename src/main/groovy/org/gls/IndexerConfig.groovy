@@ -4,5 +4,6 @@ import groovy.transform.TypeChecked
 
 @TypeChecked
 class IndexerConfig {
-    boolean scanAllSubDirs
+    boolean scanAllSubDirs = true
+    boolean scanDependencies = false
 }
