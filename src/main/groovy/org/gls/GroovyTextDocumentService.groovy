@@ -50,13 +50,15 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(TextDocumentPositionParams params) {
         long start = System.currentTimeMillis()
         //TODO reindex first when the file is changed client side?
-        log.info("completion params: ${params}")
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
 
         result = CompletableFuture.supplyAsync {
+            log.info("completion params: ${params}")
             CompletionRequest request = fileService.completionRequest(params)
+            log.info("Got completionrequest: ${request}")
             if(!request.precedingText.contains(".")){
+                log.info("Indexing before completing")
                 index(fileService.getChangedFiles())
             }
             List<CompletionItem> items = finder.getCompletionItems(request)

@@ -26,13 +26,13 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
 
     static Optional<R> findMatchingReference(Set<R> references, TextDocumentPositionParams params) {
         return Optional.ofNullable(references.find {
-            mathesPosition(it, params.textDocument.uri, params.position)
+            matchesPosition(it, params.textDocument.uri, params.position)
         })
     }
 
     static Optional<D> findMatchingDefinition(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
         Optional<D> definition = Optional.ofNullable(definitions.find {
-            mathesPosition(it, params.textDocument.uri, params.position)
+            matchesPosition(it, params.textDocument.uri, params.position)
         })
         if (definition.isPresent()) {
             return definition
@@ -45,7 +45,7 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         reference.map { it.findMatchingDefinition(definitions) }.orElse(Optional.empty())
     }
 
-    static boolean mathesPosition(HasLocation hasLocation, String uri, Position position) {
+    static boolean matchesPosition(HasLocation hasLocation, String uri, Position position) {
         hasLocation.getSourceFileURI() == uri &&
                 hasLocation.columnNumber <= position.character &&
                 hasLocation.lastColumnNumber >= position.character &&

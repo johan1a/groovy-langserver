@@ -72,8 +72,7 @@ class FileService {
         List<String> fileLines = readFileLines(uri)
 
         String precedingText = fileLines[params.position.line].substring(0, params.position.character)
-        log.info("precedingText: ${precedingText}")
-        
+
 
         return new CompletionRequest(uri: uri, position: params.position, precedingText: precedingText)
     }

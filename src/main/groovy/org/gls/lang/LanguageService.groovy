@@ -117,38 +117,23 @@ class LanguageService {
     }
 
     List<CompletionItem> getCompletionItems(CompletionRequest request) {
-        log.info(request.precedingText)
-        Definition precedingToken = findPrecedingToken(request)
-        log.info("preceding token (definition): ${precedingToken}")
-
-        []
-    }
-
-    Definition findPrecedingToken(CompletionRequest request) {
         String precedingText = request.precedingText
+        log.info("precedingText: ${precedingText}")
         log.info("request position: ${request.position.character}")
-        int characterPos
-        if (precedingText.endsWith(".")) {
-            String parsedText = precedingText.split(".")[0].trim()
-            characterPos = parsedText.size() - 1
-        } else {
-            characterPos = precedingText.size() - 1
-        }
-        log.info("characterPos: ${characterPos}")
+        log.info("request line: ${request.position.line}")
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
-        Position position = new ImmutablePosition(request.position.line, request.position.character + 1)
+        Position position = new ImmutablePosition(request.position.line, request.position.character)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
-        log.info("request.position.character + 1: ${request.position.character + 1}")
-        List<VarDefinition> internal = varReferenceFinder.getDefinitions(storage.getVarDefinitions(), params)
-        List<ClassDefinition> classDefinitions = internal.collect { VarDefinition it ->
+        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.getVarReferences(), params)
+        log.info("Found varDefinitions: ${varDefinitions}")
+
+        List<ClassDefinition> classDefinitions = varDefinitions.collect { VarDefinition it ->
             storage.getClassDefinition(it.typeName)
         }
-        classDefinitions.collect { autoCompleter.autoComplete(it, precedingText) }
+        List<CompletionItem> items =  classDefinitions.collectMany { autoCompleter.autoComplete(it, precedingText) }
 
-        classDefinitions
-        log.info("internal: ${internal}")
-        internal
-        return internal.first()
+        log.info("Found completionitems: ${items}")
+        items
     }
 }
 

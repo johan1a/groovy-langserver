@@ -342,7 +342,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitVariableExpression(VariableExpression expression) {
-        finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, expression))
+        VarReference reference = new VarReference(sourceFileURI, fileContents, currentClassNode, expression)
+        finder.addVarUsage(reference)
         super.visitVariableExpression(expression)
     }
 
