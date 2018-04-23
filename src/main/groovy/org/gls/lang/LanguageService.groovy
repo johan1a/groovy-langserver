@@ -139,8 +139,6 @@ class LanguageService {
         Position position = new ImmutablePosition(request.position.line, request.position.character + 1)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
         log.info("request.position.character + 1: ${request.position.character + 1}")
-
-
         List<VarDefinition> internal = varReferenceFinder.getDefinitions(storage.getVarDefinitions(), params)
         List<ClassDefinition> classDefinitions = internal.collect { VarDefinition it ->
             storage.getClassDefinition(it.typeName)

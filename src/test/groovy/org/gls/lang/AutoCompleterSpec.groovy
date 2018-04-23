@@ -1,10 +1,8 @@
 package org.gls.lang
 
-import org.codehaus.groovy.ast.ClassNode
 import org.eclipse.lsp4j.CompletionItem
 import org.eclipse.lsp4j.CompletionItemKind
 import org.gls.lang.definition.ClassDefinition
-import org.gls.lang.definition.FuncDefinition
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -16,6 +14,7 @@ class AutoCompleterSpec extends Specification {
     def "AutoComplete"() {
         given:
         ClassDefinition classDefinition = new ClassDefinition()
+
         classDefinition.memberFunctions.add(_funcName)
         classDefinition.memberFunctions.add("bFunc")
 
