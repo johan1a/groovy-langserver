@@ -3,7 +3,7 @@ package org.gls
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 
 import java.util.concurrent.CompletableFuture
 

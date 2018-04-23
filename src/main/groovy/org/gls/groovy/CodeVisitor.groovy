@@ -8,6 +8,7 @@ import org.codehaus.groovy.ast.expr.*
 import org.codehaus.groovy.ast.stmt.*
 import org.codehaus.groovy.classgen.*
 import org.codehaus.groovy.control.SourceUnit
+import org.gls.LangServer
 import org.gls.lang.*
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.definition.FuncDefinition
@@ -20,12 +21,12 @@ import org.gls.lang.reference.VarReference
 @TypeChecked
 class CodeVisitor extends ClassCodeVisitorSupport {
 
-    private ReferenceFinder finder
+    private LanguageService finder
     private String sourceFileURI
     private ClassNode currentClassNode
     List<String> fileContents
 
-    CodeVisitor(ReferenceFinder finder, String sourceFileURI, List<String> fileContents) {
+    CodeVisitor(LanguageService finder, String sourceFileURI, List<String> fileContents) {
         this.finder = finder
         this.sourceFileURI = sourceFileURI
         this.fileContents = fileContents

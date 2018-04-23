@@ -1,7 +1,7 @@
 package org.gls
 
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 import org.gls.util.TestUtil
 import spock.lang.Specification
 
@@ -10,7 +10,7 @@ import static org.gls.util.TestUtil.uri
 class IndexerSpec extends Specification {
 
     def "test indexer init"() {
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         def uri = TestUtil.uri(".")
         GroovyIndexer indexer = new GroovyIndexer(uri, finder, new IndexerConfig(scanAllSubDirs: false))
 
@@ -20,7 +20,7 @@ class IndexerSpec extends Specification {
     }
 
     def "test indexer"() {
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String path = "./src/test/test-files/1"
 
         GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
@@ -32,7 +32,7 @@ class IndexerSpec extends Specification {
 
     def "Test unresolved import"() {
         setup:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String path = "src/test/test-files/5"
 
         when:

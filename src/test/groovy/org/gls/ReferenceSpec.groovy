@@ -4,7 +4,7 @@ import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.reference.ClassReference
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 import org.gls.lang.reference.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -15,7 +15,7 @@ import static org.gls.util.TestUtil.uri
 class ReferenceSpec extends Specification {
 
     def "test function return type"() {
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String path = "src/test/test-files/3"
 
         GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
@@ -31,7 +31,7 @@ class ReferenceSpec extends Specification {
     }
 
     def "test Vardecl class usage"() {
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String path = "src/test/test-files/4"
 
         GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
@@ -47,7 +47,7 @@ class ReferenceSpec extends Specification {
 
     def "Function reference 1"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/${_dir}"
 
         ReferenceParams params = new ReferenceParams()
@@ -76,7 +76,7 @@ class ReferenceSpec extends Specification {
 
     def "Multiple function references 1"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/${_dir}"
 
         ReferenceParams params = new ReferenceParams()
@@ -107,7 +107,7 @@ class ReferenceSpec extends Specification {
     }
 
     def "test VarRef indexing"() {
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String path = "./src/test/test-files/2"
 
         GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
@@ -123,7 +123,7 @@ class ReferenceSpec extends Specification {
 
     def "Test find references"() {
         setup:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/6"
 
         ReferenceParams params = new ReferenceParams()
@@ -146,7 +146,7 @@ class ReferenceSpec extends Specification {
 
     def "Test find references2"() {
         setup:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/6"
 
         ReferenceParams params = new ReferenceParams()

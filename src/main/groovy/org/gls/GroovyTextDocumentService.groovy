@@ -10,7 +10,7 @@ import org.eclipse.lsp4j.services.TextDocumentService
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutableRange
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.util.concurrent.CompletableFuture
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
     private URI rootUri
-    private ReferenceFinder finder = new ReferenceFinder()
+    private LanguageService finder = new LanguageService()
     private LanguageClient client
     private FileService fileService = new FileService()
     private IndexerConfig indexerConfig = new IndexerConfig()
@@ -55,8 +55,11 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
 
         result = CompletableFuture.supplyAsync {
-            index(fileService.getChangedFiles())
-            List<CompletionItem> items = finder.getCompletionItems(fileService.completionRequest(params))
+            CompletionRequest request = fileService.completionRequest(params)
+            if(!request.precedingText.contains(".")){
+                index(fileService.getChangedFiles())
+            }
+            List<CompletionItem> items = finder.getCompletionItems(request)
             def elapsed = (System.currentTimeMillis() - start) / 1000.0
             log.info("Completed in $elapsed ms")
             log.info("Returning: ${items}")
@@ -238,7 +241,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
         try {
-            ReferenceFinder finder = new ReferenceFinder()
+            LanguageService finder = new LanguageService()
             GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig)
             Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
             indexerConfig.scanDependencies = false

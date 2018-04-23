@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.ClassNode
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
 import org.gls.lang.reference.ClassReference
+import org.gls.lang.reference.FuncReference
 
 @Slf4j
 @TypeChecked
@@ -14,8 +15,15 @@ class ClassDefinition implements Definition<ClassReference> {
     ImmutableLocation location
 
     private String packageName
-    private String className
+    String className
     private Set<ClassReference> references
+
+    Set<FuncDefinition> memberFunctions = new HashSet<>()
+    Set<VarDefinition> memberVariables = new HashSet<>()
+
+    ClassDefinition(){
+
+    }
 
     ClassDefinition(ClassNode node, String sourceFileURI, List<String> source) {
         className = node.getNameWithoutPackage()
@@ -37,7 +45,6 @@ class ClassDefinition implements Definition<ClassReference> {
     Set<ClassReference> getReferences() {
         return references
     }
-
 
     String getFullClassName() {
         if (packageName != null) {

@@ -1,7 +1,7 @@
 package org.gls
 
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -46,7 +46,7 @@ class GradleBuildSpec extends Specification {
 
     def "Make sure indexer classpath is updated"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String sourcePath = "src/test/test-files/config"
 
         when:

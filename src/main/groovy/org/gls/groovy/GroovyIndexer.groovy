@@ -12,7 +12,7 @@ import org.gls.ConfigService
 import org.gls.IndexerConfig
 import org.gls.UriUtils
 import org.gls.lang.DiagnosticsParser
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 
 @Slf4j
 @TypeChecked
@@ -20,13 +20,13 @@ class GroovyIndexer {
 
     List<URI> sourcePaths
 
-    ReferenceFinder finder = new ReferenceFinder()
+    LanguageService finder = new LanguageService()
     URI rootUri
     ConfigService configService = new ConfigService()
     String buildConfigLocation = "build.gradle"
     IndexerConfig indexerConfig
 
-    GroovyIndexer(URI rootUri, ReferenceFinder finder, IndexerConfig indexerConfig) {
+    GroovyIndexer(URI rootUri, LanguageService finder, IndexerConfig indexerConfig) {
         this.rootUri = rootUri
         this.indexerConfig = indexerConfig
         sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),
