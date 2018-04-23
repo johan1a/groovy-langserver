@@ -12,7 +12,7 @@ import org.gls.ConfigService
 import org.gls.IndexerConfig
 import org.gls.UriUtils
 import org.gls.lang.DiagnosticsParser
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 
 @Slf4j
 @TypeChecked
@@ -20,13 +20,13 @@ class GroovyIndexer {
 
     List<URI> sourcePaths
 
-    ReferenceFinder finder = new ReferenceFinder()
+    LanguageService service = new LanguageService()
     URI rootUri
     ConfigService configService = new ConfigService()
     String buildConfigLocation = "build.gradle"
     IndexerConfig indexerConfig
 
-    GroovyIndexer(URI rootUri, ReferenceFinder finder, IndexerConfig indexerConfig) {
+    GroovyIndexer(URI rootUri, LanguageService service, IndexerConfig indexerConfig) {
         this.rootUri = rootUri
         this.indexerConfig = indexerConfig
         sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),
@@ -36,7 +36,7 @@ class GroovyIndexer {
         }
         log.info "sourcePaths: ${sourcePaths}"
 
-        this.finder = finder
+        this.service = service
     }
 
 
@@ -69,7 +69,7 @@ class GroovyIndexer {
             long start = System.currentTimeMillis()
             List<String> classpath = getClassPath()
             compile(files, changedFiles, classpath)
-            finder.correlate()
+            service.correlate()
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -117,7 +117,7 @@ class GroovyIndexer {
 
             String name = sourceUnit.getName()
             List<String> fileContents = getFileContent(name, changedFiles)
-            CodeVisitor codeVisitor = new CodeVisitor(finder, name, fileContents)
+            CodeVisitor codeVisitor = new CodeVisitor(service, name, fileContents)
             moduleNode.visit(codeVisitor)
             moduleNode.getClasses().each { classNode ->
                 codeVisitor.visitClass(classNode)

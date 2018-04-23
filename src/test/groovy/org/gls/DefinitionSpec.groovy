@@ -4,7 +4,8 @@ import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
 import org.gls.lang.reference.ClassReference
 import org.gls.lang.ImmutablePosition
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
+import org.gls.util.TestUtil
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -16,7 +17,7 @@ class DefinitionSpec extends Specification {
 
     def "Function definition"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/8"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
@@ -27,11 +28,10 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder, new IndexerConfig())
+        GroovyIndexer indexer = new GroovyIndexer(TestUtil.uri(dirPath), finder, new IndexerConfig())
         indexer.sourcePaths = [indexer.rootUri]
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<Location> definitions = finder.getDefinition(params)
-
 
         then:
         errors.isEmpty()
@@ -41,7 +41,7 @@ class DefinitionSpec extends Specification {
 
     def "Class definition"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/9"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
@@ -68,7 +68,7 @@ class DefinitionSpec extends Specification {
 
     def "Find definition"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/${_dir}"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()
@@ -116,7 +116,7 @@ class DefinitionSpec extends Specification {
         GroovyTextDocumentService service = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: true))
         service.setRootUri(uri(dirPath))
         service.index()
-        ReferenceFinder finder = service.finder
+        LanguageService finder = service.finder
         List<Location> definitions1 = finder.getDefinition(params1)
 
         then:
@@ -147,7 +147,7 @@ class DefinitionSpec extends Specification {
 
     def "Test method argument"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/7"
 
         TextDocumentPositionParams params = new TextDocumentPositionParams()

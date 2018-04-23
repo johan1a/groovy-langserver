@@ -2,7 +2,7 @@ package org.gls
 
 import org.eclipse.lsp4j.*
 import org.gls.groovy.GroovyIndexer
-import org.gls.lang.ReferenceFinder
+import org.gls.lang.LanguageService
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -13,7 +13,7 @@ class FileSpec extends Specification {
 
     def "Rename in file"() {
         given:
-        ReferenceFinder finder = new ReferenceFinder()
+        LanguageService finder = new LanguageService()
         String dirPath = "src/test/test-files/functions/two"
         RenameParams params = new RenameParams()
         params.position = _pos

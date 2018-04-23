@@ -22,12 +22,13 @@ import org.gls.lang.reference.Reference
 
 @Slf4j
 @TypeChecked
-class ReferenceFinder {
+class LanguageService {
 
     ReferenceStorage storage = new ReferenceStorage()
     ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncReference, FuncDefinition>()
     ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarReference, VarDefinition>()
     ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassReference>()
+    AutoCompleter autoCompleter = new AutoCompleter()
 
     Set<ClassReference> getClassReferences() {
         return storage.getClassReferences()
@@ -101,6 +102,7 @@ class ReferenceFinder {
         classReferenceFinder.correlate(storage.getClassDefinitions(), storage.getClassReferences())
     }
 
+
     Map<String, List<TextEdit>> rename(RenameParams params) {
         Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.getVarDefinitions(), storage.getVarReferences(), params)
         if (!varEdits.isEmpty()) {
@@ -124,6 +126,7 @@ class ReferenceFinder {
 
     Definition findPrecedingToken(CompletionRequest request) {
         String precedingText = request.precedingText
+        log.info("request position: ${request.position.character}")
         int characterPos
         if (precedingText.endsWith(".")) {
             String parsedText = precedingText.split(".")[0].trim()
@@ -133,10 +136,21 @@ class ReferenceFinder {
         }
         log.info("characterPos: ${characterPos}")
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
-        Position position = new ImmutablePosition(request.position.line, characterPos)
+        Position position = new ImmutablePosition(request.position.line, request.position.character + 1)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
+        log.info("request.position.character + 1: ${request.position.character + 1}")
 
-        return getDefinitionInternal(params).first()
+
+        List<VarDefinition> internal = varReferenceFinder.getDefinitions(storage.getVarDefinitions(), params)
+        List<ClassDefinition> classDefinitions = internal.collect { VarDefinition it ->
+            storage.getClassDefinition(it.typeName)
+        }
+        classDefinitions.collect { autoCompleter.autoComplete(it, precedingText) }
+
+        classDefinitions
+        log.info("internal: ${internal}")
+        internal
+        return internal.first()
     }
 }
 
