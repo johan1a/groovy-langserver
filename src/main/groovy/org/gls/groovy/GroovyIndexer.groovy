@@ -67,7 +67,7 @@ class GroovyIndexer {
         try {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
-            List<String> classpath = getClassPath()
+            List<String> classpath = getDependencies()
             compile(files, changedFiles, classpath)
             service.correlate()
             long elapsed = System.currentTimeMillis() - start
@@ -84,9 +84,9 @@ class GroovyIndexer {
         return diagnostics
     }
 
-    private List<String> getClassPath() {
+    private List<String> getDependencies() {
         if(indexerConfig.scanDependencies) {
-            configService.resolveClassPath(rootUri, buildConfigLocation)
+            configService.getDependencies(rootUri, buildConfigLocation)
         } else {
             return []
         }

@@ -18,7 +18,7 @@ class GradleBuildSpec extends Specification {
         gradleBuild.libraries = ["/does/not/exist", gradleBuild.gradleHome]
 
         when:
-        List<String> classPath = gradleBuild.resolveClassPath()
+        List<String> classPath = gradleBuild.resolveDependencies()
 
         then:
         classPath.size() == 1
@@ -35,7 +35,7 @@ class GradleBuildSpec extends Specification {
         gradleBuild.libraries = ["/does/not/exist", gradleBuild.gradleHome]
 
         when:
-        List<String> classPath = gradleBuild.resolveClassPath()
+        List<String> classPath = gradleBuild.resolveDependencies()
 
         then:
         classPath.size() == 1

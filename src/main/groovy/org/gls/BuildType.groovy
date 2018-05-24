@@ -5,5 +5,5 @@ package org.gls
  */
 interface BuildType {
 
-    List<String> resolveClassPath()
+    List<String> resolveDependencies()
 }

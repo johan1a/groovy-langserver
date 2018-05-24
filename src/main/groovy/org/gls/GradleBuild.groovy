@@ -13,12 +13,12 @@ class GradleBuild implements BuildType {
 
     URI configPath
 
-    public GradleBuild(URI configPath) {
+    GradleBuild(URI configPath) {
         this.configPath = configPath
     }
 
     @Override
-    List<String> resolveClassPath() {
+    List<String> resolveDependencies() {
         try {
             log.info("Parsing jars from gradle")
             List<Dependency> dependencies = parseDependencies()
