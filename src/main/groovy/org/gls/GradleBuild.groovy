@@ -22,9 +22,9 @@ class GradleBuild implements BuildType {
         try {
             log.info("Parsing jars from gradle")
             List<Dependency> dependencies = parseDependencies()
-            log.debug("Parsed ${dependencies.size()} dependencies from gradle config)}")
+            log.warn("Parsed ${dependencies.size()} dependencies from gradle config)}")
             List<String> classPath = findJarLocation(dependencies)
-            log.debug("Found ${classPath.size()} jars on filesystem")
+            log.warn("Found ${classPath.size()} jars on filesystem")
             return classPath
         } catch (Exception e) {
             log.error("Error", e)

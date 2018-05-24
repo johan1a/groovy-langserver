@@ -21,7 +21,9 @@ class ConfigService {
             dependencies = loadDependenciesFromFile(rootUri)
             if (dependencies.isEmpty()) {
                 dependencies = buildType.resolveDependencies()
-                saveDependenciesToFile(rootUri, dependencies)
+                if(!dependencies.isEmpty()) {
+                    saveDependenciesToFile(rootUri, dependencies)
+                }
             }
             log.info("Found ${dependencies.size()} dependencies")
             return dependencies
@@ -57,7 +59,6 @@ class ConfigService {
         if (!dependenciesFile.exists() || !dependenciesFile.isFile()) {
             return []
         }
-        log.info("Loading dependencies from ${dependenciesStorage}")
         dependenciesFile.readLines()
     }
 
