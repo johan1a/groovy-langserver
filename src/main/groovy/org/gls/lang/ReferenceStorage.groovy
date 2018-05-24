@@ -48,7 +48,7 @@ class ReferenceStorage {
         classDefinitions.add(definition)
     }
 
-    ClassDefinition getClassDefinition(String className) {
-        classDefinitions.find { it.className == className }
+    ClassDefinition getClassDefinition(String fullClassName) {
+        classDefinitions.find { it.fullClassName == fullClassName }
     }
 }

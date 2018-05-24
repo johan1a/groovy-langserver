@@ -8,6 +8,8 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.DidSaveTextDocumentParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.eclipse.lsp4j.TextEdit
+import org.gls.lang.ImmutableLocation
+import org.gls.lang.ImmutablePosition
 
 @Slf4j
 @TypeChecked
@@ -72,9 +74,9 @@ class FileService {
         List<String> fileLines = readFileLines(uri)
 
         String precedingText = fileLines[params.position.line].substring(0, params.position.character)
+        ImmutablePosition position = new ImmutablePosition(params.position.line, params.position.character - 2)
 
-
-        return new CompletionRequest(uri: uri, position: params.position, precedingText: precedingText)
+        return new CompletionRequest(uri: uri, position: position, precedingText: precedingText)
     }
 
     private List<String> readFileLines(String fileName) {

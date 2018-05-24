@@ -51,21 +51,26 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         long start = System.currentTimeMillis()
         //TODO reindex first when the file is changed client side?
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        CompletableFuture<Either<List<CompletionItem>, CompletionList>> result
-
-        result = CompletableFuture.supplyAsync {
-            log.info("completion params: ${params}")
-            CompletionRequest request = fileService.completionRequest(params)
-            log.info("Got completionrequest: ${request}")
-            if(!request.precedingText.contains(".")){
-                log.info("Indexing before completing")
-                index(fileService.getChangedFiles())
+        CompletableFuture<Either<List<CompletionItem>, CompletionList>> result = CompletableFuture.supplyAsync {
+            List<CompletionItem> items
+            try {
+                log.info("completion params: ${params}")
+                CompletionRequest request = fileService.completionRequest(params)
+                log.info("Got completionrequest: ${request}")
+                if (!request.precedingText.contains(".")) {
+                    log.info("Indexing before completing")
+                    index(fileService.getChangedFiles())
+                }
+                items = finder.getCompletionItems(request)
+                def elapsed = (System.currentTimeMillis() - start) / 1000.0
+                log.info("Completed in $elapsed ms")
+                log.info("Returning: ${items}")
+            } catch (Exception e) {
+                log.error("Error when autocompleting", e)
+                items = []
             }
-            List<CompletionItem> items = finder.getCompletionItems(request)
-            def elapsed = (System.currentTimeMillis() - start) / 1000.0
-            log.info("Completed in $elapsed ms")
-            log.info("Returning: ${items}")
-            Either.forLeft(items)
+            Either<List<CompletionItem>, CompletionList> left = Either.forLeft(items)
+            left
         }
 
         return result

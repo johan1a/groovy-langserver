@@ -65,14 +65,15 @@ class VarDefinition implements Definition<VarReference> {
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return """VarDefinition[
                 sourceFileURI=$sourceFileURI,
                 columnNumber=$columnNumber,
                 lastColumnNumber=$lastColumnNumber,
                 lineNumber=$lineNumber,
                 lastLineNumber=$lastLineNumber,
-                varName=$varName
+                varName=$varName,
+                typeName=$typeName
                 ]"""
     }
 
