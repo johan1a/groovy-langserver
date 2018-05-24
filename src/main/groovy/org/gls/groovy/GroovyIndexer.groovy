@@ -39,7 +39,6 @@ class GroovyIndexer {
         this.service = service
     }
 
-
     Map<String, List<Diagnostic>> index(Map<String, String> changedFiles = [:]) {
         List<File> files = findFilesRecursive()
         return index(files, changedFiles)
@@ -80,7 +79,7 @@ class GroovyIndexer {
         } catch (NoClassDefFoundError e) {
             log.error("Compilation error:", e)
         }
-        log.info("diagnostics: ${diagnostics}")
+        log.info("diagnostics size: ${diagnostics.size()}")
         return diagnostics
     }
 

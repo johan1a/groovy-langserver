@@ -23,6 +23,7 @@ class ConfigService {
                 dependencies = buildType.resolveDependencies()
                 saveDependenciesToFile(rootUri, dependencies)
             }
+            log.info("Found ${dependencies.size()} dependencies")
             return dependencies
         } catch (Exception e) {
             log.error("Error when resolving dependencies", e)
@@ -64,15 +65,13 @@ class ConfigService {
         File storageDir = new File(uri)
         if (!storageDir.exists() && !storageDir.isDirectory()) {
             log.info("Creating directory ${uri}")
-            boolean created = storageDir.mkdir()
-            log.info("Dir created: ${created}")
+            storageDir.mkdir()
         }
     }
 
     static BuildType getBuildType(URI rootUri, String configLocation) {
         log.info("Searching for gradle...")
         URI gradlePath = UriUtils.appendURI(rootUri, configLocation)
-        log.info("Trying path: $gradlePath")
         if (Files.exists(Paths.get(gradlePath))) {
             log.info "Found gradle."
             return new GradleBuild(gradlePath)
