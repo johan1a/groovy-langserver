@@ -1,7 +1,7 @@
 package org.gls
 
 import org.eclipse.lsp4j.*
-import org.gls.groovy.GroovyIndexer
+import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.LanguageService
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -22,7 +22,7 @@ class FileSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder, new IndexerConfig())
+        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
         Map<String, List<Diagnostic>> errors = indexer.index()
         List<TextEdit> edits = finder.rename(params).values().flatten()
 

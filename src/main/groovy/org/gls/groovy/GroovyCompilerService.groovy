@@ -16,7 +16,7 @@ import org.gls.lang.LanguageService
 
 @Slf4j
 @TypeChecked
-class GroovyIndexer {
+class GroovyCompilerService {
 
     List<URI> sourcePaths
 
@@ -26,7 +26,7 @@ class GroovyIndexer {
     String buildConfigLocation = "build.gradle"
     IndexerConfig indexerConfig
 
-    GroovyIndexer(URI rootUri, LanguageService service, IndexerConfig indexerConfig) {
+    GroovyCompilerService(URI rootUri, LanguageService service, IndexerConfig indexerConfig) {
         this.rootUri = rootUri
         this.indexerConfig = indexerConfig
         sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),

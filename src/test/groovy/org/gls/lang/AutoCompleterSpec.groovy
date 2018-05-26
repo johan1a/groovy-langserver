@@ -8,7 +8,7 @@ import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.gls.CompletionRequest
 import org.gls.IndexerConfig
-import org.gls.groovy.GroovyIndexer
+import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.definition.ClassDefinition
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -59,7 +59,7 @@ class AutoCompleterSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(dirPath), finder, new IndexerConfig())
+        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
         Map<String, List<Diagnostic>> errors = indexer.index()
 
         CompletionRequest request = new CompletionRequest(position: _pos, precedingText: _preceding, uri: new File(path).getCanonicalPath())

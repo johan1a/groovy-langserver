@@ -1,6 +1,6 @@
 package org.gls
 
-import org.gls.groovy.GroovyIndexer
+import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.LanguageService
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -50,7 +50,7 @@ class GradleBuildSpec extends Specification {
         String sourcePath = "src/test/test-files/config"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(sourcePath), finder, new IndexerConfig(scanDependencies: true))
+        GroovyCompilerService indexer = new GroovyCompilerService(uri(sourcePath), finder, new IndexerConfig(scanDependencies: true))
         indexer.buildConfigLocation = "build7.fakegradle"
         indexer.index()
 

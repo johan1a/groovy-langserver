@@ -7,7 +7,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageClientAware
 import org.eclipse.lsp4j.services.TextDocumentService
-import org.gls.groovy.GroovyIndexer
+import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutableRange
 import org.gls.lang.LanguageService
@@ -249,8 +249,8 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     void index(Map<String, String> changedFiles = Collections.emptyMap()) {
         try {
             LanguageService finder = new LanguageService()
-            GroovyIndexer indexer = new GroovyIndexer(rootUri, finder, indexerConfig)
-            Map<String, List<Diagnostic>> diagnostics = indexer.index(changedFiles)
+            GroovyCompilerService compilerService = new GroovyCompilerService(rootUri, finder, indexerConfig)
+            Map<String, List<Diagnostic>> diagnostics = compilerService.index(changedFiles)
             indexerConfig.scanDependencies = false
             this.finder = finder
             sendDiagnostics(diagnostics, client)

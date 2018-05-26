@@ -1,6 +1,6 @@
 package org.gls
 
-import org.gls.groovy.GroovyIndexer
+import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.LanguageService
 import org.gls.util.TestUtil
 import spock.lang.Specification
@@ -12,7 +12,7 @@ class IndexerSpec extends Specification {
     def "test indexer init"() {
         LanguageService finder = new LanguageService()
         def uri = TestUtil.uri(".")
-        GroovyIndexer indexer = new GroovyIndexer(uri, finder, new IndexerConfig(scanAllSubDirs: false))
+        GroovyCompilerService indexer = new GroovyCompilerService(uri, finder, new IndexerConfig(scanAllSubDirs: false))
 
         expect:
         indexer.sourcePaths.collect { it.toString().split("groovy-langserver")[1] }
@@ -23,7 +23,7 @@ class IndexerSpec extends Specification {
         LanguageService finder = new LanguageService()
         String path = "./src/test/test-files/1"
 
-        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
+        GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.index()
 
         expect:
@@ -36,7 +36,7 @@ class IndexerSpec extends Specification {
         String path = "src/test/test-files/5"
 
         when:
-        GroovyIndexer indexer = new GroovyIndexer(uri(path), finder, new IndexerConfig())
+        GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.index()
 
         then:
