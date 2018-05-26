@@ -19,7 +19,7 @@ class ReferenceSpec extends Specification {
         String path = "src/test/test-files/3"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
 
         Set<ClassDefinition> definitions = finder.storage.getClassDefinitions().findAll {it.getFullClassName() == "Box"}
         def usages = finder.getClassReferences()
@@ -35,7 +35,7 @@ class ReferenceSpec extends Specification {
         String path = "src/test/test-files/4"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
 
         String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
         Set<ClassReference> usages = finder.getClassReferences()
@@ -59,7 +59,7 @@ class ReferenceSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
         List<Location> definitions = finder.getReferences(params)
 
         then:
@@ -88,7 +88,7 @@ class ReferenceSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.compile()
         List<Location> references = finder.getReferences(params)
 
         then:
@@ -111,7 +111,7 @@ class ReferenceSpec extends Specification {
         String path = "./src/test/test-files/2"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
 
         Set<VarReference> usages = finder.storage.getVarReferences()
         VarReference reference = usages.find { it.varName == 'theString' }
@@ -135,7 +135,7 @@ class ReferenceSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
         List<Location> references = finder.getReferences(params)
 
         then:
@@ -158,7 +158,7 @@ class ReferenceSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
         List<Location> references = finder.getReferences(params)
 
         then:

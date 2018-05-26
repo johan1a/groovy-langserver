@@ -23,7 +23,7 @@ class FileSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.compile()
         List<TextEdit> edits = finder.rename(params).values().flatten()
 
         then:

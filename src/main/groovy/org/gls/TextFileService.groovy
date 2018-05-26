@@ -13,7 +13,7 @@ import org.gls.lang.ImmutablePosition
 
 @Slf4j
 @TypeChecked
-class FileService {
+class TextFileService {
 
     private FileWatcher fileWatcher = new FileWatcher()
 

@@ -34,7 +34,7 @@ class LangServer implements LanguageServer {
         log.info("rootUri: ${new URI(initializeParams.getRootUri())}")
 
         textDocumentService.setRootUri(new URI(initializeParams.getRootUri()))
-        textDocumentService.index()
+        textDocumentService.compile()
 
         ServerCapabilities capabilities = new ServerCapabilities()
         return CompletableFuture.completedFuture(new InitializeResult(capabilities))

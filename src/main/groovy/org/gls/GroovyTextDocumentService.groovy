@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture
 class GroovyTextDocumentService implements TextDocumentService, LanguageClientAware {
 
     private URI rootUri
-    private LanguageService finder = new LanguageService()
+    private LanguageService languageService = new LanguageService()
     private LanguageClient client
-    private FileService fileService = new FileService()
+    private TextFileService textFileService = new TextFileService()
     private IndexerConfig indexerConfig = new IndexerConfig()
 
     public void showClientMessage(String message) {
@@ -55,13 +55,13 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             List<CompletionItem> items
             try {
                 log.info("completion params: ${params}")
-                CompletionRequest request = fileService.completionRequest(params)
+                CompletionRequest request = textFileService.completionRequest(params)
                 log.info("Got completionrequest: ${request}")
                 if (!request.precedingText.contains(".")) {
                     log.info("Indexing before completing")
-                    index(fileService.getChangedFiles())
+                    compile(textFileService.getChangedFiles())
                 }
-                items = finder.getCompletionItems(request)
+                items = languageService.getCompletionItems(request)
                 def elapsed = (System.currentTimeMillis() - start) / 1000.0
                 log.info("Completed in $elapsed ms")
                 log.info("Returning: ${items}")
@@ -98,7 +98,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
             log.info "definition params: ${params}"
-            def definition = externalURIs(finder.getDefinition(params))
+            def definition = externalURIs(languageService.getDefinition(params))
             log.info "found definition: ${definition}"
             result = CompletableFuture.completedFuture(definition)
         } catch (Exception e) {
@@ -117,7 +117,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         log.info "reference params: ${params}"
         try {
-            def references = externalURIs(finder.getReferences(params))
+            def references = externalURIs(languageService.getReferences(params))
             log.info "Found references: ${references}"
             result = CompletableFuture.completedFuture(references)
         } catch (Exception e) {
@@ -193,10 +193,10 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         log.info "rename params: ${params}"
         try {
             result = CompletableFuture.supplyAsync {
-                Map<String, List<TextEdit>> edits = finder.rename(params)
+                Map<String, List<TextEdit>> edits = languageService.rename(params)
                 log.info("edits: ${edits}")
-                fileService.changeFiles(edits)
-                index(fileService.getChangedFiles())
+                textFileService.changeFiles(edits)
+                compile(textFileService.getChangedFiles())
                 WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))
                 edit
             }
@@ -220,39 +220,39 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileService.didOpen(params)
+        textFileService.didOpen(params)
     }
 
     @Override
     public void didChange(DidChangeTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileService.didChange(params)
+        textFileService.didChange(params)
     }
 
     @Override
     public void didClose(DidCloseTextDocumentParams params) {
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        fileService.didClose(params)
+        textFileService.didClose(params)
     }
 
     @Override
     public void didSave(DidSaveTextDocumentParams params) {
         try {
             params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-            fileService.didSave(params)
-            index(fileService.getChangedFiles())
+            textFileService.didSave(params)
+            compile(textFileService.getChangedFiles())
         } catch (Exception e) {
             log.error("error", e)
         }
     }
 
-    void index(Map<String, String> changedFiles = Collections.emptyMap()) {
+    void compile(Map<String, String> changedFiles = Collections.emptyMap()) {
         try {
-            LanguageService finder = new LanguageService()
-            GroovyCompilerService compilerService = new GroovyCompilerService(rootUri, finder, indexerConfig)
-            Map<String, List<Diagnostic>> diagnostics = compilerService.index(changedFiles)
+            LanguageService languageService = new LanguageService()
+            GroovyCompilerService compilerService = new GroovyCompilerService(rootUri, languageService, indexerConfig)
+            Map<String, List<Diagnostic>> diagnostics = compilerService.compile(changedFiles)
             indexerConfig.scanDependencies = false
-            this.finder = finder
+            this.languageService = languageService
             sendDiagnostics(diagnostics, client)
         } catch (Exception e) {
             log.error("ERROR", e)

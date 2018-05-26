@@ -39,7 +39,7 @@ class GroovyCompilerService {
         this.service = service
     }
 
-    Map<String, List<Diagnostic>> index(Map<String, String> changedFiles = [:]) {
+    Map<String, List<Diagnostic>> compile(Map<String, String> changedFiles = [:]) {
         List<File> files = findFilesRecursive()
         return index(files, changedFiles)
     }
@@ -67,7 +67,7 @@ class GroovyCompilerService {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
             List<String> classpath = getDependencies()
-            compile(files, changedFiles, classpath)
+            doCompile(files, changedFiles, classpath)
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -92,7 +92,7 @@ class GroovyCompilerService {
     }
 
 
-    private void compile(List<File> files, Map<String, String> changedFiles, List<String> classpath) {
+    private void doCompile(List<File> files, Map<String, String> changedFiles, List<String> classpath) {
         log.info("compiling...")
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
 

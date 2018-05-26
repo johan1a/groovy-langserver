@@ -60,7 +60,7 @@ class AutoCompleterSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.compile()
 
         CompletionRequest request = new CompletionRequest(position: _pos, precedingText: _preceding, uri: new File(path).getCanonicalPath())
         List<CompletionItem> references = finder.getCompletionItems(request)

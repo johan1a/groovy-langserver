@@ -52,7 +52,7 @@ class GradleBuildSpec extends Specification {
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(sourcePath), finder, new IndexerConfig(scanDependencies: true))
         indexer.buildConfigLocation = "build7.fakegradle"
-        indexer.index()
+        indexer.compile()
 
         then:
         indexer.configService.buildType != null

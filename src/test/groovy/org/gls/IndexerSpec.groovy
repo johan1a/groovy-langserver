@@ -24,7 +24,7 @@ class IndexerSpec extends Specification {
         String path = "./src/test/test-files/1"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
 
         expect:
         finder.storage.classDefinitions.size() == 1
@@ -37,7 +37,7 @@ class IndexerSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
 
         then:
         true // No exception was thrown

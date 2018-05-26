@@ -28,9 +28,9 @@ class DefinitionSpec extends Specification {
         params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(TestUtil.uri(dirPath), finder, new IndexerConfig())
-        indexer.sourcePaths = [indexer.rootUri]
-        Map<String, List<Diagnostic>> errors = indexer.index()
+        GroovyCompilerService compilerService = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+        compilerService.sourcePaths = [compilerService.rootUri]
+        Map<String, List<Diagnostic>> errors = compilerService.compile()
         List<Location> definitions = finder.getDefinition(params)
 
         then:
@@ -53,7 +53,7 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.index()
+        indexer.compile()
         List<Location> definitions = finder.getDefinition(params)
         Set<ClassReference> usages = finder.getClassReferences()
 
@@ -80,7 +80,7 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        def errors = indexer.index()
+        def errors = indexer.compile()
         List<Location> definitions = finder.getDefinition(params)
 
         then:
@@ -115,8 +115,8 @@ class DefinitionSpec extends Specification {
         when:
         GroovyTextDocumentService service = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: true))
         service.setRootUri(uri(dirPath))
-        service.index()
-        LanguageService finder = service.finder
+        service.compile()
+        LanguageService finder = service.languageService
         List<Location> definitions1 = finder.getDefinition(params1)
 
         then:
@@ -159,7 +159,7 @@ class DefinitionSpec extends Specification {
 
         when:
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.index()
+        Map<String, List<Diagnostic>> errors = indexer.compile()
         List<Location> definitions = finder.getDefinition(params)
 
 
