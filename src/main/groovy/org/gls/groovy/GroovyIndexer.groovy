@@ -68,7 +68,6 @@ class GroovyIndexer {
             long start = System.currentTimeMillis()
             List<String> classpath = getDependencies()
             compile(files, changedFiles, classpath)
-            service.correlate()
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
@@ -79,6 +78,7 @@ class GroovyIndexer {
         } catch (NoClassDefFoundError e) {
             log.error("Compilation error:", e)
         }
+        service.correlate()
         log.info("diagnostics size: ${diagnostics.size()}")
         return diagnostics
     }
