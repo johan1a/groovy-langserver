@@ -1,9 +1,5 @@
 package org.gls.lang
 
-import org.eclipse.lsp4j.Location
-import org.eclipse.lsp4j.Position
-import org.eclipse.lsp4j.Range
-
 trait HasLocation {
 
     abstract ImmutableLocation getLocation()

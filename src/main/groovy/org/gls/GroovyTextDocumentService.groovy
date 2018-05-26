@@ -24,6 +24,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
     private LanguageClient client
     private TextFileService textFileService = new TextFileService()
     private IndexerConfig indexerConfig = new IndexerConfig()
+    private SerializationService serializationService = new SerializationService()
 
     public void showClientMessage(String message) {
         client?.showMessage(new MessageParams(MessageType.Info, message))
@@ -253,6 +254,11 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             Map<String, List<Diagnostic>> diagnostics = compilerService.compile(changedFiles)
             indexerConfig.scanDependencies = false
             this.languageService = languageService
+
+            if(indexerConfig.serializeLanguageService) {
+                serializationService.serialize(rootUri, languageService)
+            }
+
             sendDiagnostics(diagnostics, client)
         } catch (Exception e) {
             log.error("ERROR", e)
