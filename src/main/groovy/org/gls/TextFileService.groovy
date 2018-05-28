@@ -45,8 +45,6 @@ class TextFileService {
     void writeFiles(Map<String, List<TextEdit>> allEdits) {
 
         allEdits.each { String fileName, List<TextEdit> edits ->
-            log.info fileName
-
             List<String> lines = readFileLines(fileName)
             List<Integer> offsetByLine = [0] * lines.size()
             edits.sort{ a, b ->
@@ -56,7 +54,6 @@ class TextFileService {
                         a.range.start.line <=> b.range.start.line
                     }
                 }.each { doEdit(lines, offsetByLine, it) }
-            log.info("$lines")
             writeToFile(fileName, lines)
         }
     }

@@ -63,7 +63,7 @@ class FuncReference implements Reference<FuncDefinition> {
 
     void initArguments(ConstructorCallExpression expression) {
         Expression constructorArguments = expression.getArguments()
-        log.info("constructorArguments : ${constructorArguments }")
+        log.debug("constructorArguments : ${constructorArguments }")
     }
 
     void initArguments(TupleExpression expression) {

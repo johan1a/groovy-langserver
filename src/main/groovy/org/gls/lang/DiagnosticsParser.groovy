@@ -44,8 +44,8 @@ class DiagnosticsParser {
             }
             warnings?.each {
                 addDiagnostic(diagnosticMap, it)
-                log.info it.toString()
-                log.info "TODO implement warning diagnostics"
+                log.debug it.toString()
+                log.debug "TODO implement warning diagnostics"
             }
         } catch (Exception e) {
             log.error("Error", e)

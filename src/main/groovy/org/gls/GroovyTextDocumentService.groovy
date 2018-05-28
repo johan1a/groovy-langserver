@@ -55,11 +55,12 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         CompletableFuture<Either<List<CompletionItem>, CompletionList>> result = CompletableFuture.supplyAsync {
             List<CompletionItem> items
             try {
-                log.info("completion params: ${params}")
+                log.info("Got completion request")
+                log.debug("params: ${params}")
                 CompletionRequest request = textFileService.completionRequest(params)
-                log.info("Got completionrequest: ${request}")
+                log.debug("Got completionrequest: ${request}")
                 if (!request.precedingText.contains(".")) {
-                    log.info("Indexing before completing")
+                    log.debug("Indexing before completing")
                     compile(textFileService.getChangedFiles())
                 }
                 items = languageService.getCompletionItems(request)
@@ -98,9 +99,11 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         CompletableFuture<List<? extends ImmutableLocation>> result
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
         try {
-            log.info "definition params: ${params}"
+            log.info "got definition request"
+            log.debug"params: ${params}"
             def definition = externalURIs(languageService.getDefinition(params))
-            log.info "found definition: ${definition}"
+            log.debug "Found definition: ${definition != null}"
+            log.debug "definition: ${definition}"
             result = CompletableFuture.completedFuture(definition)
         } catch (Exception e) {
             log.error("Exception", e)
@@ -116,10 +119,12 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         long start = System.currentTimeMillis()
         CompletableFuture<List<? extends ImmutableLocation>> result
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        log.info "reference params: ${params}"
+        log.info "got definition request"
+        log.debug "params: ${params}"
         try {
             def references = externalURIs(languageService.getReferences(params))
-            log.info "Found references: ${references}"
+            log.debug "Found ${references.size()} references"
+            log.debug "references: ${references}"
             result = CompletableFuture.completedFuture(references)
         } catch (Exception e) {
             log.error("Exception", e)
@@ -187,15 +192,15 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
 
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-        log.info "rename"
+        log.info "Got rename request"
         long start = System.currentTimeMillis()
         CompletableFuture<WorkspaceEdit> result
         params.textDocument.uri = params.textDocument.uri.replace("file://", "")
-        log.info "rename params: ${params}"
+        log.debug "params: ${params}"
         try {
             result = CompletableFuture.supplyAsync {
                 Map<String, List<TextEdit>> edits = languageService.rename(params)
-                log.info("edits: ${edits}")
+                log.debug("edits: ${edits}")
                 textFileService.changeFiles(edits)
                 compile(textFileService.getChangedFiles())
                 WorkspaceEdit edit = new WorkspaceEdit(externalUris(edits))

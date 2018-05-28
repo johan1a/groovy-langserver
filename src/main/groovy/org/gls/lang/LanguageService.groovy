@@ -119,25 +119,25 @@ class LanguageService {
     List<CompletionItem> getCompletionItems(CompletionRequest request) {
         String precedingText = request.precedingText
 
-        log.info("precedingText: ${precedingText}")
-        log.info("request position: ${request.position.character}")
-        log.info("request line: ${request.position.line}")
+        log.debug("precedingText: ${precedingText}")
+        log.debug("request position: ${request.position.character}")
+        log.debug("request line: ${request.position.line}")
 
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
         Position position = new ImmutablePosition(request.position.line, request.position.character)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
         List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.getVarReferences(), params)
 
-        log.info("Found varDefinitions: ${varDefinitions}")
+        log.debug("Found varDefinitions: ${varDefinitions}")
 
         List<ClassDefinition> classDefinitions = varDefinitions.collect { VarDefinition it ->
             storage.getClassDefinition(it.typeName)
         }
-        log.info("Found classDefinitions: ${classDefinitions}")
+        log.debug("Found classDefinitions: ${classDefinitions}")
 
         List<CompletionItem> items =  classDefinitions.collectMany { autoCompleter.autoComplete(it, precedingText) }
 
-        log.info("Found completionitems: ${items}")
+        log.debug("Found completionitems: ${items}")
         items
     }
 }
