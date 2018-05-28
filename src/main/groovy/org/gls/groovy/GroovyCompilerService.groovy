@@ -31,7 +31,8 @@ class GroovyCompilerService {
         this.indexerConfig = indexerConfig
         sourcePaths = [
                 UriUtils.appendURI(rootUri, "/src/main/groovy"),
-                UriUtils.appendURI(rootUri, "/grails-app/domain")
+                UriUtils.appendURI(rootUri, "/grails-app/domain"),
+                UriUtils.appendURI(rootUri, "/grails-app/services")
         ]
         if (indexerConfig.scanAllSubDirs) {
             sourcePaths = [rootUri]
@@ -104,6 +105,7 @@ class GroovyCompilerService {
 
         CompilerConfiguration configuration = new CompilerConfiguration()
         configuration.setRecompileGroovySource(true)
+        configuration.setTolerance(1000)
 
         unit.configure(configuration)
         notChanged.each { unit.addSource(it) }
