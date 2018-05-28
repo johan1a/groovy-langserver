@@ -39,6 +39,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitClass(ClassNode node) {
+        log.debug("Visiting class ${node.name}")
         currentClassNode = node
         finder.addClassDefinition(new ClassDefinition(node, sourceFileURI, fileContents))
         super.visitClass(node)

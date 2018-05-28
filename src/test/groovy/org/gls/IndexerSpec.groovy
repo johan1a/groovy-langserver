@@ -16,7 +16,7 @@ class IndexerSpec extends Specification {
 
         expect:
         indexer.sourcePaths.collect { it.toString().split("groovy-langserver")[1] }
-                .containsAll(["/./src/main/groovy", "/./grails-app"])
+                .containsAll(["/./src/main/groovy", "/./grails-app/domain"])
     }
 
     def "test indexer"() {

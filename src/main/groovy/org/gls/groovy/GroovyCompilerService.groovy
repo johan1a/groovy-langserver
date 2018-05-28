@@ -29,8 +29,10 @@ class GroovyCompilerService {
     GroovyCompilerService(URI rootUri, LanguageService service, IndexerConfig indexerConfig) {
         this.rootUri = rootUri
         this.indexerConfig = indexerConfig
-        sourcePaths = [UriUtils.appendURI(rootUri, "/src/main/groovy"),
-                       UriUtils.appendURI(rootUri, "/grails-app")]
+        sourcePaths = [
+                UriUtils.appendURI(rootUri, "/src/main/groovy"),
+                UriUtils.appendURI(rootUri, "/grails-app/domain")
+        ]
         if (indexerConfig.scanAllSubDirs) {
             sourcePaths = [rootUri]
         }
@@ -71,6 +73,7 @@ class GroovyCompilerService {
             long elapsed = System.currentTimeMillis() - start
             log.info("Indexing done in ${elapsed / 1000}s")
         } catch (MultipleCompilationErrorsException e) {
+            log.debug("Got MultipleCompilationErrorsException")
             diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
             if (diagnostics.isEmpty()) {
                 log.error("Compilation error without diagnostics:", e)
@@ -85,7 +88,7 @@ class GroovyCompilerService {
     }
 
     private List<String> getDependencies() {
-        if(indexerConfig.scanDependencies) {
+        if (indexerConfig.scanDependencies) {
             configService.getDependencies(rootUri, buildConfigLocation)
         } else {
             return []
@@ -113,6 +116,7 @@ class GroovyCompilerService {
         unit.compile(Phases.CLASS_GENERATION)
 
         unit.iterator().each { sourceUnit ->
+            log.debug("compiling ${sourceUnit.name}")
             ModuleNode moduleNode = sourceUnit.getAST()
 
             String name = sourceUnit.getName()

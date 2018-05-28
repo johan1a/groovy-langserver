@@ -27,7 +27,7 @@ class LocationFinder {
                 columnNumber = firstLine.indexOf(shortName, node.columnNumber - 1)
                 lastColumnNumber = columnNumber + shortName.size() - 1
             } else {
-                log.debug("line doesn't contain name: ${fullName}, line: $firstLine")
+                log.trace("line doesn't contain name: ${fullName}, line: $firstLine")
                 columnNumber = node.columnNumber
                 lastColumnNumber = node.lastColumnNumber
             }
