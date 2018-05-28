@@ -35,7 +35,7 @@ class FuncReference implements Reference<FuncDefinition> {
     }
 
     private void initDefiningClass(ClassNode currentClassNode, VarReference receiver) {
-        if(receiver.varName == "this"){
+        if (receiver.varName == "this") {
             definingClass = currentClassNode.getName()
         } else if (receiver.varName == "super") {
             definingClass = currentClassNode.getSuperClass().getName()
@@ -45,25 +45,21 @@ class FuncReference implements Reference<FuncDefinition> {
     }
 
     void initArguments(Expression arguments) {
-        if (arguments instanceof ConstructorCallExpression) {
-            initArguments(arguments as ConstructorCallExpression)
-        } else if (arguments instanceof ArgumentListExpression) {
-            initArguments(arguments as ArgumentListExpression)
-        } else if (arguments instanceof TupleExpression) {
-            initArguments(arguments as TupleExpression)
-        } else {
-            log.error("instanceof: ${arguments}", arguments)
-        }
+        log.error("initArguments: ${arguments.class}")
+    }
+
+    void initArguments(MethodCallExpression expression){
+        initArguments(expression.arguments)
     }
 
     void initArguments(ArgumentListExpression expression) {
         List<Expression> expressions = expression.getExpressions()
-        this.argumentTypes = expressions.collect{ it.getType().getName() }
+        this.argumentTypes = expressions.collect { it.getType().getName() }
     }
 
     void initArguments(ConstructorCallExpression expression) {
         Expression constructorArguments = expression.getArguments()
-        log.debug("constructorArguments : ${constructorArguments }")
+        log.debug("constructorArguments : ${constructorArguments}")
     }
 
     void initArguments(TupleExpression expression) {
@@ -72,7 +68,7 @@ class FuncReference implements Reference<FuncDefinition> {
     }
 
     @Override
-    void setDefinition(FuncDefinition definition){
+    void setDefinition(FuncDefinition definition) {
         this.definition = definition
     }
 
@@ -82,7 +78,7 @@ class FuncReference implements Reference<FuncDefinition> {
     }
 
     @Override
-    Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions ) {
+    Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions) {
         return Optional.ofNullable(definitions.find {
             it.definingClass == definingClass &&
                     it.functionName == functionName &&
