@@ -80,6 +80,7 @@ class GroovyCompilerService {
         }
         service.correlate()
         log.info("diagnostics size: ${diagnostics.size()}")
+        diagnostics.each { log.debug(it.toString()) }
         return diagnostics
     }
 

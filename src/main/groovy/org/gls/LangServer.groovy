@@ -3,6 +3,7 @@ package org.gls
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.slf4j.impl.SimpleLogger
 
 import java.util.concurrent.CompletableFuture
 
@@ -24,6 +25,9 @@ class LangServer implements LanguageServer {
     GroovyTextDocumentService textDocumentService
 
     LangServer() {
+        String logLevel = System.getProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY)
+        log.info("Log level: ${logLevel}")
+
         this.workspaceService = new GroovyWorkspaceService()
         this.textDocumentService = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: false, scanDependencies: true))
     }
