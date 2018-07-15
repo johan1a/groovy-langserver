@@ -169,5 +169,33 @@ class DefinitionSpec extends Specification {
         definitions.first().range.start.line == 11
     }
 
+    def "Test grails generated log field"() {
+        setup:
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/grails"
+
+            ReferenceParams params = new ReferenceParams()
+            Position position = _position
+            params.position = position
+
+            String filePath = new File(dirPath + "/grails-app/services/${_class}.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
+
+        when:
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            indexer.compile()
+
+            Map<String, List<Diagnostic>> errors = indexer.compile()
+            List<Location> definitions = finder.getDefinition(params)
+
+        then:
+            errors.isEmpty()
+            definitions.size() == 1
+            definitions.first().range.start.line == 1
+
+        where:
+            _class        | _position           | _expectedNbr | _expectedLine
+            "TestService" | new Position(4, 8) | 1            | 7
+    }
 
 }

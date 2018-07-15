@@ -1,6 +1,6 @@
 package org.gls.groovy
 
-import groovy.transform.TypeChecked
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ModuleNode
 import org.codehaus.groovy.control.CompilationUnit
@@ -11,11 +11,13 @@ import org.eclipse.lsp4j.Diagnostic
 import org.gls.ConfigService
 import org.gls.IndexerConfig
 import org.gls.UriUtils
+import org.gls.lang.ClassPreprocessor
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.LanguageService
 
+
 @Slf4j
-@TypeChecked
+@CompileStatic
 class GroovyCompilerService {
 
     List<URI> sourcePaths
@@ -42,18 +44,21 @@ class GroovyCompilerService {
         this.service = service
     }
 
-    Map<String, List<Diagnostic>> compile(Map<String, String> changedFiles = [:]) {
-        List<File> files = findFilesRecursive()
+    Map<String, List<Diagnostic>> compile(Map<String, String> changedFiles = new HashMap<>()) {
+        List<File> files = new LinkedList<>()
+        findFilesRecursive(files, changedFiles)
         return index(files, changedFiles)
     }
 
-    List<File> findFilesRecursive() {
-        List<File> files = new LinkedList<>()
+    void findFilesRecursive(List<File> files, Map<String, String> modifiedFiles) {
         sourcePaths.each {
             try {
                 File basedir = new File(it)
                 basedir.eachFileRecurse {
-                    if (it.name =~ /.*\.groovy/) {
+                    String filename = it.name
+                    if (shouldAddLogField(it.path, filename)) {
+                        addLogField(modifiedFiles, filename, it)
+                    }else if (filename =~ /.*\.groovy/) {
                         files.add(it)
                     }
                 }
@@ -61,7 +66,20 @@ class GroovyCompilerService {
                 log.debug("Source dir not found", e)
             }
         }
-        return files
+    }
+
+    private void addLogField(Map<String, String> modifiedFiles, String filename, File file) {
+        if (modifiedFiles.containsKey(filename)) {
+            modifiedFiles[file.path] = ClassPreprocessor.addLogField(filename, modifiedFiles[filename])
+        } else {
+            String content = ClassPreprocessor.addLogField(filename, file.text)
+            modifiedFiles[file.path] = content
+        }
+    }
+
+    private boolean shouldAddLogField(String path, String filename) {
+        path.contains("grails-app/") &&
+                (filename =~ /.*Service\.groovy/ || filename =~ /.*Controller\.groovy/)
     }
 
     Map<String, List<Diagnostic>> index(List<File> files, Map<String, String> changedFiles) {

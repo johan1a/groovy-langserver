@@ -11,17 +11,32 @@ import org.eclipse.lsp4j.Range
 @Slf4j
 class LocationFinder {
 
-    static ImmutableLocation findLocation(String sourceFilePath, List<String> source, AnnotatedNode node, String name) {
-        return findLocation(sourceFilePath, source, node, name, node.getAnnotations().size())
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, AnnotatedNode node, String name) {
+        return findLocation(sourceFilePath, sourceLines, node, name, node.getAnnotations().size())
     }
 
-    static ImmutableLocation findLocation(String sourceFilePath, List<String> source, ASTNode node, String fullName, int lineOffset = 0) {
+    // Returns the line number of the first { after the class declaration
+    static int findClassStart(List<String> sourceLines, String name) {
+        int classNameLine = findFirstLineContaining(sourceLines, name)
+        int classBracketLine = findFirstLineContaining(sourceLines.drop(classNameLine), name)
+        return classNameLine + classBracketLine
+    }
+
+    private static int findFirstLineContaining(List<String> sourceLines, String name) {
+        String line = sourceLines.find{
+            it.contains(name)
+        }
+        int rowNbr = sourceLines.indexOf(line)
+        rowNbr
+    }
+
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, ASTNode node, String fullName, int lineOffset = 0) {
         int lineNumber = node.lineNumber - 1 + lineOffset
         int lastLineNumber = lineNumber
         int columnNumber
         int lastColumnNumber
         if (lineNumber >= 0) {
-            String firstLine = source[lineNumber]
+            String firstLine = sourceLines[lineNumber]
             String shortName = fullName.split("\\.").last()
             if (firstLine != null && shortName != null && firstLine.contains(shortName)) {
                 columnNumber = firstLine.indexOf(shortName, node.columnNumber - 1)

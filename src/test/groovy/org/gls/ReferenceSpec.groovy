@@ -21,13 +21,15 @@ class ReferenceSpec extends Specification {
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
 
-        Set<ClassDefinition> definitions = finder.storage.getClassDefinitions().findAll {it.getFullClassName() == "Box"}
+        Set<ClassDefinition> definitions = finder.storage.getClassDefinitions().findAll {
+            it.getFullClassName() == "Box"
+        }
         def usages = finder.getClassReferences()
-        ClassReference usage = usages.find{it.getFullReferencedClassName() == "Box" }
+        ClassReference usage = usages.find { it.getFullReferencedClassName() == "Box" }
 
         expect:
-        definitions.first().lineNumber == 0
-        usage.lineNumber == 3
+            definitions.first().lineNumber == 0
+            usage.lineNumber == 3
     }
 
     def "test Vardecl class usage"() {
@@ -42,68 +44,68 @@ class ReferenceSpec extends Specification {
         ClassReference usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
 
         expect:
-        usage.lineNumber == 7
+            usage.lineNumber == 7
     }
 
     def "Function reference 1"() {
         given:
-        LanguageService finder = new LanguageService()
-        String dirPath = "src/test/test-files/${_dir}"
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/${_dir}"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = _pos
-        params.position = position
+            ReferenceParams params = new ReferenceParams()
+            Position position = _pos
+            params.position = position
 
-        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-        params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.compile()
-        List<Location> definitions = finder.getReferences(params)
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            indexer.compile()
+            List<Location> definitions = finder.getReferences(params)
 
         then:
-        definitions.size() == 1
+            definitions.size() == 1
 
-        Range range = definitions.first().range
-        range.start.line == _expectedLine
-        range.start.character == _expectedChar
+            Range range = definitions.first().range
+            range.start.line == _expectedLine
+            range.start.character == _expectedChar
         where:
-        _dir  | _pos                 | _class               | _expectedLine | _expectedChar
-        9     | new Position(7, 28)  | "ClassDefinition1"   | 4             | 31
-        10    | new Position(11, 17) | "FunctionReference"  | 8             | 15
+            _dir | _pos                 | _class              | _expectedLine | _expectedChar
+            9    | new Position(7, 28)  | "ClassDefinition1"  | 4             | 31
+            10   | new Position(11, 17) | "FunctionReference" | 8             | 15
     }
 
     def "Multiple function references 1"() {
         given:
-        LanguageService finder = new LanguageService()
-        String dirPath = "src/test/test-files/${_dir}"
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/${_dir}"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = _pos
-        params.position = position
+            ReferenceParams params = new ReferenceParams()
+            Position position = _pos
+            params.position = position
 
-        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-        params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.compile()
-        List<Location> references = finder.getReferences(params)
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            Map<String, List<Diagnostic>> errors = indexer.compile()
+            List<Location> references = finder.getReferences(params)
 
         then:
-        errors.isEmpty()
-        references.size() == _expected
+            errors.isEmpty()
+            references.size() == _expected
 
         where:
-        _dir                | _pos                  | _class               |  _expected
-        'functions/1'       | new Position(16, 23)  | "MultipleFuncRefs1"  |  4
-        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
-        'functions/two'     | new Position(158, 49) | "ReferenceFinder"    |  3
-        'functions/two'     | new Position(64, 25)  | "ReferenceFinder"    |  1
-        'functions/two'     | new Position(12, 21)  | "ReferenceStorage"   |  1
-        'functions/two'     | new Position(61, 23)  | "ReferenceFinder"    |  1
-        'definition/1'      | new Position(1, 6)    | "Constructor"        |  1
+            _dir            | _pos                  | _class              | _expected
+            'functions/1'   | new Position(16, 23)  | "MultipleFuncRefs1" | 4
+            'functions/two' | new Position(64, 25)  | "ReferenceFinder"   | 1
+            'functions/two' | new Position(158, 49) | "ReferenceFinder"   | 3
+            'functions/two' | new Position(64, 25)  | "ReferenceFinder"   | 1
+            'functions/two' | new Position(12, 21)  | "ReferenceStorage"  | 1
+            'functions/two' | new Position(61, 23)  | "ReferenceFinder"   | 1
+            'definition/1'  | new Position(1, 6)    | "Constructor"       | 1
     }
 
     def "test VarRef indexing"() {
@@ -117,59 +119,58 @@ class ReferenceSpec extends Specification {
         VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
-        usages.size() == 2
-        reference.definitionLineNumber == 3
+            usages.size() == 2
+            reference.definitionLineNumber == 3
     }
 
     def "Test find references"() {
         setup:
-        LanguageService finder = new LanguageService()
-        String dirPath = "src/test/test-files/6"
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/6"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = new Position(3, 16)
-        params.position = position
+            ReferenceParams params = new ReferenceParams()
+            Position position = new Position(3, 16)
+            params.position = position
 
-        String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
-        params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.compile()
-        List<Location> references = finder.getReferences(params)
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            indexer.compile()
+            List<Location> references = finder.getReferences(params)
 
         then:
-        references.size() == 2
-        references.find { it.range.start.line == 6 } != null
-        references.find { it.range.start.line == 7 } != null
+            references.size() == 2
+            references.find { it.range.start.line == 6 } != null
+            references.find { it.range.start.line == 7 } != null
     }
 
     def "Test find references2"() {
         setup:
-        LanguageService finder = new LanguageService()
-        String dirPath = "src/test/test-files/6"
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/6"
 
-        ReferenceParams params = new ReferenceParams()
-        Position position = _position
-        params.position = position
+            ReferenceParams params = new ReferenceParams()
+            Position position = _position
+            params.position = position
 
-        String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-        params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
+            params.setTextDocument(new TextDocumentIdentifier(filePath))
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        indexer.compile()
-        List<Location> references = finder.getReferences(params)
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            indexer.compile()
+            List<Location> references = finder.getReferences(params)
 
         then:
-        references.size() == 1
-        references.find { it.range.start.line == _expectedLine } != null
+            references.size() == 1
+            references.find { it.range.start.line == _expectedLine } != null
 
         where:
-        _class | _position | _expectedNbr | _expectedLine
-        "FindReference2" | new Position(3, 11) | 1 | 7
-        "FindReference3" | new Position(3, 11) | 1 | 8
+            _class           | _position           | _expectedNbr | _expectedLine
+            "FindReference2" | new Position(3, 11) | 1            | 7
+            "FindReference3" | new Position(3, 11) | 1            | 8
     }
-
 
 }

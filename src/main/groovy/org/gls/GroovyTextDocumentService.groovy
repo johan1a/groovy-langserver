@@ -252,7 +252,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
         }
     }
 
-    void compile(Map<String, String> changedFiles = Collections.emptyMap()) {
+    void compile(Map<String, String> changedFiles = new HashMap<>()) {
         try {
             LanguageService languageService = new LanguageService()
             GroovyCompilerService compilerService = new GroovyCompilerService(rootUri, languageService, indexerConfig)
