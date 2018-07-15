@@ -122,7 +122,6 @@ class GroovyCompilerService {
         CompilationUnit unit = new CompilationUnit()
 
         CompilerConfiguration configuration = new CompilerConfiguration()
-        configuration.setRecompileGroovySource(true)
         configuration.setTolerance(1000)
 
         unit.configure(configuration)
