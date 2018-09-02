@@ -12,7 +12,7 @@ volumes: [ ]) {
 
     stage('Run unit tests') {
           sh """
-            ./gradle test
+            ./gradlew test
             """
     }
   }
