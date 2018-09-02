@@ -11,11 +11,9 @@ volumes: [ ]) {
     def gitCommit = myRepo.GIT_COMMIT
 
     stage('Run unit tests') {
-      container('gradle') {
           sh """
-            gradle test
+            ./gradle test
             """
-      }
     }
   }
 }
