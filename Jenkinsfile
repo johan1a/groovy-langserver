@@ -15,7 +15,7 @@ volumes: [
     stage('Run unit tests') {
       container('gradle') {
           sh """
-            ./gradlew test
+            gradle test
             """
       }
     }
