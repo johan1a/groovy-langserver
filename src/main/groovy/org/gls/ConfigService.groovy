@@ -4,6 +4,7 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 
 @TypeChecked
@@ -11,7 +12,7 @@ import java.nio.file.Paths
 class ConfigService {
     BuildType buildType
     List<String> dependencies
-    private static final String CLASSPATH_STORAGE_LOCATION = ".langserver"
+    private static final URI CLASSPATH_STORAGE_LOCATION = new URI("file://${System.getProperty("user.home")}/.langserver")
 
     List<String> getDependencies(URI rootUri, String configLocation) {
         try {
@@ -21,7 +22,7 @@ class ConfigService {
             dependencies = loadDependenciesFromFile(rootUri)
             if (dependencies.isEmpty()) {
                 dependencies = buildType.resolveDependencies()
-                if(!dependencies.isEmpty()) {
+                if (!dependencies.isEmpty()) {
                     saveDependenciesToFile(rootUri, dependencies)
                 }
             }
@@ -34,7 +35,7 @@ class ConfigService {
     }
 
     static void saveDependenciesToFile(URI rootUri, List<String> dependencies) {
-        URI classpathStorageDir = UriUtils.appendURI(rootUri, CLASSPATH_STORAGE_LOCATION)
+        URI classpathStorageDir = getConfigDir(rootUri)
         createDirIfNotExists(classpathStorageDir)
 
         URI dependenciesStorage = UriUtils.appendURI(classpathStorageDir, "/dependencies")
@@ -48,6 +49,28 @@ class ConfigService {
                 out.println(line)
             }
         }
+    }
+
+    static URI getConfigDir(URI rootUri) {
+        System.out.println("rootURI: ${rootUri}")
+
+        String stringPath
+        if (rootUri.scheme) {
+            stringPath = Paths.get(rootUri).toString()
+        } else {
+            stringPath = rootUri.toString()
+        }
+        URI configUri = UriUtils.appendURI(CLASSPATH_STORAGE_LOCATION, stringPath)
+        System.out.println("configURI: ${configUri}")
+        Path path = Paths.get(configUri)
+        if (!Files.isDirectory(path)) {
+            File file = path.toFile()
+            file.mkdirs()
+            log.debug("Created config dir: ${configUri.toString()}")
+        }
+        log.debug("rootURI: ${rootUri}")
+        log.debug("configURI: ${configUri}")
+        configUri
     }
 
     static List<String> loadDependenciesFromFile(URI rootUri) {

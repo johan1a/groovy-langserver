@@ -11,7 +11,7 @@ import org.gls.lang.LanguageService
 class SerializationService {
 
     static void serialize(URI rootUri, LanguageService languageService) {
-        URI filePath = UriUtils.appendURI(rootUri, ".langserver/references")
+        URI filePath = UriUtils.appendURI(ConfigService.getConfigDir(rootUri), "/references")
         String output = JsonOutput.prettyPrint(JsonOutput.toJson(languageService))
         File dependenciesFile = new File(filePath)
         dependenciesFile.createNewFile()
