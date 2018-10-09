@@ -11,7 +11,7 @@ import org.eclipse.lsp4j.jsonrpc.validation.NonNull
 @TypeChecked
 class ImmutableRange extends Range {
 
-    public ImmutableRange(@NonNull final Position start, @NonNull final Position end) {
+    ImmutableRange(@NonNull final Position start, @NonNull final Position end) {
         super(start, end)
     }
 

@@ -11,8 +11,9 @@ import org.eclipse.lsp4j.Range
 @Slf4j
 class LocationFinder {
 
-    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, AnnotatedNode node, String name) {
-        return findLocation(sourceFilePath, sourceLines, node, name, node.getAnnotations().size())
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, AnnotatedNode node,
+                                          String name) {
+        return findLocation(sourceFilePath, sourceLines, node, name, node.annotations.size())
     }
 
     // Returns the line number of the first { after the class declaration
@@ -23,14 +24,15 @@ class LocationFinder {
     }
 
     private static int findFirstLineContaining(List<String> sourceLines, String name) {
-        String line = sourceLines.find{
+        String line = sourceLines.find {
             it.contains(name)
         }
         int rowNbr = sourceLines.indexOf(line)
         rowNbr
     }
 
-    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, ASTNode node, String fullName, int lineOffset = 0) {
+    static ImmutableLocation findLocation(String sourceFilePath, List<String> sourceLines, ASTNode node,
+                                          String fullName, int lineOffset = 0) {
         int lineNumber = node.lineNumber - 1 + lineOffset
         int lastLineNumber = lineNumber
         int columnNumber

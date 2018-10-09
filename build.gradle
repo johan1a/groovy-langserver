@@ -1,6 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'codenarc'
 
 buildscript {
     repositories {
@@ -30,6 +31,10 @@ dependencies {
    testCompile 'junit:junit:4.12'
    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
    testRuntime 'com.athaydes:spock-reports:1.2.7'
+}
+
+codenarc {
+    configFile = file("src/main/resources/CodenarcRules.groovy")
 }
 
 mainClassName = 'org.gls.LangServer'

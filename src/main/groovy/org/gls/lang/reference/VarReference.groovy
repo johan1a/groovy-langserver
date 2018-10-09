@@ -1,11 +1,13 @@
 package org.gls.lang.reference
 
+import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.DynamicVariable
+import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.lang.ImmutableLocation
@@ -14,6 +16,8 @@ import org.gls.lang.definition.VarDefinition
 
 @Slf4j
 @TypeChecked
+@ToString
+@SuppressWarnings(["Instanceof", "CatchException"]) // TODO Remove
 class VarReference implements Reference<VarDefinition> {
 
     ImmutableLocation location
@@ -24,9 +28,10 @@ class VarReference implements Reference<VarDefinition> {
     Optional<String> declaringClass = Optional.empty()
     private VarDefinition definition
 
-    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
+    private static final String NO_VAR_DECL = "no var decl"
 
-        if(expression instanceof ClassExpression) {
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
+        if (expression instanceof ClassExpression) {
             initDeclarationReference(currentClass, expression as ClassExpression)
         } else if (expression instanceof VariableExpression) {
             initDeclarationReference(currentClass, expression as VariableExpression)
@@ -43,25 +48,26 @@ class VarReference implements Reference<VarDefinition> {
         }
     }
 
+    @SuppressWarnings(["UnusedMethodParameter"])
     void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
         try {
             // TODO Maybe shouldn't be a varusage?
-            varName = expression.getType().getName()
-            typeName = expression.getType().getName()
+            varName = expression.type.name
+            typeName = expression.type.name
             declaringClass = Optional.of(typeName)
-            definitionLineNumber = expression.getType().getLineNumber() - 1
+            definitionLineNumber = expression.type.lineNumber - 1
         } catch (Exception e) {
-            log.error("no var decl", e)
+            log.error(NO_VAR_DECL, e)
         }
     }
 
     void initDeclarationReference(ClassNode currentClass, VariableExpression expression) {
         try {
-            typeName = expression.getType().getName()
-            varName = expression.getName()
-            if (expression.getAccessedVariable() != null) {
-                def accessed = expression.getAccessedVariable()
-                if(accessed instanceof AnnotatedNode) {
+            typeName = expression.type.name
+            varName = expression.name
+            if (expression.accessedVariable != null) {
+                Variable accessed = expression.accessedVariable
+                if (accessed instanceof AnnotatedNode) {
                     initAnnotatedNode(currentClass, accessed as AnnotatedNode)
                 } else if (accessed instanceof DynamicVariable) {
                     initDynamicVariable(currentClass, accessed as DynamicVariable)
@@ -69,34 +75,34 @@ class VarReference implements Reference<VarDefinition> {
                     log.error " cast: ${expression}"
                     log.error " accessed: ${accessed}"
                 }
-            } else if(expression.isThisExpression()) {
-                this.definitionLineNumber = expression.getType().getLineNumber() - 1
-            } else if (expression.isSuperExpression() ) {
-                ClassNode superClass = currentClass.getSuperClass()
-                this.definitionLineNumber = superClass.getLineNumber() - superClass.getAnnotations().size()
+            } else if (expression.isThisExpression()) {
+                this.definitionLineNumber = expression.type.lineNumber - 1
+            } else if (expression.isSuperExpression()) {
+                ClassNode superClass = currentClass.superClass
+                this.definitionLineNumber = superClass.lineNumber - superClass.annotations.size()
             } else {
-                log.debug "No parentLineNumber: ${expression.getName()}"
+                log.debug "No parentLineNumber: ${expression.name}"
                 log.debug("expression: ${expression}")
                 //TODO what then?
             }
         } catch (Exception e) {
-            log.error("no var decl", e)
+            log.error(NO_VAR_DECL, e)
         }
     }
 
     void initDynamicVariable(ClassNode currentClass, DynamicVariable varDeclaration) {
-        this.definitionLineNumber = varDeclaration.getType().getLineNumber() - 1
-        this.declaringClass = Optional.of(currentClass.getName())
+        this.definitionLineNumber = varDeclaration.type.lineNumber - 1
+        this.declaringClass = Optional.of(currentClass.name)
     }
 
     void initAnnotatedNode(ClassNode currentClass, AnnotatedNode varDeclaration) {
-        this.definitionLineNumber = varDeclaration.getLineNumber() - 1
-        if ( varDeclaration.declaringClass != null ) {
-            this.declaringClass = Optional.of(varDeclaration.declaringClass.getName())
+        this.definitionLineNumber = varDeclaration.lineNumber - 1
+        if (varDeclaration.declaringClass != null) {
+            this.declaringClass = Optional.of(varDeclaration.declaringClass.name)
         } else {
             // TODO not sure if this is correct.
             // Seems to be true for method arguments.
-            this.declaringClass = Optional.of(currentClass.getName())
+            this.declaringClass = Optional.of(currentClass.name)
         }
     }
 
@@ -111,27 +117,13 @@ class VarReference implements Reference<VarDefinition> {
     }
 
     @Override
-    public String toString() {
-        return """VarReference[
-                sourceFileURI=$sourceFileURI,
-                columnNumber=$columnNumber,
-                lastColumnNumber=$lastColumnNumber,
-                lineNumber=$lineNumber,
-                lastLineNumber=$lastLineNumber,
-                varName=$varName,
-                typeName=$typeName,
-                definitionLineNumber=$definitionLineNumber
-                ]"""
-    }
-
-    @Override
     Optional<VarDefinition> findMatchingDefinition(Set<VarDefinition> definitions) {
-            return Optional.ofNullable(definitions.find {
-                it.getSourceFileURI() == getSourceFileURI() &&
-                        it.typeName == typeName &&
-                        it.varName == varName &&
-                        it.lineNumber == definitionLineNumber
-            })
+        return Optional.ofNullable(definitions.find {
+            it.sourceFileURI == sourceFileURI &&
+                    it.typeName == typeName &&
+                    it.varName == varName &&
+                    it.lineNumber == definitionLineNumber
+        })
     }
 
 }

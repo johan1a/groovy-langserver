@@ -19,7 +19,6 @@ import org.gls.lang.reference.FuncReference
 import org.gls.lang.reference.VarReference
 import org.gls.lang.reference.Reference
 
-
 @Slf4j
 @TypeChecked
 class LanguageService {
@@ -31,7 +30,7 @@ class LanguageService {
     AutoCompleter autoCompleter = new AutoCompleter()
 
     Set<ClassReference> getClassReferences() {
-        return storage.getClassReferences()
+        return storage.classReferences
     }
 
     void addClassDefinition(ClassDefinition definition) {
@@ -67,52 +66,56 @@ class LanguageService {
     }
 
     List<Definition> getDefinitionInternal(TextDocumentPositionParams params) {
-        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage.getVarReferences(), params)
+        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage.getClassReferences(), params)
+        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage.classReferences, params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getDefinitions(storage.getFuncReferences(), params)
+        return funcReferenceFinder.getDefinitions(storage.funcReferences, params)
     }
 
     List<Reference> getReferencesInternal(ReferenceParams params) {
-        List<Reference> varReferences = varReferenceFinder.getReferences(storage.getVarDefinitions(), storage.getVarReferences(), params)
+        List<Reference> varReferences = varReferenceFinder.getReferences(storage.varDefinitions, storage.varReferences,
+                params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<Reference> classReferences = classReferenceFinder.getReferences(storage.getClassDefinitions(), storage.getClassReferences(), params)
+        List<Reference> classReferences = classReferenceFinder.getReferences(storage.classDefinitions,
+                storage.classReferences, params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return funcReferenceFinder.getReferences(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        return funcReferenceFinder.getReferences(storage.funcDefinitions, storage.funcReferences, params)
     }
 
     static List<ImmutableLocation> toLocation(List<? extends HasLocation> references) {
-        references.collect { it.getLocation() }
+        references*.location
                 .findAll { it.range.start.line > 0 && it.range.start.character > 0 }
                 .sort()
     }
 
     void correlate() {
-        varReferenceFinder.correlate(storage.getVarDefinitions(), storage.getVarReferences())
-        funcReferenceFinder.correlate(storage.getFuncDefinitions(), storage.getFuncReferences())
-        classReferenceFinder.correlate(storage.getClassDefinitions(), storage.getClassReferences())
+        varReferenceFinder.correlate(storage.varDefinitions, storage.varReferences)
+        funcReferenceFinder.correlate(storage.funcDefinitions, storage.funcReferences)
+        classReferenceFinder.correlate(storage.classDefinitions, storage.classReferences)
     }
 
-
     Map<String, List<TextEdit>> rename(RenameParams params) {
-        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.getVarDefinitions(), storage.getVarReferences(), params)
+        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.varDefinitions,
+                storage.varReferences, params)
         if (!varEdits.isEmpty()) {
             return varEdits
         }
-        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage.getFuncDefinitions(), storage.getFuncReferences(), params)
+        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage.funcDefinitions,
+                storage.funcReferences, params)
         if (!funcEdits.isEmpty()) {
             return funcEdits
         }
-        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.getClassDefinitions(), storage.getClassReferences(), params)
+        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.classDefinitions,
+                storage.classReferences, params)
         return classEdits
     }
 
@@ -126,7 +129,7 @@ class LanguageService {
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
         Position position = new ImmutablePosition(request.position.line, request.position.character)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
-        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.getVarReferences(), params)
+        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
 
         log.debug("Found varDefinitions: ${varDefinitions}")
 

@@ -5,10 +5,13 @@ import groovy.util.logging.Slf4j
 
 @TypeChecked
 @Slf4j
+@SuppressWarnings("CatchException")
 class GradleBuild implements BuildType {
 
-    String gradleHome = System.getProperty("user.home") + "/.gradle/"
-    String mavenHome = System.getProperty("user.home") + "/.m2/"
+    String userHome = System.getProperty("user.home")
+
+    String gradleHome = userHome + "/.gradle/"
+    String mavenHome = userHome + "/.m2/"
     List<String> libraries = [gradleHome, '/usr/share/grails', mavenHome]
 
     URI configPath
@@ -72,7 +75,7 @@ class GradleBuild implements BuildType {
     }
 
     private static List<String> callGradle() {
-        def sout = new StringBuilder(), serr = new StringBuilder()
+        StringBuilder sout = new StringBuilder(), serr = new StringBuilder()
         Process proc = './gradlew -q dependencies'.execute()
         proc.consumeProcessOutput(sout, serr)
         proc.waitForOrKill(10000)
@@ -81,7 +84,7 @@ class GradleBuild implements BuildType {
 
     static Optional<Dependency> parseJarName(String line) {
         try {
-            if (isDependencyLine(line)){
+            if (isDependencyLine(line)) {
                 return Optional.of(parseSplitJarName(line))
             }
         } catch (Exception e) {
@@ -106,8 +109,9 @@ class GradleBuild implements BuildType {
     }
 
     static String parseVersion(String version) {
-        if(version.contains("->")){
-            return version.split("->")[1].trim()
+        String arrow = "->"
+        if (version.contains(arrow)) {
+            return version.split(arrow)[1].trim()
         }
         return version.trim()
     }

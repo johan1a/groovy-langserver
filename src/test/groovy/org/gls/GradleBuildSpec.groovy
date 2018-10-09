@@ -1,73 +1,79 @@
 package org.gls
 
+import static org.gls.util.TestUtil.uri
+
 import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.LanguageService
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.gls.util.TestUtil.uri
-
 @Unroll
 class GradleBuildSpec extends Specification {
+    private static final String GRADLE_HOME = "src/test/test-files/config/gradle_home"
+    private static final String JAR_FILE_NAME = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/" +
+            "org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
+    private static final String DOES_NOT_EXIST = "/does/not/exist"
+    private static final String GROOVY_LANGSERVER = "groovy-langserver"
 
-    def "find jar"() {
+    void "find jar"() {
         given:
-        String path = "src/test/test-files/config/build6.fakegradle"
-        GradleBuild gradleBuild = new GradleBuild(uri(path))
-        gradleBuild.gradleHome = "src/test/test-files/config/gradle_home"
-        gradleBuild.libraries = ["/does/not/exist", gradleBuild.gradleHome]
+            String path = "src/test/test-files/config/build6.fakegradle"
+            GradleBuild gradleBuild = new GradleBuild(uri(path))
+            gradleBuild.gradleHome = GRADLE_HOME
+            gradleBuild.libraries = [DOES_NOT_EXIST, gradleBuild.gradleHome]
 
         when:
-        List<String> classPath = gradleBuild.resolveDependencies()
+            List<String> classPath = gradleBuild.resolveDependencies()
 
         then:
-        classPath.size() == 1
+            classPath.size() == 1
 
-        String expected = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
-        classPath.first().split("groovy-langserver")[1] == expected
+            String expected = JAR_FILE_NAME
+            classPath.first().split(GROOVY_LANGSERVER)[1] == expected
     }
 
-    def "find jar without specifying version"() {
+    void "find jar without specifying version"() {
         given:
-        String path = "src/test/test-files/config/build7.fakegradle"
-        GradleBuild gradleBuild = new GradleBuild(uri(path))
-        gradleBuild.gradleHome = "src/test/test-files/config/gradle_home"
-        gradleBuild.libraries = ["/does/not/exist", gradleBuild.gradleHome]
+            String path = "src/test/test-files/config/build7.fakegradle"
+            GradleBuild gradleBuild = new GradleBuild(uri(path))
+            gradleBuild.gradleHome = GRADLE_HOME
+
+            gradleBuild.libraries = [DOES_NOT_EXIST, gradleBuild.gradleHome]
 
         when:
-        List<String> classPath = gradleBuild.resolveDependencies()
+            List<String> classPath = gradleBuild.resolveDependencies()
 
         then:
-        classPath.size() == 1
+            classPath.size() == 1
 
-        String expected = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
-        classPath.first().split("groovy-langserver")[1] == expected
+            String expected = JAR_FILE_NAME
+            classPath.first().split(GROOVY_LANGSERVER)[1] == expected
     }
 
-    def "Make sure indexer classpath is updated"() {
+    void "Make sure indexer classpath is updated"() {
         given:
-        LanguageService finder = new LanguageService()
-        String sourcePath = "src/test/test-files/config"
+            LanguageService finder = new LanguageService()
+            String sourcePath = "src/test/test-files/config"
 
         when:
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(sourcePath), finder, new IndexerConfig(scanDependencies: true))
-        indexer.buildConfigLocation = "build7.fakegradle"
-        indexer.compile()
+            IndexerConfig indexerConfig = new IndexerConfig(scanDependencies: true)
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(sourcePath), finder, indexerConfig)
+            indexer.buildConfigLocation = "build7.fakegradle"
+            indexer.compile()
 
         then:
-        indexer.configService.buildType != null
-
+            indexer.configService.buildType != null
     }
 
-    def "Test dependency parsing"() {
+    void "Test dependency parsing"() {
         String path = "."
         GradleBuild gradleBuild = new GradleBuild(uri(path))
 
         when:
-        List<Dependency> dependencies = gradleBuild.parseDependencies()
+            List<Dependency> dependencies = gradleBuild.parseDependencies()
 
         then:
-        dependencies.size() == 179
+            dependencies.size() == 185
     }
 
 }

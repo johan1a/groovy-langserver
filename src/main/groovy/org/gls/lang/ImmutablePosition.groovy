@@ -9,7 +9,7 @@ import org.eclipse.lsp4j.Position
 @TypeChecked
 class ImmutablePosition extends Position {
 
-    public ImmutablePosition(final int line, final int character) {
+    ImmutablePosition(final int line, final int character) {
         super(line, character)
     }
 

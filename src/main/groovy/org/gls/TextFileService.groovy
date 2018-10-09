@@ -8,14 +8,13 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.DidSaveTextDocumentParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
 import org.eclipse.lsp4j.TextEdit
-import org.gls.lang.ImmutableLocation
 import org.gls.lang.ImmutablePosition
 
 @Slf4j
 @TypeChecked
 class TextFileService {
 
-    private FileWatcher fileWatcher = new FileWatcher()
+    private final FileWatcher fileWatcher = new FileWatcher()
 
     Map<String, String> getChangedFiles() {
         return fileWatcher.changedFiles
@@ -43,17 +42,16 @@ class TextFileService {
     }
 
     void writeFiles(Map<String, List<TextEdit>> allEdits) {
-
         allEdits.each { String fileName, List<TextEdit> edits ->
             List<String> lines = readFileLines(fileName)
             List<Integer> offsetByLine = [0] * lines.size()
-            edits.sort{ a, b ->
-                    if(a.range.start.line == b.range.start.line) {
-                        a.range.start.character <=> b.range.start.character
-                    } else {
-                        a.range.start.line <=> b.range.start.line
-                    }
-                }.each { doEdit(lines, offsetByLine, it) }
+            edits.sort { a, b ->
+                if (a.range.start.line == b.range.start.line) {
+                    a.range.start.character <=> b.range.start.character
+                } else {
+                    a.range.start.line <=> b.range.start.line
+                }
+            }.each { doEdit(lines, offsetByLine, it) }
             writeToFile(fileName, lines)
         }
     }
@@ -61,8 +59,8 @@ class TextFileService {
     void writeToFile(String fileName, List<String> lines) {
         File file = new File(fileName)
         file.text = lines.join(System.lineSeparator())
-        if(getChangedFiles().containsKey(fileName)){
-            getChangedFiles().remove(fileName)
+        if (changedFiles.containsKey(fileName)) {
+            changedFiles.remove(fileName)
         }
     }
 
@@ -70,15 +68,15 @@ class TextFileService {
         String uri = params.textDocument.uri
         List<String> fileLines = readFileLines(uri)
 
-        String precedingText = fileLines[params.position.line].substring(0, params.position.character)
+        String precedingText = fileLines[params.position.line][0, params.position.character]
         ImmutablePosition position = new ImmutablePosition(params.position.line, params.position.character - 2)
 
         return new CompletionRequest(uri: uri, position: position, precedingText: precedingText)
     }
 
     private List<String> readFileLines(String fileName) {
-        if(getChangedFiles().containsKey(fileName)){
-            return getChangedFiles().get(fileName).split(System.lineSeparator()).toList()
+        if (changedFiles.containsKey(fileName)) {
+            return changedFiles.get(fileName).split(System.lineSeparator()).toList()
         }
         File file = new File(fileName)
         return file.readLines()
@@ -93,7 +91,7 @@ class TextFileService {
         int end = textEdit.range.end.character + offset
         int oldTextSize = end - start + 1
         String post = line.substring(start + oldTextSize)
-        String pre = line.substring(0, start)
+        String pre = line[0, start]
         fileLines[lineNbr] = pre + textEdit.newText + post
 
         offsetByLine[lineNbr] += textEdit.newText.size() - oldTextSize

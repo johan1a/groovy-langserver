@@ -2,19 +2,17 @@ package org.gls
 
 import groovy.util.logging.Slf4j
 import groovy.transform.TypeChecked
-import org.eclipse.lsp4j.DidChangeConfigurationCapabilities
 import org.eclipse.lsp4j.DidChangeTextDocumentParams
 import org.eclipse.lsp4j.DidCloseTextDocumentParams
 import org.eclipse.lsp4j.DidOpenTextDocumentParams
 import org.eclipse.lsp4j.DidSaveTextDocumentParams
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent
 import org.eclipse.lsp4j.TextEdit
 
 @Slf4j
 @TypeChecked
 class FileWatcher {
 
-    Map<String, String> changedFiles = new HashMap<>()
+    Map<String, String> changedFiles = [:]
 
     void didSave(DidSaveTextDocumentParams params) {
         log.info("didSave: ")
@@ -32,6 +30,7 @@ class FileWatcher {
         changedFiles.remove(params.textDocument.uri)
     }
 
+    @SuppressWarnings(["EmptyMethod", "UnusedMethodParameter"])
     void didOpen(DidOpenTextDocumentParams params) {
     }
 

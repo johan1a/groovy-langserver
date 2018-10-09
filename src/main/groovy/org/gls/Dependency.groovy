@@ -1,5 +1,8 @@
 package org.gls
 
+import groovy.transform.ToString
+
+@ToString
 class Dependency {
 
     String group
@@ -10,12 +13,4 @@ class Dependency {
         return "${name}-${version}.jar"
     }
 
-    @Override
-    public String toString() {
-        return "Dependency{" +
-                "group='" + group + '\'' +
-                ", name='" + name + '\'' +
-                ", version='" + version + '\'' +
-                '}';
-    }
 }

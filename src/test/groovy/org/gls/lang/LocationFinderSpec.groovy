@@ -20,6 +20,5 @@ class LocationFinderSpec extends Specification {
             location.range.end.line == 0
             location.range.start.character == 18
             location.range.end.character == 26
-
     }
 }

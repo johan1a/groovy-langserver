@@ -3,8 +3,6 @@ package org.gls.lang
 import org.eclipse.lsp4j.CompletionItem
 import org.eclipse.lsp4j.CompletionItemKind
 import org.gls.lang.definition.ClassDefinition
-import org.gls.lang.definition.FuncDefinition
-import org.gls.lang.definition.VarDefinition
 
 /**
  * Created by johan on 4/23/18.
@@ -27,14 +25,14 @@ class AutoCompleter {
         functions.each {
             if (it.startsWith(prefix)) {
                 CompletionItem item = new CompletionItem(it)
-                item.setKind(CompletionItemKind.Method)
+                item.kind = CompletionItemKind.Method
                 result.add(item)
             }
         }
         variables.each {
             if (it.startsWith(prefix)) {
                 CompletionItem item = new CompletionItem(it)
-                item.setKind(CompletionItemKind.Variable)
+                item.kind = CompletionItemKind.Variable
                 result.add(item)
             }
         }

@@ -1,6 +1,5 @@
 package org.gls
 
-
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 
@@ -20,20 +19,21 @@ import org.eclipse.lsp4j.services.LanguageClient
 class LangServer implements LanguageServer {
 
     public static final String DEFAULT_SRC_DIR = "/src/main/groovy"
-    private WorkspaceService workspaceService
+    private final WorkspaceService workspaceService
     GroovyTextDocumentService textDocumentService
 
     LangServer() {
         this.workspaceService = new GroovyWorkspaceService()
-        this.textDocumentService = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: false, scanDependencies: true))
+        IndexerConfig indexerConfig = new IndexerConfig(scanAllSubDirs: false, scanDependencies: true)
+        this.textDocumentService = new GroovyTextDocumentService(indexerConfig)
     }
 
     @Override
     CompletableFuture<InitializeResult> initialize(InitializeParams initializeParams) {
         textDocumentService.showClientMessage("Initializing langserver capabilities...")
-        log.info("rootUri: ${new URI(initializeParams.getRootUri())}")
+        log.info("rootUri: ${new URI(initializeParams.rootUri)}")
 
-        textDocumentService.setRootUri(new URI(initializeParams.getRootUri()))
+        textDocumentService.rootUri = new URI(initializeParams.rootUri)
         textDocumentService.compile()
 
         ServerCapabilities capabilities = new ServerCapabilities()
@@ -41,12 +41,12 @@ class LangServer implements LanguageServer {
     }
 
     @Override
-    CompletableFuture shutdown(){
+    CompletableFuture shutdown() {
         CompletableFuture.completedFuture("")
     }
 
     @Override
-    void exit(){
+    void exit() {
         log.info "Stopping langserver"
     }
 
@@ -64,8 +64,8 @@ class LangServer implements LanguageServer {
         log.info "Starting langserver"
         LangServer server = new LangServer()
         Launcher<LanguageClient> launcher = LSPLauncher.createServerLauncher(server, System.in,
-                    System.out)
-        LanguageClient client = launcher.getRemoteProxy()
+                System.out)
+        LanguageClient client = launcher.remoteProxy
         server.textDocumentService.connect(client)
         launcher.startListening()
     }

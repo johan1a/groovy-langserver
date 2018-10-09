@@ -1,6 +1,13 @@
 package org.gls
 
-import org.eclipse.lsp4j.*
+import static org.gls.util.TestUtil.uri
+
+import org.eclipse.lsp4j.Diagnostic
+import org.eclipse.lsp4j.Location
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.ReferenceParams
+import org.eclipse.lsp4j.TextDocumentIdentifier
+import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyCompilerService
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.reference.ClassReference
@@ -9,45 +16,43 @@ import org.gls.lang.reference.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.gls.util.TestUtil.uri
-
 @Unroll
+@SuppressWarnings(["DuplicateStringLiteral", "DuplicateNumberLiteral"])
 class ReferenceSpec extends Specification {
 
-    def "test function return type"() {
+    void "test function return type"() {
         LanguageService finder = new LanguageService()
         String path = "src/test/test-files/3"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
 
-        Set<ClassDefinition> definitions = finder.storage.getClassDefinitions().findAll {
-            it.getFullClassName() == "Box"
+        Set<ClassDefinition> definitions = finder.storage.classDefinitions.findAll {
+            it.fullClassName == "Box"
         }
-        def usages = finder.getClassReferences()
-        ClassReference usage = usages.find { it.getFullReferencedClassName() == "Box" }
+        Set<ClassReference> usages = finder.classReferences
+        ClassReference usage = usages.find { it.fullReferencedClassName == "Box" }
 
         expect:
             definitions.first().lineNumber == 0
             usage.lineNumber == 3
     }
 
-    def "test Vardecl class usage"() {
+    void "test Vardecl class usage"() {
         LanguageService finder = new LanguageService()
         String path = "src/test/test-files/4"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
 
-        String testFilePath = new File(path + "/VarDeclClassUsage.groovy").getCanonicalPath()
-        Set<ClassReference> usages = finder.getClassReferences()
+        Set<ClassReference> usages = finder.classReferences
         ClassReference usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
 
         expect:
             usage.lineNumber == 7
     }
 
-    def "Function reference 1"() {
+    void "Function reference 1"() {
         given:
             LanguageService finder = new LanguageService()
             String dirPath = "src/test/test-files/${_dir}"
@@ -56,8 +61,8 @@ class ReferenceSpec extends Specification {
             Position position = _pos
             params.position = position
 
-            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").canonicalPath
+            params.textDocument = new TextDocumentIdentifier(filePath)
 
         when:
             GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
@@ -76,7 +81,7 @@ class ReferenceSpec extends Specification {
             10   | new Position(11, 17) | "FunctionReference" | 8             | 15
     }
 
-    def "Multiple function references 1"() {
+    void "Multiple function references 1"() {
         given:
             LanguageService finder = new LanguageService()
             String dirPath = "src/test/test-files/${_dir}"
@@ -85,8 +90,8 @@ class ReferenceSpec extends Specification {
             Position position = _pos
             params.position = position
 
-            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").canonicalPath
+            params.textDocument = new TextDocumentIdentifier(filePath)
 
         when:
             GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
@@ -108,14 +113,14 @@ class ReferenceSpec extends Specification {
             'definition/1'  | new Position(1, 6)    | "Constructor"       | 1
     }
 
-    def "test VarRef indexing"() {
+    void "test VarRef indexing"() {
         LanguageService finder = new LanguageService()
         String path = "./src/test/test-files/2"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
 
-        Set<VarReference> usages = finder.storage.getVarReferences()
+        Set<VarReference> usages = finder.storage.varReferences
         VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
@@ -123,7 +128,7 @@ class ReferenceSpec extends Specification {
             reference.definitionLineNumber == 3
     }
 
-    def "Test find references"() {
+    void "Test find references"() {
         setup:
             LanguageService finder = new LanguageService()
             String dirPath = "src/test/test-files/6"
@@ -132,8 +137,8 @@ class ReferenceSpec extends Specification {
             Position position = new Position(3, 16)
             params.position = position
 
-            String filePath = new File(dirPath + "/FindReference.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/FindReference.groovy").canonicalPath
+            params.textDocument = new TextDocumentIdentifier(filePath)
 
         when:
             GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
@@ -146,7 +151,7 @@ class ReferenceSpec extends Specification {
             references.find { it.range.start.line == 7 } != null
     }
 
-    def "Test find references2"() {
+    void "Test find references2"() {
         setup:
             LanguageService finder = new LanguageService()
             String dirPath = "src/test/test-files/6"
@@ -155,8 +160,8 @@ class ReferenceSpec extends Specification {
             Position position = _position
             params.position = position
 
-            String filePath = new File(dirPath + "/${_class}.groovy").getCanonicalPath()
-            params.setTextDocument(new TextDocumentIdentifier(filePath))
+            String filePath = new File(dirPath + "/${_class}.groovy").canonicalPath
+            params.textDocument = new TextDocumentIdentifier(filePath)
 
         when:
             GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())

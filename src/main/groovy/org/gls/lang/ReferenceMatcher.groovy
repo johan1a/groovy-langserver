@@ -1,23 +1,26 @@
 package org.gls.lang
 
-import org.eclipse.lsp4j.*
+import org.eclipse.lsp4j.Position
+import org.eclipse.lsp4j.RenameParams
+import org.eclipse.lsp4j.TextDocumentPositionParams
+import org.eclipse.lsp4j.TextEdit
+import org.eclipse.lsp4j.Range
 import org.gls.lang.definition.Definition
 import org.gls.lang.reference.Reference
 
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-
     static List<R> getReferences(Set<D> definitions, Set<R> allReferences, TextDocumentPositionParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
         definitionOptional.map { definition ->
-            definition.getReferences().toList()
+            definition.references.toList()
         }.orElse([])
     }
 
     static List<D> getDefinitions(Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
         usageOptional.map { matchingUsage ->
-            Optional<D> definition = matchingUsage.getDefinition()
+            Optional<D> definition = matchingUsage.definition
             definition.map {
                 Arrays.asList(it)
             }.orElse([])
@@ -30,7 +33,8 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         })
     }
 
-    static Optional<D> findMatchingDefinition(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
+    static Optional<D> findMatchingDefinition(Set<D> definitions, Set<R> references,
+                                              TextDocumentPositionParams params) {
         Optional<D> definition = Optional.ofNullable(definitions.find {
             matchesPosition(it, params.textDocument.uri, params.position)
         })
@@ -40,13 +44,14 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         return findDefinitionOfReference(definitions, references, params)
     }
 
-    static Optional<D> findDefinitionOfReference(Set<D> definitions, Set<R> references, TextDocumentPositionParams params) {
+    static Optional<D> findDefinitionOfReference(Set<D> definitions, Set<R> references,
+                                                 TextDocumentPositionParams params) {
         Optional<R> reference = findMatchingReference(references, params)
         reference.map { it.findMatchingDefinition(definitions) }.orElse(Optional.empty())
     }
 
     static boolean matchesPosition(HasLocation hasLocation, String uri, Position position) {
-        hasLocation.getSourceFileURI() == uri &&
+        hasLocation.sourceFileURI == uri &&
                 hasLocation.columnNumber <= position.character &&
                 hasLocation.lastColumnNumber >= position.character &&
                 hasLocation.lineNumber <= position.line &&
@@ -56,13 +61,13 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
     static void correlate(Set<D> definitions, Set<R> references) {
         definitions.each { definition ->
             Set<R> matchingReferences = definition.findMatchingReferences(references)
-            definition.setReferences(matchingReferences)
-            matchingReferences.each { it.setDefinition(definition) }
+            definition.references = matchingReferences
+            matchingReferences.each { it.definition = definition }
         }
     }
 
     static Map<String, List<TextEdit>> rename(Set<D> allDefinitions, Set<R> allReferences, RenameParams params) {
-        Map<String, List<TextEdit>> changes = new HashMap<>()
+        Map<String, List<TextEdit>> changes = [:]
 
         TextDocumentPositionParams params1 = toTextDocumentPositionParams(params)
         List<R> references = getReferences(allDefinitions, allReferences, params1)
@@ -71,17 +76,17 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
     }
 
     private static void addTextEdits(List<R> references, Map<String, List<TextEdit>> changes, String newName) {
-        references.forEach() { R reference ->
+        references.forEach { R reference ->
             Range range = reference.location.range
             TextEdit defEdit = new TextEdit(range, newName)
-            addOrCreate(changes, reference.getSourceFileURI(), defEdit)
+            addOrCreate(changes, reference.sourceFileURI, defEdit)
         }
 
-        List<Optional<D>> unique = references.collect { it.getDefinition() }.unique().toList()
+        List<Optional<D>> unique = references*.definition.unique().toList()
         unique.forEach { Optional<D> definitionOptional ->
             definitionOptional.map { definition ->
                 TextEdit edit = new TextEdit(definition.location.range, newName)
-                addOrCreate(changes, definition.getSourceFileURI(), edit)
+                addOrCreate(changes, definition.sourceFileURI, edit)
             }
         }
     }

@@ -4,13 +4,13 @@ trait HasLocation {
 
     abstract ImmutableLocation getLocation()
 
-    int getLineNumber() { return location.getRange().start.line }
+    int getLineNumber() { return location.range.start.line }
 
-    int getLastLineNumber() { return location.getRange().end.line }
+    int getLastLineNumber() { return location.range.end.line }
 
-    int getColumnNumber() { return location.getRange().start.character }
+    int getColumnNumber() { return location.range.start.character }
 
-    int getLastColumnNumber() { return location.getRange().end.character }
+    int getLastColumnNumber() { return location.range.end.character }
 
     String getSourceFileURI() { return location.uri }
 }

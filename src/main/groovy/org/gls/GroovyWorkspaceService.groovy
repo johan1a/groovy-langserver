@@ -9,7 +9,6 @@ import org.eclipse.lsp4j.SymbolInformation
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 
-
 @Slf4j
 @TypeChecked
 class GroovyWorkspaceService implements WorkspaceService {

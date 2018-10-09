@@ -17,12 +17,12 @@ import org.gls.lang.reference.VarReference
 @TypeChecked
 class ReferenceStorage {
 
-    Set<ClassDefinition> classDefinitions = new HashSet<>()
-    Set<ClassReference> classReferences = new HashSet<>()
-    Set<VarDefinition> varDefinitions = new HashSet<>()
-    Set<VarReference> varReferences = new HashSet<>()
-    Set<FuncDefinition> funcDefinitions = new HashSet<>()
-    Set<FuncReference> funcReferences = new HashSet<>()
+    Set<ClassDefinition> classDefinitions = [] as Set
+    Set<ClassReference> classReferences = [] as Set
+    Set<VarDefinition> varDefinitions = [] as Set
+    Set<VarReference> varReferences = [] as Set
+    Set<FuncDefinition> funcDefinitions = [] as Set
+    Set<FuncReference> funcReferences = [] as Set
 
     void addVarReference(VarReference reference) {
         varReferences.add(reference)

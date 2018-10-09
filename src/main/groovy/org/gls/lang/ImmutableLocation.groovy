@@ -8,12 +8,12 @@ import org.eclipse.lsp4j.jsonrpc.validation.NonNull
 @TypeChecked
 class ImmutableLocation extends Location implements Comparable<ImmutableLocation> {
 
-    public ImmutableLocation(@NonNull final String uri, @NonNull final ImmutableRange range) {
+    ImmutableLocation(@NonNull final String uri, @NonNull final ImmutableRange range) {
         super(uri, range)
     }
 
     @Override
-    public void setUri(@NonNull final String uri) {
+    void setUri(@NonNull final String uri) {
     }
 
     @Override

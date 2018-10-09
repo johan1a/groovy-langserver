@@ -2,14 +2,67 @@ package org.gls.groovy
 
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
-import org.codehaus.groovy.ast.*
+import org.codehaus.groovy.ast.ClassCodeVisitorSupport
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.expr.*
-import org.codehaus.groovy.ast.stmt.*
-import org.codehaus.groovy.classgen.*
+import org.codehaus.groovy.ast.ConstructorNode
+import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.MethodNode
+import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.ast.PropertyNode
+import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.ArrayExpression
+import org.codehaus.groovy.ast.expr.AttributeExpression
+import org.codehaus.groovy.ast.expr.BinaryExpression
+import org.codehaus.groovy.ast.expr.BitwiseNegationExpression
+import org.codehaus.groovy.ast.expr.BooleanExpression
+import org.codehaus.groovy.ast.expr.CastExpression
+import org.codehaus.groovy.ast.expr.ClassExpression
+import org.codehaus.groovy.ast.expr.ClosureExpression
+import org.codehaus.groovy.ast.expr.ClosureListExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
+import org.codehaus.groovy.ast.expr.ConstructorCallExpression
+import org.codehaus.groovy.ast.expr.DeclarationExpression
+import org.codehaus.groovy.ast.expr.ElvisOperatorExpression
+import org.codehaus.groovy.ast.expr.FieldExpression
+import org.codehaus.groovy.ast.expr.GStringExpression
+import org.codehaus.groovy.ast.expr.ListExpression
+import org.codehaus.groovy.ast.expr.MapEntryExpression
+import org.codehaus.groovy.ast.expr.MapExpression
+import org.codehaus.groovy.ast.expr.MethodCallExpression
+import org.codehaus.groovy.ast.expr.MethodPointerExpression
+import org.codehaus.groovy.ast.expr.NotExpression
+import org.codehaus.groovy.ast.expr.PostfixExpression
+import org.codehaus.groovy.ast.expr.PrefixExpression
+import org.codehaus.groovy.ast.expr.PropertyExpression
+import org.codehaus.groovy.ast.expr.RangeExpression
+import org.codehaus.groovy.ast.expr.SpreadExpression
+import org.codehaus.groovy.ast.expr.SpreadMapExpression
+import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
+import org.codehaus.groovy.ast.expr.TernaryExpression
+import org.codehaus.groovy.ast.expr.TupleExpression
+import org.codehaus.groovy.ast.expr.UnaryMinusExpression
+import org.codehaus.groovy.ast.expr.UnaryPlusExpression
+import org.codehaus.groovy.ast.expr.VariableExpression
+import org.codehaus.groovy.ast.stmt.AssertStatement
+import org.codehaus.groovy.ast.stmt.BlockStatement
+import org.codehaus.groovy.ast.stmt.BreakStatement
+import org.codehaus.groovy.ast.stmt.CaseStatement
+import org.codehaus.groovy.ast.stmt.CatchStatement
+import org.codehaus.groovy.ast.stmt.ContinueStatement
+import org.codehaus.groovy.ast.stmt.DoWhileStatement
+import org.codehaus.groovy.ast.stmt.ExpressionStatement
+import org.codehaus.groovy.ast.stmt.ForStatement
+import org.codehaus.groovy.ast.stmt.IfStatement
+import org.codehaus.groovy.ast.stmt.ReturnStatement
+import org.codehaus.groovy.ast.stmt.SwitchStatement
+import org.codehaus.groovy.ast.stmt.SynchronizedStatement
+import org.codehaus.groovy.ast.stmt.ThrowStatement
+import org.codehaus.groovy.ast.stmt.TryCatchStatement
+import org.codehaus.groovy.ast.stmt.WhileStatement
+import org.codehaus.groovy.classgen.BytecodeExpression
 import org.codehaus.groovy.control.SourceUnit
-import org.gls.LangServer
-import org.gls.lang.*
+import org.gls.exception.NotImplementedException
+import org.gls.lang.LanguageService
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.definition.FuncDefinition
 import org.gls.lang.definition.VarDefinition
@@ -19,10 +72,11 @@ import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
+@SuppressWarnings(["MethodCount", "UnnecessaryOverridingMethod"])
 class CodeVisitor extends ClassCodeVisitorSupport {
 
-    private LanguageService finder
-    private String sourceFileURI
+    private final LanguageService finder
+    private final String sourceFileURI
     private ClassNode currentClassNode
     List<String> fileContents
 
@@ -34,7 +88,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     SourceUnit getSourceUnit() {
-        throw new Exception("Not implemented")
+        throw new NotImplementedException("Not implemented")
     }
 
     @Override
@@ -67,7 +121,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitMethod(MethodNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
-        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.getName(), node))
+        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.name, node))
         node.parameters.each { Parameter it ->
             finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
@@ -77,9 +131,11 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitProperty(PropertyNode node) {
-        FuncDefinition getter = FuncDefinition.makeGetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
+        FuncDefinition getter = FuncDefinition.makeGetter(sourceFileURI, fileContents, currentClassNode.name,
+                node.field)
         finder.addFuncDefinition(getter)
-        FuncDefinition setter = FuncDefinition.makeSetter(sourceFileURI, fileContents, currentClassNode.name, node.getField())
+        FuncDefinition setter = FuncDefinition.makeSetter(sourceFileURI, fileContents, currentClassNode.name,
+                node.field)
         finder.addFuncDefinition(setter)
         super.visitProperty(node)
     }
@@ -180,11 +236,12 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     }
 
     @Override
+    @SuppressWarnings("EmptyIfStatement")
     void visitDeclarationExpression(DeclarationExpression expression) {
         if (expression.isMultipleAssignmentDeclaration()) {
-            TupleExpression left = expression.getTupleExpression()
+            //TODO TupleExpression left = expression.getTupleExpression()
         } else {
-            VariableExpression left = expression.getVariableExpression()
+            VariableExpression left = expression.variableExpression
             finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
         }
@@ -238,7 +295,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitMethodCallExpression(MethodCallExpression call) {
-        VarReference usage = new VarReference(sourceFileURI, fileContents, currentClassNode, call.getReceiver())
+        VarReference usage = new VarReference(sourceFileURI, fileContents, currentClassNode, call.receiver)
 
         FuncReference funcCall = new FuncReference(sourceFileURI, fileContents, currentClassNode, call, usage)
         finder.addFuncCall(funcCall)

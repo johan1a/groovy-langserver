@@ -15,10 +15,12 @@ import org.gls.lang.ClassPreprocessor
 import org.gls.lang.DiagnosticsParser
 import org.gls.lang.LanguageService
 
-
 @Slf4j
 @CompileStatic
 class GroovyCompilerService {
+
+    private static final int MILLIS_PER_SECOND = 1000
+    private static final int CONFIGURATION_TOLERANCE = 1000_000
 
     List<URI> sourcePaths
 
@@ -34,7 +36,7 @@ class GroovyCompilerService {
         sourcePaths = [
                 UriUtils.appendURI(rootUri, "/src/main/groovy"),
                 UriUtils.appendURI(rootUri, "/grails-app/domain"),
-                UriUtils.appendURI(rootUri, "/grails-app/services")
+                UriUtils.appendURI(rootUri, "/grails-app/services"),
         ]
         if (indexerConfig.scanAllSubDirs) {
             sourcePaths = [rootUri]
@@ -44,7 +46,7 @@ class GroovyCompilerService {
         this.service = service
     }
 
-    Map<String, List<Diagnostic>> compile(Map<String, String> changedFiles = new HashMap<>()) {
+    Map<String, List<Diagnostic>> compile(Map<String, String> changedFiles = [:]) {
         List<File> files = new LinkedList<>()
         findFilesRecursive(files, changedFiles)
         return index(files, changedFiles)
@@ -58,7 +60,7 @@ class GroovyCompilerService {
                     String filename = it.name
                     if (shouldAddLogField(it.path, filename)) {
                         addLogField(modifiedFiles, filename, it)
-                    }else if (filename =~ /.*\.groovy/) {
+                    } else if (filename =~ /.*\.groovy/) {
                         files.add(it)
                     }
                 }
@@ -83,17 +85,17 @@ class GroovyCompilerService {
     }
 
     Map<String, List<Diagnostic>> index(List<File> files, Map<String, String> changedFiles) {
-        Map<String, List<Diagnostic>> diagnostics = new HashMap<>()
+        Map<String, List<Diagnostic>> diagnostics = [:]
         try {
             log.info("Starting indexing")
             long start = System.currentTimeMillis()
-            List<String> classpath = getDependencies()
+            List<String> classpath = dependencies
             doCompile(files, changedFiles, classpath)
             long elapsed = System.currentTimeMillis() - start
-            log.info("Indexing done in ${elapsed / 1000}s")
+            log.info("Indexing done in ${elapsed / MILLIS_PER_SECOND}s")
         } catch (MultipleCompilationErrorsException e) {
             log.debug("Got MultipleCompilationErrorsException")
-            diagnostics = DiagnosticsParser.getDiagnostics(e.getErrorCollector())
+            diagnostics = DiagnosticsParser.getDiagnostics(e.errorCollector)
             if (diagnostics.isEmpty()) {
                 log.error("Compilation error without diagnostics:", e)
             }
@@ -114,7 +116,6 @@ class GroovyCompilerService {
         }
     }
 
-
     private void doCompile(List<File> files, Map<String, String> changedFiles, List<String> classpath) {
         log.info("compiling...")
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
@@ -122,7 +123,7 @@ class GroovyCompilerService {
         CompilationUnit unit = new CompilationUnit()
 
         CompilerConfiguration configuration = new CompilerConfiguration()
-        configuration.setTolerance(1000)
+        configuration.tolerance = CONFIGURATION_TOLERANCE
 
         unit.configure(configuration)
         notChanged.each { unit.addSource(it) }
@@ -136,13 +137,13 @@ class GroovyCompilerService {
 
         unit.iterator().each { sourceUnit ->
             log.debug("compiling ${sourceUnit.name}")
-            ModuleNode moduleNode = sourceUnit.getAST()
+            ModuleNode moduleNode = sourceUnit.AST
 
-            String name = sourceUnit.getName()
+            String name = sourceUnit.name
             List<String> fileContents = getFileContent(name, changedFiles)
             CodeVisitor codeVisitor = new CodeVisitor(service, name, fileContents)
             moduleNode.visit(codeVisitor)
-            moduleNode.getClasses().each { classNode ->
+            moduleNode.classes.each { classNode ->
                 codeVisitor.visitClass(classNode)
             }
         }
