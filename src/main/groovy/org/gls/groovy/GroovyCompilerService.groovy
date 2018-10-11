@@ -120,12 +120,13 @@ class GroovyCompilerService {
         log.info("compiling...")
         List<File> notChanged = files.findAll { !changedFiles.keySet().contains(it.canonicalPath) }
 
-        CompilationUnit unit = new CompilationUnit()
 
         CompilerConfiguration configuration = new CompilerConfiguration()
         configuration.tolerance = CONFIGURATION_TOLERANCE
+        configuration.recompileGroovySource = true
 
-        unit.configure(configuration)
+        CompilationUnit unit = new CompilationUnit(configuration)
+
         notChanged.each { unit.addSource(it) }
         changedFiles.each { path, name -> unit.addSource(path, name) }
 

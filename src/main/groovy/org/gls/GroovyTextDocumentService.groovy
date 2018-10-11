@@ -137,7 +137,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             log.debug "params: ${params}"
             result = CompletableFuture.supplyAsync {
                 List<ImmutableLocation> definition = externalURIs(languageService.getDefinition(params))
-                log.debug "Found definition: ${definition != null}"
+                log.debug "Found definition: ${!definition.isEmpty()}"
                 log.debug "definition: ${definition}"
                 definition
             }

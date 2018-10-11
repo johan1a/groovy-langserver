@@ -9,11 +9,12 @@ import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.exception.NotImplementedException
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.ReferenceStorage
 import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
-class VarDefinition implements Definition<VarReference> {
+class VarDefinition implements Definition<VarDefinition, VarReference> {
 
     ImmutableLocation location
 
@@ -59,7 +60,7 @@ class VarDefinition implements Definition<VarReference> {
     }
 
     @Override
-    Set<VarReference> findMatchingReferences(Set<VarReference> varUsages) {
+    Set<VarReference> findMatchingReferences(ReferenceStorage storage, Set<VarDefinition> definitions, Set<VarReference> varUsages) {
         return varUsages.findAll {
             it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&

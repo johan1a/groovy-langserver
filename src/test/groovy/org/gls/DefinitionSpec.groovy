@@ -17,7 +17,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Unroll
-@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateStringLiteral"])
+@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateStringLiteral", "DuplicateListLiteral"])
 class DefinitionSpec extends Specification {
 
     void "Function definition"() {
@@ -77,7 +77,7 @@ class DefinitionSpec extends Specification {
             String dirPath = "src/test/test-files/${_dir}"
 
             TextDocumentPositionParams params = new TextDocumentPositionParams()
-            ImmutablePosition position = _pos
+            ImmutablePosition position = new ImmutablePosition(_pos[0], _pos[1])
             params.position = position
 
             String filePath = new File(dirPath + "/${_class}.groovy").canonicalPath
@@ -93,17 +93,18 @@ class DefinitionSpec extends Specification {
             definitions.size() == 1
             definitions.first().uri.startsWith("/")
             Range range = definitions.first().range
-            range.start == _expected
+            range.start == new ImmutablePosition(_expected[0], _expected[1])
             range.end.character == _end
 
         where:
-            _dir            | _pos                          | _class             | _expected                      | _end
-            "9"             | new ImmutablePosition(4, 36)  | "ClassDefinition1" | new ImmutablePosition(7, 21)   | 31
-            'functions/two' | new ImmutablePosition(72, 46) | "ReferenceFinder"  | new ImmutablePosition(142, 25) | 45
-            'functions/two' | new ImmutablePosition(12, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 6)   | 21
-            'functions/two' | new ImmutablePosition(19, 8)  | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
-            'functions/two' | new ImmutablePosition(71, 47) | "ReferenceFinder"  | new ImmutablePosition(12, 21)  | 27
-            'definition/1'  | new ImmutablePosition(3, 14)  | "Constructor"      | new ImmutablePosition(1, 6)    | 16
+            _dir                           | _pos     | _class             | _expected | _end
+            "9"                            | [4, 36]  | "ClassDefinition1" | [7, 21]   | 31
+            'functions/two'                | [72, 46] | "ReferenceFinder"  | [142, 25] | 45
+            'functions/two'                | [12, 8]  | "ReferenceFinder"  | [12, 6]   | 21
+            'functions/two'                | [19, 8]  | "ReferenceFinder"  | [12, 21]  | 27
+            'functions/two'                | [71, 47] | "ReferenceFinder"  | [12, 21]  | 27
+            'definition/1'                 | [3, 14]  | "Constructor"      | [1, 6]    | 16
+            'definition/language_service/' | [10, 23] | "LanguageService"  | [25, 35]  | 44
     }
 
     void "Repeated query"() {
@@ -117,8 +118,9 @@ class DefinitionSpec extends Specification {
             String filePath = new File(dirPath + "/ReferenceFinder.groovy").canonicalPath
             params1.textDocument = new TextDocumentIdentifier(filePath)
 
+            IndexerConfig indexerConfig = new IndexerConfig(scanAllSubDirs: true, serializeLanguageService: false)
         when:
-            GroovyTextDocumentService service = new GroovyTextDocumentService(new IndexerConfig(scanAllSubDirs: true))
+            GroovyTextDocumentService service = new GroovyTextDocumentService(indexerConfig)
             service.rootUri = uri(dirPath)
             service.compile()
             LanguageService finder = service.languageService

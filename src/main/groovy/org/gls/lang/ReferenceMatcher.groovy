@@ -1,5 +1,6 @@
 package org.gls.lang
 
+import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.RenameParams
 import org.eclipse.lsp4j.TextDocumentPositionParams
@@ -8,19 +9,22 @@ import org.eclipse.lsp4j.Range
 import org.gls.lang.definition.Definition
 import org.gls.lang.reference.Reference
 
+@Slf4j
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    static List<R> getReferences(Set<D> definitions, Set<R> allReferences, TextDocumentPositionParams params) {
-        Optional<D> definitionOptional = findMatchingDefinition(definitions, allReferences, params)
+    static List<R> getReferences(ReferenceStorage storage, Set<D> definitions, Set<R> allReferences, TextDocumentPositionParams params) {
+        Optional<D> definitionOptional = findMatchingDefinition(storage, definitions, allReferences, params)
         definitionOptional.map { definition ->
             definition.references.toList()
         }.orElse([])
     }
 
-    static List<D> getDefinitions(Set<R> references, TextDocumentPositionParams params) {
+    static List<D> getDefinitions(ReferenceStorage storage, Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
+        log.debug("usage: ${usageOptional.map { it.toString() }}")
         usageOptional.map { matchingUsage ->
             Optional<D> definition = matchingUsage.definition
+            log.debug("definition: ${definition.map { it.toString() }}")
             definition.map {
                 Arrays.asList(it)
             }.orElse([])
@@ -33,7 +37,7 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         })
     }
 
-    static Optional<D> findMatchingDefinition(Set<D> definitions, Set<R> references,
+    static Optional<D> findMatchingDefinition(ReferenceStorage storage, Set<D> definitions, Set<R> references,
                                               TextDocumentPositionParams params) {
         Optional<D> definition = Optional.ofNullable(definitions.find {
             matchesPosition(it, params.textDocument.uri, params.position)
@@ -41,13 +45,13 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         if (definition.isPresent()) {
             return definition
         }
-        return findDefinitionOfReference(definitions, references, params)
+        return findDefinitionOfReference(storage, definitions, references, params)
     }
 
-    static Optional<D> findDefinitionOfReference(Set<D> definitions, Set<R> references,
+    static Optional<D> findDefinitionOfReference(ReferenceStorage storage, Set<D> definitions, Set<R> references,
                                                  TextDocumentPositionParams params) {
         Optional<R> reference = findMatchingReference(references, params)
-        reference.map { it.findMatchingDefinition(definitions) }.orElse(Optional.empty())
+        reference.map { it.findMatchingDefinition(storage, definitions) }.orElse(Optional.empty())
     }
 
     static boolean matchesPosition(HasLocation hasLocation, String uri, Position position) {
@@ -58,19 +62,19 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
                 hasLocation.lastLineNumber >= position.line
     }
 
-    static void correlate(Set<D> definitions, Set<R> references) {
+    static void correlate(ReferenceStorage storage, Set<D> definitions, Set<R> references) {
         definitions.each { definition ->
-            Set<R> matchingReferences = definition.findMatchingReferences(references)
+            Set<R> matchingReferences = definition.findMatchingReferences(storage, definitions, references)
             definition.references = matchingReferences
             matchingReferences.each { it.definition = definition }
         }
     }
 
-    static Map<String, List<TextEdit>> rename(Set<D> allDefinitions, Set<R> allReferences, RenameParams params) {
+    static Map<String, List<TextEdit>> rename(ReferenceStorage storage, Set<D> allDefinitions, Set<R> allReferences, RenameParams params) {
         Map<String, List<TextEdit>> changes = [:]
 
         TextDocumentPositionParams params1 = toTextDocumentPositionParams(params)
-        List<R> references = getReferences(allDefinitions, allReferences, params1)
+        List<R> references = getReferences(storage, allDefinitions, allReferences, params1)
         addTextEdits(references, changes, params.newName)
         return changes
     }

@@ -5,11 +5,12 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.ReferenceStorage
 import org.gls.lang.reference.ClassReference
 
 @Slf4j
 @TypeChecked
-class ClassDefinition implements Definition<ClassReference> {
+class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
 
     ImmutableLocation location
 
@@ -59,7 +60,7 @@ class ClassDefinition implements Definition<ClassReference> {
     }
 
     @Override
-    Set<ClassReference> findMatchingReferences(Set<ClassReference> references) {
+    Set<ClassReference> findMatchingReferences(ReferenceStorage storage, Set<ClassDefinition> classDefinitions, Set<ClassReference> references) {
         references.findAll {
             it.fullReferencedClassName == fullClassName
         }

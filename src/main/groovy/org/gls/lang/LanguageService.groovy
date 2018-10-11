@@ -66,29 +66,29 @@ class LanguageService {
     }
 
     List<Definition> getDefinitionInternal(TextDocumentPositionParams params) {
-        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
+        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage, storage.varReferences, params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage.classReferences, params)
+        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage, storage.classReferences, params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getDefinitions(storage.funcReferences, params)
+        return funcReferenceFinder.getDefinitions(storage, storage.funcReferences, params)
     }
 
     List<Reference> getReferencesInternal(ReferenceParams params) {
-        List<Reference> varReferences = varReferenceFinder.getReferences(storage.varDefinitions, storage.varReferences,
+        List<Reference> varReferences = varReferenceFinder.getReferences(storage, storage.varDefinitions, storage.varReferences,
                 params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
-        List<Reference> classReferences = classReferenceFinder.getReferences(storage.classDefinitions,
+        List<Reference> classReferences = classReferenceFinder.getReferences(storage, storage.classDefinitions,
                 storage.classReferences, params)
         if (!classReferences.isEmpty()) {
             return classReferences
         }
-        return funcReferenceFinder.getReferences(storage.funcDefinitions, storage.funcReferences, params)
+        return funcReferenceFinder.getReferences(storage, storage.funcDefinitions, storage.funcReferences, params)
     }
 
     static List<ImmutableLocation> toLocation(List<? extends HasLocation> references) {
@@ -98,23 +98,23 @@ class LanguageService {
     }
 
     void correlate() {
-        varReferenceFinder.correlate(storage.varDefinitions, storage.varReferences)
-        funcReferenceFinder.correlate(storage.funcDefinitions, storage.funcReferences)
-        classReferenceFinder.correlate(storage.classDefinitions, storage.classReferences)
+        varReferenceFinder.correlate(storage, storage.varDefinitions, storage.varReferences)
+        funcReferenceFinder.correlate(storage, storage.funcDefinitions, storage.funcReferences)
+        classReferenceFinder.correlate(storage, storage.classDefinitions, storage.classReferences)
     }
 
     Map<String, List<TextEdit>> rename(RenameParams params) {
-        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage.varDefinitions,
+        Map<String, List<TextEdit>> varEdits = varReferenceFinder.rename(storage, storage.varDefinitions,
                 storage.varReferences, params)
         if (!varEdits.isEmpty()) {
             return varEdits
         }
-        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage.funcDefinitions,
+        Map<String, List<TextEdit>> funcEdits = funcReferenceFinder.rename(storage, storage.funcDefinitions,
                 storage.funcReferences, params)
         if (!funcEdits.isEmpty()) {
             return funcEdits
         }
-        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage.classDefinitions,
+        Map<String, List<TextEdit>> classEdits = classReferenceFinder.rename(storage, storage.classDefinitions,
                 storage.classReferences, params)
         return classEdits
     }
@@ -129,7 +129,7 @@ class LanguageService {
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
         Position position = new ImmutablePosition(request.position.line, request.position.character)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
-        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
+        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage, storage.varReferences, params)
 
         log.debug("Found varDefinitions: ${varDefinitions}")
 

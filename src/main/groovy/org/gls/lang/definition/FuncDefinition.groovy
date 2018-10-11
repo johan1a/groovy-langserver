@@ -1,26 +1,29 @@
 package org.gls.lang.definition
 
 import groovy.transform.ToString
+import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.MethodNode
-import org.codehaus.groovy.ast.Parameter
-import org.codehaus.groovy.ast.expr.ArgumentListExpression
-import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
-import org.gls.exception.NotImplementedException
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.ReferenceStorage
 import org.gls.lang.reference.FuncReference
+import org.gls.lang.types.ArgumentType
+import org.gls.lang.types.ParameterExpression
+import org.gls.lang.types.SimpleExpression
+import org.gls.lang.types.Type
 
 @ToString
-class FuncDefinition implements Definition<FuncReference> {
+@Slf4j
+class FuncDefinition implements Definition<FuncDefinition, FuncReference> {
 
     ImmutableLocation location
 
     String returnType
     String functionName
     String definingClass
-    List<String> parameterTypes
+    SimpleExpression parameterTypes
     private Set<FuncReference> references
 
     FuncDefinition() {
@@ -30,7 +33,7 @@ class FuncDefinition implements Definition<FuncReference> {
         functionName = node.name
         returnType = node.getReturnType().name
         this.definingClass = definingClass
-        initParameterTypes(node.parameters)
+        parameterTypes = new ParameterExpression(parameters: node.parameters)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, functionName)
     }
 
@@ -38,7 +41,7 @@ class FuncDefinition implements Definition<FuncReference> {
         functionName = expression.method
         returnType = expression.type.name
         this.definingClass = definingClass
-        initParameterTypes(expression.arguments)
+        parameterTypes = new SimpleExpression(expression: expression.arguments)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, functionName)
     }
 
@@ -57,21 +60,9 @@ class FuncDefinition implements Definition<FuncReference> {
         definition.functionName = "set" + node.name.substring(0, 1).toUpperCase() + node.name.substring(1)
         definition.returnType = "void"
         definition.definingClass = definingClass
-        definition.parameterTypes = [node.type.name]
+        definition.parameterTypes = new SimpleExpression(name: node.type.name)
         definition.location = LocationFinder.findLocation(sourceFileURI, source, node, node.name)
         return definition
-    }
-
-    void initParameterTypes(Expression arguments) {
-        throw new NotImplementedException(arguments.toString())
-    }
-
-    void initParameterTypes(ArgumentListExpression arguments) {
-        this.parameterTypes = arguments.collect { it.type.name }
-    }
-
-    void initParameterTypes(Parameter[] parameters) {
-        this.parameterTypes = parameters.collect { it.type.name }
     }
 
     @Override
@@ -90,12 +81,33 @@ class FuncDefinition implements Definition<FuncReference> {
     }
 
     @Override
-    Set<FuncReference> findMatchingReferences(Set<FuncReference> funcCalls) {
+    Set<FuncReference> findMatchingReferences(ReferenceStorage storage, Set<FuncDefinition> definitions, Set<FuncReference> funcCalls) {
+
+        if (functionName == "toLocation") {
+            log.debug(definingClass)
+            log.debug(functionName)
+            parameterTypes.each { log.debug it.toString() }
+        }
         funcCalls.findAll {
-            it.definingClass == definingClass &&
+
+            List<Type> definitionParameterTypes = this.parameterTypes*.resolve(storage).types
+            List<Type> referenceParameterTypes =  it.argumentTypes*.resolve(storage).types
+
+
+            boolean result = it.definingClass == definingClass &&
                     it.functionName == functionName &&
-                    it.argumentTypes == this.parameterTypes
+                    sameArgumentTypesAs(storage, it)
+
+            if (this.functionName == "toLocation" && it.functionName == "toLocation") {
+                log.debug(definingClass)
+            }
+            result
         }
     }
 
+    boolean sameArgumentTypesAs(ReferenceStorage storage, FuncReference funcReference) {
+        List<Type> definitionParameterTypes = this.parameterTypes*.resolve(storage).types
+        List<Type> referenceParameterTypes =  funcReference.argumentTypes*.resolve(storage).types
+        referenceParameterTypes == definitionParameterTypes
+    }
 }

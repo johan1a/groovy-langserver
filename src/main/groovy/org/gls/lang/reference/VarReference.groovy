@@ -12,6 +12,7 @@ import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.VarDefinition
 
 @Slf4j
@@ -117,7 +118,7 @@ class VarReference implements Reference<VarDefinition> {
     }
 
     @Override
-    Optional<VarDefinition> findMatchingDefinition(Set<VarDefinition> definitions) {
+    Optional<VarDefinition> findMatchingDefinition(ReferenceStorage storage, Set < VarDefinition > definitions) {
         return Optional.ofNullable(definitions.find {
             it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&

@@ -3,15 +3,13 @@ package org.gls.lang.reference
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.expr.ArgumentListExpression
-import org.codehaus.groovy.ast.expr.ConstructorCallExpression
-import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
-import org.codehaus.groovy.ast.expr.TupleExpression
-import org.gls.lang.definition.FuncDefinition
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.ReferenceStorage
+import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.types.SimpleExpression
 
 @Slf4j
 @TypeChecked
@@ -22,7 +20,7 @@ class FuncReference implements Reference<FuncDefinition> {
     String functionName
 
     String definingClass
-    List<String> argumentTypes
+    SimpleExpression argumentTypes
     private FuncDefinition definition
 
     FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode,
@@ -30,7 +28,15 @@ class FuncReference implements Reference<FuncDefinition> {
         functionName = call.methodAsString
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         definingClass = currentClassNode.name
-        initArguments(call.arguments)
+        if (functionName == "toLocation") {
+            log.debug("${functionName} call.arguments: ${call.arguments}")
+        }
+
+        this.argumentTypes = new SimpleExpression(containingClass: definingClass, expression: call.arguments)
+
+        if (functionName == "toLocation") {
+            log.debug("${functionName} arguments: ${argumentTypes}")
+        }
     }
 
     FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call,
@@ -38,7 +44,8 @@ class FuncReference implements Reference<FuncDefinition> {
         functionName = call.methodAsString
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         initDefiningClass(currentClassNode, receiver)
-        initArguments(call.arguments)
+        this.argumentTypes = new SimpleExpression(containingClass: definingClass, expression: call.arguments)
+        log.debug("${functionName} arguments: ${argumentTypes}")
     }
 
     private void initDefiningClass(ClassNode currentClassNode, VarReference receiver) {
@@ -49,29 +56,6 @@ class FuncReference implements Reference<FuncDefinition> {
         } else {
             definingClass = receiver.typeName
         }
-    }
-
-    void initArguments(Expression arguments) {
-        log.error("initArguments: ${arguments.class}")
-    }
-
-    void initArguments(MethodCallExpression expression) {
-        initArguments(expression.arguments)
-    }
-
-    void initArguments(ArgumentListExpression expression) {
-        List<Expression> expressions = expression.expressions
-        this.argumentTypes = expressions.collect { it.type.name }
-    }
-
-    void initArguments(ConstructorCallExpression expression) {
-        Expression constructorArguments = expression.arguments
-        log.debug("constructorArguments : ${constructorArguments}")
-    }
-
-    void initArguments(TupleExpression expression) {
-        List<Expression> expressions = expression.expressions
-        this.argumentTypes = expressions.collect { it.type.name }
     }
 
     @Override
@@ -85,11 +69,11 @@ class FuncReference implements Reference<FuncDefinition> {
     }
 
     @Override
-    Optional<FuncDefinition> findMatchingDefinition(Set<FuncDefinition> definitions) {
+    Optional<FuncDefinition> findMatchingDefinition(ReferenceStorage storage, Set < FuncDefinition > definitions) {
         return Optional.ofNullable(definitions.find {
             it.definingClass == definingClass &&
                     it.functionName == functionName &&
-                    it.parameterTypes == argumentTypes
+                    it.sameArgumentTypesAs(storage, this)
         })
     }
 }

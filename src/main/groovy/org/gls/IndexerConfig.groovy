@@ -6,5 +6,5 @@ import groovy.transform.TypeChecked
 class IndexerConfig {
     boolean scanAllSubDirs = true
     boolean scanDependencies = false
-    boolean serializeLanguageService = true
+    boolean serializeLanguageService = false
 }

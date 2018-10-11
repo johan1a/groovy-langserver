@@ -12,6 +12,7 @@ import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.exception.NotImplementedException
+import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
@@ -80,7 +81,7 @@ class ClassReference implements Reference<ClassDefinition> {
     }
 
     @Override
-    Optional<ClassDefinition> findMatchingDefinition(Set<ClassDefinition> definitions) {
+    Optional<ClassDefinition> findMatchingDefinition(ReferenceStorage storage, Set <ClassDefinition> definitions) {
         Optional.ofNullable(definitions.find {
             it.fullClassName == fullReferencedClassName
         })
