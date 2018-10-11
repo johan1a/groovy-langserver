@@ -26,7 +26,7 @@ class LanguageService {
     ReferenceStorage storage = new ReferenceStorage()
     ReferenceMatcher funcReferenceFinder = new ReferenceMatcher<FuncReference, FuncDefinition>()
     ReferenceMatcher varReferenceFinder = new ReferenceMatcher<VarReference, VarDefinition>()
-    ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassReference>()
+    ReferenceMatcher classReferenceFinder = new ReferenceMatcher<ClassReference, ClassDefinition>()
     AutoCompleter autoCompleter = new AutoCompleter()
 
     Set<ClassReference> getClassReferences() {
