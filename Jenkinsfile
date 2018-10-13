@@ -17,7 +17,7 @@ volumes: [ ]) {
     }
     post {
         always {
-            junit 'build/reports/**/*.xml'
+            junit 'build/reports/**/*'
         }
     }
   }
