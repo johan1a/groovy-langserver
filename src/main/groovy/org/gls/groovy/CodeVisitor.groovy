@@ -133,6 +133,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitMethod(MethodNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.name, node))
+        addGenericTypeClassUsages(node.returnType.genericsTypes)
         node.parameters.each { Parameter it ->
             finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
