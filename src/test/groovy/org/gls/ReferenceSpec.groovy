@@ -9,6 +9,7 @@ import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyCompilerService
+import org.gls.lang.ImmutablePosition
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.reference.ClassReference
 import org.gls.lang.LanguageService
@@ -114,7 +115,7 @@ class ReferenceSpec extends Specification {
             'small/attribute' | new Position(3, 22)   | "Attribute"         | 1
     }
 
-    void "test VarRef indexing"() {
+    void "test VarRef in assigned value"() {
         LanguageService finder = new LanguageService()
         String path = "./src/test/test-files/small/varrefindexing"
 
@@ -125,7 +126,6 @@ class ReferenceSpec extends Specification {
         VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
-            usages.size() == 6
             reference.definitionLineNumber == 3
     }
 
@@ -180,4 +180,40 @@ class ReferenceSpec extends Specification {
             "varref3" | "VarRefWithFunctionCall" | new Position(3, 11) | 2            | [3, 8]
     }
 
+    void "method arguments should result in variable references"() {
+        given:
+            String directory = 'small/varref4/'
+            String file = 'VarRefInArgument.groovy'
+            List<Integer> position = [3, 29]
+            List<List<Integer>> expectedResultPositions = [[3, 26]]
+
+        expect:
+            testVariableReference(directory, file, position, expectedResultPositions)
+    }
+
+    private boolean testVariableReference(String directory, String fileName, List<Integer> queryPosition,
+                                          List<List<Integer>> expectedResultPositions) {
+            LanguageService finder = new LanguageService()
+            String dirPath = "src/test/test-files/${directory}"
+
+            ReferenceParams params = new ReferenceParams()
+            Position position = new ImmutablePosition(queryPosition[0], queryPosition[1])
+            params.position = position
+
+            String filePath = new File(dirPath + "/${fileName}").canonicalPath
+            params.textDocument = new TextDocumentIdentifier(filePath)
+
+            GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
+            Map<String, List<Diagnostic>> errors = indexer.compile()
+            List<Location> references = finder.getReferences(params)
+
+            errors.isEmpty()
+            expectedResultPositions.each { pos ->
+                ImmutablePosition expectedPosition = new ImmutablePosition(pos[0], pos[1])
+                Location found = references.find { ref ->
+                    ref.range.start == expectedPosition
+                }
+                assert found
+            }
+    }
 }

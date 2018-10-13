@@ -8,6 +8,7 @@ import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.DynamicVariable
 import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
@@ -32,14 +33,21 @@ class VarReference implements Reference<VarDefinition> {
 
     private static final String NO_VAR_DECL = "no var decl"
 
-    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode expression) {
-        if (expression instanceof ClassExpression) {
-            initDeclarationReference(currentClass, expression as ClassExpression)
-        } else if (expression instanceof VariableExpression) {
-            initDeclarationReference(currentClass, expression as VariableExpression)
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode node) {
+        if (node instanceof ClassExpression) {
+            initDeclarationReference(currentClass, node as ClassExpression)
+        } else if (node instanceof VariableExpression) {
+            initDeclarationReference(currentClass, node as VariableExpression)
         }
         if (varName != null) {
-            this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
+            this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
+        }
+    }
+
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, Parameter parameter) {
+        initDeclarationReference(currentClass, parameter)
+        if (varName != null) {
+            this.location = LocationFinder.findLocation(sourceFileURI, source, parameter, varName)
         }
     }
 
