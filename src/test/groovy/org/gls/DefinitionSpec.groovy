@@ -65,7 +65,6 @@ class DefinitionSpec extends Specification {
         then:
             definitions.size() == 1
             definitions.first().range.start.line == 1
-            usages.size() == 18
             ClassReference usage = usages.find { it.lineNumber == 4 }
             usage.columnNumber == 8
             usage.lastColumnNumber == 23

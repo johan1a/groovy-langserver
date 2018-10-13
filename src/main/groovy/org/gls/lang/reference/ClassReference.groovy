@@ -11,7 +11,6 @@ import org.codehaus.groovy.ast.expr.DeclarationExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
-import org.gls.exception.NotImplementedException
 import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.ImmutableLocation
@@ -31,9 +30,9 @@ class ClassReference implements Reference<ClassDefinition> {
         return fullReferencedClassName.split("\\.").last()
     }
 
-    ClassReference(String sourceFileURI, List<String> source, Parameter node) {
-        this.fullReferencedClassName = node.type.name
-        this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
+    ClassReference(String sourceFileURI, List<String> source, Parameter parameter) {
+        this.fullReferencedClassName = parameter.type.name
+        this.location = LocationFinder.findLocation(sourceFileURI, source, parameter, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, FieldNode node) {
@@ -41,8 +40,9 @@ class ClassReference implements Reference<ClassDefinition> {
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 
-    ClassReference(String sourceFileURI, Expression expression) {
-        throw new NotImplementedException(sourceFileURI + expression.toString())
+    ClassReference(String sourceFileURI, List<String> source, Expression expression) {
+        this.fullReferencedClassName = expression.type.name
+        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, VariableExpression expression) {
@@ -81,9 +81,38 @@ class ClassReference implements Reference<ClassDefinition> {
     }
 
     @Override
-    Optional<ClassDefinition> findMatchingDefinition(ReferenceStorage storage, Set <ClassDefinition> definitions) {
+    Optional<ClassDefinition> findMatchingDefinition(ReferenceStorage storage, Set<ClassDefinition> definitions) {
         Optional.ofNullable(definitions.find {
             it.fullClassName == fullReferencedClassName
         })
+    }
+
+    boolean equals(Object o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (getClass() != o.class) {
+            return false
+        }
+
+        ClassReference that = (ClassReference) o
+
+        if (getDefinition() != that.getDefinition()) {
+            return false
+        }
+        if (fullReferencedClassName != that.fullReferencedClassName) {
+            return false
+        }
+
+        return location == that.location
+    }
+
+    @SuppressWarnings(["DuplicateNumberLiteral"])
+    int hashCode() {
+        int result
+        result = (location != null ? location.hashCode() : 0)
+        result = 31 * result + (fullReferencedClassName != null ? fullReferencedClassName.hashCode() : 0)
+        result = 31 * result + (definition != null ? definition.hashCode() : 0)
+        return result
     }
 }

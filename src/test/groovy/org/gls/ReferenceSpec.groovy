@@ -1,5 +1,6 @@
 package org.gls
 
+import static org.gls.util.TestUtil.testReference
 import static org.gls.util.TestUtil.uri
 
 import org.eclipse.lsp4j.Diagnostic
@@ -9,8 +10,6 @@ import org.eclipse.lsp4j.ReferenceParams
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.Range
 import org.gls.groovy.GroovyCompilerService
-import org.gls.lang.ImmutableLocation
-import org.gls.lang.ImmutablePosition
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.reference.ClassReference
 import org.gls.lang.LanguageService
@@ -110,7 +109,7 @@ class ReferenceSpec extends Specification {
             'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
             'functions/two'   | new Position(158, 49) | "ReferenceFinder"   | 3
             'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
-            'functions/two'   | new Position(12, 21)  | "ReferenceStorage"  | 1
+            'functions/two'   | new Position(12, 21)  | "ReferenceStorage"  | 2
             'functions/two'   | new Position(61, 23)  | "ReferenceFinder"   | 1
             'definition/1'    | new Position(1, 6)    | "Constructor"       | 1
             'small/attribute' | new Position(3, 22)   | "Attribute"         | 1
@@ -189,40 +188,7 @@ class ReferenceSpec extends Specification {
             List<List<Integer>> expectedResultPositions = [[3, 26]]
 
         expect:
-            testVariableReference(directory, file, position, expectedResultPositions)
+            testReference(directory, file, position, expectedResultPositions)
     }
 
-    private boolean testVariableReference(String directory, String fileName, List<Integer> queryPosition,
-                                          List<List<Integer>> expectedResultPositions) {
-        Closure<List<ImmutableLocation>> referenceFunction = { LanguageService finder, ReferenceParams params ->
-            finder.getReferences(params)
-        }
-        testReference(directory, fileName, queryPosition, expectedResultPositions, referenceFunction)
-    }
-
-    private boolean testReference(String directory, String fileName, List<Integer> queryPosition,
-                                  List<List<Integer>> expectedResultPositions, Closure<List<ImmutableLocation>> func) {
-        LanguageService finder = new LanguageService()
-        String dirPath = "src/test/test-files/${directory}"
-
-        ReferenceParams params = new ReferenceParams()
-        Position position = new ImmutablePosition(queryPosition[0], queryPosition[1])
-        params.position = position
-
-        String filePath = new File(dirPath + "/${fileName}").canonicalPath
-        params.textDocument = new TextDocumentIdentifier(filePath)
-
-        GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
-        Map<String, List<Diagnostic>> errors = indexer.compile()
-        List<Location> references = func(finder, params)
-
-        errors.isEmpty()
-        expectedResultPositions.each { pos ->
-            ImmutablePosition expectedPosition = new ImmutablePosition(pos[0], pos[1])
-            Location found = references.find { ref ->
-                ref.range.start == expectedPosition
-            }
-            assert found
-        }
-    }
 }
