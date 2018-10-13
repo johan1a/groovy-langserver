@@ -29,7 +29,7 @@ class ReferenceSpec extends Specification {
         indexer.compile()
 
         Set<ClassDefinition> definitions = finder.storage.classDefinitions.findAll {
-            it.fullClassName == "Box"
+            it.type.toString() == "Box"
         }
         Set<ClassReference> usages = finder.classReferences
         ClassReference usage = usages.find { it.type.toString() == "Box" }

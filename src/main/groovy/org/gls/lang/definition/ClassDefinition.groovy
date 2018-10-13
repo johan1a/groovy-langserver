@@ -17,9 +17,6 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
 
     ImmutableLocation location
 
-    private String packageName
-    String className
-
     SimpleClass type
 
     private Set<ClassReference> references
@@ -38,11 +35,8 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
         } catch (Exception e1) {
         }
 
-        className = node.nameWithoutPackage
-        packageName = node.packageName
-        String fullName = packageName ? "$packageName.$className" : className
-        type = new SimpleClass(name: fullName)
-        this.location = LocationFinder.findLocation(sourceFileURI, source, node, className)
+        type = new SimpleClass(name: node.name)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, type.nameWithoutPackage)
     }
 
     @Override
@@ -50,24 +44,16 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
         this.references = references
     }
 
-
     @Override
     Set<ClassReference> getReferences() {
         return references
-    }
-
-    String getFullClassName() {
-        if (packageName != null) {
-            return packageName + "." + className
-        }
-        return className
     }
 
     @Override
     Set<ClassReference> findMatchingReferences(ReferenceStorage storage, Set<ClassDefinition> classDefinitions,
                                                Set<ClassReference> references) {
         references.findAll {
-            it.type.toString() == fullClassName
+            it.type.toString() == type.toString()
         }
     }
 

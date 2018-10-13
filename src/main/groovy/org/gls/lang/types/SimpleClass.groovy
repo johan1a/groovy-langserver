@@ -8,16 +8,24 @@ class SimpleClass implements Type {
     List<Type> genericTypes = []
 
     @Override
-    String toString(){
+    String toString() {
         String result = name
-        if(!genericTypes.isEmpty()){
+        if (!genericTypes.isEmpty()) {
             result += "<"
-            result += genericTypes.collect{
+            result += genericTypes.collect {
                 it.toString() + ","
             }
             result += ">"
         }
         result
+    }
+
+    String getNameWithoutPackage() {
+        if (name.contains(".")) {
+            return toString().split("\\.").last()
+        } else {
+            return toString()
+        }
     }
 
     boolean equals(Object o) {

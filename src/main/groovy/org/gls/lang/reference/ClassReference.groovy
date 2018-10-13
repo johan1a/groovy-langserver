@@ -84,7 +84,7 @@ class ClassReference implements Reference<ClassDefinition> {
     @Override
     Optional<ClassDefinition> findMatchingDefinition(ReferenceStorage storage, Set<ClassDefinition> definitions) {
         Optional.ofNullable(definitions.find {
-            it.fullClassName == type.toString()
+            it.type == type
         })
     }
 
