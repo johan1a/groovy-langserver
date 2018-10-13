@@ -15,6 +15,7 @@ import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
+import org.gls.lang.types.SimpleClass
 
 @Slf4j
 @TypeChecked
@@ -23,50 +24,50 @@ class ClassReference implements Reference<ClassDefinition> {
 
     ImmutableLocation location
 
-    String fullReferencedClassName
+    SimpleClass type
     ClassDefinition definition
 
     String getShortReferencedClassName() {
-        return fullReferencedClassName.split("\\.").last()
+        return type.name.split("\\.").last()
     }
 
     ClassReference(String sourceFileURI, List<String> source, Parameter parameter) {
-        this.fullReferencedClassName = parameter.type.name
+        this.type = new SimpleClass(name: parameter.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, parameter, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, FieldNode node) {
-        this.fullReferencedClassName = node.type.name
+        this.type = new SimpleClass(name: node.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, Expression expression) {
-        this.fullReferencedClassName = expression.type.name
+        this.type = new SimpleClass(name: expression.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, VariableExpression expression) {
-        this.fullReferencedClassName = expression.type.name
+        this.type = new SimpleClass(name: expression.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, DeclarationExpression expression) {
-        this.fullReferencedClassName = expression.leftExpression.type.name
+        this.type = new SimpleClass(name: expression.leftExpression.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, ConstructorNode node) {
-        this.fullReferencedClassName = node.declaringClass
+        this.type = new SimpleClass(name: node.declaringClass.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, MethodNode node) {
-        this.fullReferencedClassName = node.returnType.name
+        this.type = new SimpleClass(name: node.returnType.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
-        this.fullReferencedClassName = expression.type.name
+        this.type = new SimpleClass(name: expression.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
@@ -83,7 +84,7 @@ class ClassReference implements Reference<ClassDefinition> {
     @Override
     Optional<ClassDefinition> findMatchingDefinition(ReferenceStorage storage, Set<ClassDefinition> definitions) {
         Optional.ofNullable(definitions.find {
-            it.fullClassName == fullReferencedClassName
+            it.fullClassName == type.toString()
         })
     }
 
@@ -100,7 +101,7 @@ class ClassReference implements Reference<ClassDefinition> {
         if (getDefinition() != that.getDefinition()) {
             return false
         }
-        if (fullReferencedClassName != that.fullReferencedClassName) {
+        if (type != that.type) {
             return false
         }
 
@@ -111,7 +112,7 @@ class ClassReference implements Reference<ClassDefinition> {
     int hashCode() {
         int result
         result = (location != null ? location.hashCode() : 0)
-        result = 31 * result + (fullReferencedClassName != null ? fullReferencedClassName.hashCode() : 0)
+        result = 31 * result + (type != null ? type.hashCode() : 0)
         result = 31 * result + (definition != null ? definition.hashCode() : 0)
         return result
     }

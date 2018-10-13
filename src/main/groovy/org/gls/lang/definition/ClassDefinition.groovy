@@ -65,7 +65,7 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
     Set<ClassReference> findMatchingReferences(ReferenceStorage storage, Set<ClassDefinition> classDefinitions,
                                                Set<ClassReference> references) {
         references.findAll {
-            it.fullReferencedClassName == fullClassName
+            it.type.toString() == fullClassName
         }
     }
 

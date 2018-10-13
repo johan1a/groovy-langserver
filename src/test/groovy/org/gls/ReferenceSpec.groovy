@@ -32,7 +32,7 @@ class ReferenceSpec extends Specification {
             it.fullClassName == "Box"
         }
         Set<ClassReference> usages = finder.classReferences
-        ClassReference usage = usages.find { it.fullReferencedClassName == "Box" }
+        ClassReference usage = usages.find { it.type.toString() == "Box" }
 
         expect:
             definitions.first().lineNumber == 0
@@ -47,7 +47,7 @@ class ReferenceSpec extends Specification {
         indexer.compile()
 
         Set<ClassReference> usages = finder.classReferences
-        ClassReference usage = usages.find { it.fullReferencedClassName == "VarDeclClassUsage" }
+        ClassReference usage = usages.find { it.type.toString() == "VarDeclClassUsage" }
 
         expect:
             usage.lineNumber == 7

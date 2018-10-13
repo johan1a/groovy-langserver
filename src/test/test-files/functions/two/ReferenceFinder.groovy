@@ -125,7 +125,7 @@ class ReferenceFinder {
         if (matchingReference == null) {
             return []
         }
-        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.fullReferencedClassName}
+        ClassDefinition definition = storage.getClassDefinitions().find{ it.getFullClassName() == matchingReference.type}
         if(definition == null) {
             return []
         }
