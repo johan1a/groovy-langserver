@@ -10,19 +10,14 @@ volumes: [ ]) {
     def myRepo = checkout scm
     def gitCommit = myRepo.GIT_COMMIT
 
-    stage('Run unit tests') {
-      steps {
-        script {
+    try {
+        stage('Run unit tests') {
           sh """
             ./gradlew test
           """
         }
-      }
-      post {
-        always {
-          junit 'build/reports/**/*'
-        }
-      }
+    } finally {
+        junit 'build/reports/**/*.xml'
     }
   }
 }
