@@ -1,5 +1,6 @@
 package org.gls.lang.definition
 
+import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
@@ -10,6 +11,7 @@ import org.gls.lang.reference.ClassReference
 
 @Slf4j
 @TypeChecked
+@ToString
 class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
 
     ImmutableLocation location
@@ -60,22 +62,11 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
     }
 
     @Override
-    Set<ClassReference> findMatchingReferences(ReferenceStorage storage, Set<ClassDefinition> classDefinitions, Set<ClassReference> references) {
+    Set<ClassReference> findMatchingReferences(ReferenceStorage storage, Set<ClassDefinition> classDefinitions,
+                                               Set<ClassReference> references) {
         references.findAll {
             it.fullReferencedClassName == fullClassName
         }
-    }
-
-    @Override
-    String toString() {
-        return """ClassDefinition[
-                packageName=$packageName,
-                definingClass=$className,
-                sourceFileURI=$sourceFileURI,
-                columnNumber=$columnNumber,
-                lastColumnNumber=$lastColumnNumber,
-                lineNumber=$lineNumber,
-                lastLineNumber=$lastLineNumber]"""
     }
 
 }

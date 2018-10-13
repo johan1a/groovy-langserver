@@ -9,7 +9,6 @@ import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
 import org.gls.lang.ReferenceStorage
 import org.gls.lang.reference.FuncReference
-import org.gls.lang.types.ArgumentType
 import org.gls.lang.types.ParameterExpression
 import org.gls.lang.types.SimpleExpression
 import org.gls.lang.types.Type
@@ -81,33 +80,18 @@ class FuncDefinition implements Definition<FuncDefinition, FuncReference> {
     }
 
     @Override
-    Set<FuncReference> findMatchingReferences(ReferenceStorage storage, Set<FuncDefinition> definitions, Set<FuncReference> funcCalls) {
-
-        if (functionName == "toLocation") {
-            log.debug(definingClass)
-            log.debug(functionName)
-            parameterTypes.each { log.debug it.toString() }
-        }
+    Set<FuncReference> findMatchingReferences(ReferenceStorage storage, Set<FuncDefinition> definitions,
+                                              Set<FuncReference> funcCalls) {
         funcCalls.findAll {
-
-            List<Type> definitionParameterTypes = this.parameterTypes*.resolve(storage).types
-            List<Type> referenceParameterTypes =  it.argumentTypes*.resolve(storage).types
-
-
-            boolean result = it.definingClass == definingClass &&
+            it.definingClass == definingClass &&
                     it.functionName == functionName &&
                     sameArgumentTypesAs(storage, it)
-
-            if (this.functionName == "toLocation" && it.functionName == "toLocation") {
-                log.debug(definingClass)
-            }
-            result
         }
     }
 
     boolean sameArgumentTypesAs(ReferenceStorage storage, FuncReference funcReference) {
         List<Type> definitionParameterTypes = this.parameterTypes*.resolve(storage).types
-        List<Type> referenceParameterTypes =  funcReference.argumentTypes*.resolve(storage).types
+        List<Type> referenceParameterTypes = funcReference.argumentTypes*.resolve(storage).types
         referenceParameterTypes == definitionParameterTypes
     }
 }

@@ -12,19 +12,20 @@ import org.gls.lang.reference.Reference
 @Slf4j
 class ReferenceMatcher<R extends Reference, D extends Definition> {
 
-    static List<R> getReferences(ReferenceStorage storage, Set<D> definitions, Set<R> allReferences, TextDocumentPositionParams params) {
+    static List<R> getReferences(ReferenceStorage storage, Set<D> definitions, Set<R> allReferences,
+                                 TextDocumentPositionParams params) {
         Optional<D> definitionOptional = findMatchingDefinition(storage, definitions, allReferences, params)
         definitionOptional.map { definition ->
             definition.references.toList()
         }.orElse([])
     }
 
-    static List<D> getDefinitions(ReferenceStorage storage, Set<R> references, TextDocumentPositionParams params) {
+    static List<D> getDefinitions(Set<R> references, TextDocumentPositionParams params) {
         Optional<R> usageOptional = findMatchingReference(references, params)
-        log.debug("usage: ${usageOptional.map { it.toString() }}")
+        usageOptional.map { log.debug("usage: ${it.toString()}") }
         usageOptional.map { matchingUsage ->
             Optional<D> definition = matchingUsage.definition
-            log.debug("definition: ${definition.map { it.toString() }}")
+            definition.map { log.debug("definition: ${it.toString()}") }
             definition.map {
                 Arrays.asList(it)
             }.orElse([])
@@ -70,7 +71,8 @@ class ReferenceMatcher<R extends Reference, D extends Definition> {
         }
     }
 
-    static Map<String, List<TextEdit>> rename(ReferenceStorage storage, Set<D> allDefinitions, Set<R> allReferences, RenameParams params) {
+    static Map<String, List<TextEdit>> rename(ReferenceStorage storage, Set<D> allDefinitions, Set<R> allReferences,
+                                              RenameParams params) {
         Map<String, List<TextEdit>> changes = [:]
 
         TextDocumentPositionParams params1 = toTextDocumentPositionParams(params)

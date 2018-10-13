@@ -28,15 +28,7 @@ class FuncReference implements Reference<FuncDefinition> {
         functionName = call.methodAsString
         this.location = LocationFinder.findLocation(sourceFileURI, source, call, functionName)
         definingClass = currentClassNode.name
-        if (functionName == "toLocation") {
-            log.debug("${functionName} call.arguments: ${call.arguments}")
-        }
-
         this.argumentTypes = new SimpleExpression(containingClass: definingClass, expression: call.arguments)
-
-        if (functionName == "toLocation") {
-            log.debug("${functionName} arguments: ${argumentTypes}")
-        }
     }
 
     FuncReference(String sourceFileURI, List<String> source, ClassNode currentClassNode, MethodCallExpression call,

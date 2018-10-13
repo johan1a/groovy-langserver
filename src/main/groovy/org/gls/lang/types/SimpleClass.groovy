@@ -6,15 +6,17 @@ class SimpleClass implements Type {
     String name
     ClassNode type
 
-    boolean equals(o) {
-        if (this.is(o)) return true
-        if (getClass() != o.class) return false
+    boolean equals(Object o) {
+        if (this.is(o)) {
+            return true
+        }
+        if (getClass() != o.class) {
+            return false
+        }
 
         SimpleClass that = (SimpleClass) o
 
-        if (name != that.name) return false
-
-        return true
+        return name == that.name
     }
 
     int hashCode() {

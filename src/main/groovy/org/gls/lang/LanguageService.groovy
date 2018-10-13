@@ -66,20 +66,21 @@ class LanguageService {
     }
 
     List<Definition> getDefinitionInternal(TextDocumentPositionParams params) {
-        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage, storage.varReferences, params)
+        List<Definition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
         if (!varDefinitions.isEmpty()) {
             return varDefinitions
         }
-        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage, storage.classReferences, params)
+        List<Definition> classDefinitions = classReferenceFinder.getDefinitions(storage.classReferences,
+                params)
         if (!classDefinitions.isEmpty()) {
             return classDefinitions
         }
-        return funcReferenceFinder.getDefinitions(storage, storage.funcReferences, params)
+        return funcReferenceFinder.getDefinitions(storage.funcReferences, params)
     }
 
     List<Reference> getReferencesInternal(ReferenceParams params) {
-        List<Reference> varReferences = varReferenceFinder.getReferences(storage, storage.varDefinitions, storage.varReferences,
-                params)
+        List<Reference> varReferences = varReferenceFinder.getReferences(storage, storage.varDefinitions,
+                storage.varReferences, params)
         if (!varReferences.isEmpty()) {
             return varReferences
         }
@@ -129,7 +130,7 @@ class LanguageService {
         TextDocumentIdentifier document = new TextDocumentIdentifier(request.uri)
         Position position = new ImmutablePosition(request.position.line, request.position.character)
         TextDocumentPositionParams params = new TextDocumentPositionParams(document, position)
-        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage, storage.varReferences, params)
+        List<VarDefinition> varDefinitions = varReferenceFinder.getDefinitions(storage.varReferences, params)
 
         log.debug("Found varDefinitions: ${varDefinitions}")
 
@@ -138,7 +139,7 @@ class LanguageService {
         }
         log.debug("Found classDefinitions: ${classDefinitions}")
 
-        List<CompletionItem> items =  classDefinitions.collectMany { autoCompleter.autoComplete(it, precedingText) }
+        List<CompletionItem> items = classDefinitions.collectMany { autoCompleter.autoComplete(it, precedingText) }
 
         log.debug("Found completionitems: ${items}")
         items

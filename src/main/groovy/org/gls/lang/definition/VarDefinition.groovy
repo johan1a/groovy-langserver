@@ -60,7 +60,8 @@ class VarDefinition implements Definition<VarDefinition, VarReference> {
     }
 
     @Override
-    Set<VarReference> findMatchingReferences(ReferenceStorage storage, Set<VarDefinition> definitions, Set<VarReference> varUsages) {
+    Set<VarReference> findMatchingReferences(ReferenceStorage storage, Set<VarDefinition> definitions,
+                                             Set<VarReference> varUsages) {
         return varUsages.findAll {
             it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&
