@@ -15,7 +15,7 @@ class IndexerSpec extends Specification {
         GroovyCompilerService indexer = new GroovyCompilerService(uri, finder, new IndexerConfig(scanAllSubDirs: false))
 
         expect:
-            indexer.sourcePaths.collect { it.toString().split("groovy-langserver")[1] }
+            indexer.sourcePaths.collect { it.toString().split(System.getProperty("user.dir"))[1] }
                     .containsAll(["/./src/main/groovy", "/./grails-app/domain"])
     }
 
