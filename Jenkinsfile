@@ -17,6 +17,7 @@ volumes: [ ]) {
           """
         }
     } finally {
+        junit 'build/reports/**/*'
         junit 'build/test-results/**/*.xml'
     }
   }
