@@ -19,7 +19,7 @@ import org.gls.lang.definition.VarDefinition
 @Slf4j
 @TypeChecked
 @ToString
-@SuppressWarnings(["Instanceof", "CatchException"]) // TODO Remove
+@SuppressWarnings(["UnusedMethodParameter", "Instanceof", "CatchException"]) // TODO Remove
 class VarReference implements Reference<VarDefinition> {
 
     ImmutableLocation location
@@ -57,7 +57,6 @@ class VarReference implements Reference<VarDefinition> {
         }
     }
 
-    @SuppressWarnings(["UnusedMethodParameter"])
     void initDeclarationReference(ClassNode currentClass, Variable expression) {
         try {
             // TODO Maybe shouldn't be a varusage?
@@ -70,7 +69,6 @@ class VarReference implements Reference<VarDefinition> {
         }
     }
 
-    @SuppressWarnings(["UnusedMethodParameter"])
     void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
         try {
             // TODO Maybe shouldn't be a varusage?

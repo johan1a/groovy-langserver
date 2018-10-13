@@ -4,7 +4,6 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
-import org.codehaus.groovy.ast.Variable
 import org.eclipse.lsp4j.Position
 import org.eclipse.lsp4j.Range
 

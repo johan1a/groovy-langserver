@@ -5,7 +5,6 @@ import groovy.util.logging.Slf4j
 import org.gls.exception.ConfigException
 
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 
 @TypeChecked
@@ -35,7 +34,7 @@ class ConfigService {
         }
     }
 
-    static void saveDependenciesToFile(URI rootUri, List<String> dependencies) {
+    void saveDependenciesToFile(URI rootUri, List<String> dependencies) {
         URI dependenciesStorage = getDependenciesPath(rootUri)
 
         log.info("Saving dependencies to ${dependenciesStorage}")
@@ -50,34 +49,26 @@ class ConfigService {
         }
     }
 
-    private static URI getDependenciesPath(URI rootUri) {
+    private URI getDependenciesPath(URI rootUri) {
         URI configDir = getConfigDir(rootUri)
         createDirIfNotExists(configDir)
+        log?.debug("rootURI: ${rootUri}")
+        log?.debug("configURI: ${configDir}")
         URI dependenciesStorage = UriUtils.appendURI(configDir, '/dependencies')
         dependenciesStorage
     }
 
-    static URI getConfigDir(URI rootUri) {
+    URI getConfigDir(URI rootUri) {
         String stringPath
         if (rootUri.scheme) {
             stringPath = Paths.get(rootUri).toString()
         } else {
             stringPath = rootUri.toString()
         }
-        URI configUri = UriUtils.appendURI(CONFIG_BASE_DIR, stringPath)
-
-        Path path = Paths.get(configUri)
-        if (!Files.isDirectory(path)) {
-            File file = path.toFile()
-            file.mkdirs()
-            log.debug("Created config dir: ${configUri.toString()}")
-        }
-        log.debug("rootURI: ${rootUri}")
-        log.debug("configURI: ${configUri}")
-        configUri
+        UriUtils.appendURI(CONFIG_BASE_DIR, stringPath)
     }
 
-    static List<String> loadDependenciesFromFile(URI rootUri) {
+    List<String> loadDependenciesFromFile(URI rootUri) {
         URI dependenciesPath = getDependenciesPath(rootUri)
         File dependenciesFile = new File(dependenciesPath)
         if (!dependenciesFile.exists() || !dependenciesFile.isFile()) {
@@ -86,7 +77,7 @@ class ConfigService {
         dependenciesFile.readLines()
     }
 
-    private static void createDirIfNotExists(URI uri) {
+    private void createDirIfNotExists(URI uri) {
         File storageDir = new File(uri)
         if (!storageDir.exists() && !storageDir.isDirectory()) {
             log.info("Creating directory ${uri}")
@@ -94,7 +85,7 @@ class ConfigService {
         }
     }
 
-    static BuildType getBuildType(URI rootUri, String configLocation) {
+    BuildType getBuildType(URI rootUri, String configLocation) {
         log.info('Searching for gradle...')
         URI gradlePath = UriUtils.appendURI(rootUri, configLocation)
         if (Files.exists(Paths.get(gradlePath))) {

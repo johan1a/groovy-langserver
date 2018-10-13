@@ -5,7 +5,7 @@ import java.nio.file.Paths
 
 
 URI currentDir = new URI(System.getProperty("user.dir"))
-String logDirectory = Paths.get(ConfigService.getConfigDir(currentDir))
+String logDirectory = Paths.get(new ConfigService().getConfigDir(currentDir))
 def appenders = []
 
 // STDOUT
