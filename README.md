@@ -15,10 +15,10 @@ An LSP server implementation for groovy
 java -jar build/libs/groovy-langserver-all.jar
 ```
 
-# Set log level to debug
+# Run tests
 
 ```
-java -Dorg.slf4j.simpleLogger.defaultLogLevel=debug -jar build/libs/groovy-langserver-all.jar
+./gradlew clean check
 ```
 
 # Use with Neovim
