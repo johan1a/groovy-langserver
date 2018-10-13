@@ -72,4 +72,15 @@ class ClassReferenceSpec extends Specification {
         expect:
             testReference(directory, file, position, expectedResultPositions)
     }
+
+    void "Class def should result in Class references"() {
+        given:
+            String directory = 'small/classref6/'
+            String file = 'ClassRefInClassDef.groovy'
+            List<Integer> position = [3, 23]
+            List<List<Integer>> expectedResultPositions = [[3, 6]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
 }

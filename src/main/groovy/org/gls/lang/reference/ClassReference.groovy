@@ -3,6 +3,7 @@ package org.gls.lang.reference
 import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
+import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.ConstructorNode
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.GenericsType
@@ -30,6 +31,11 @@ class ClassReference implements Reference<ClassDefinition> {
 
     String getShortReferencedClassName() {
         return type.name.split("\\.").last()
+    }
+
+    ClassReference(String sourceFileURI, List<String> source, ClassNode node) {
+        this.type = new SimpleClass(name: node.name)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 
     ClassReference(String sourceFileURI, List<String> source, Parameter parameter) {

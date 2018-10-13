@@ -46,11 +46,11 @@ class ReferenceSpec extends Specification {
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
 
-        Set<ClassReference> usages = finder.classReferences
-        ClassReference usage = usages.find { it.type.toString() == "VarDeclClassUsage" }
+        Set<ClassReference> allUsages = finder.classReferences
+        Set<ClassReference> usages = allUsages.findAll { it.type.toString() == "VarDeclClassUsage" }
 
         expect:
-            usage.lineNumber == 7
+            usages*.lineNumber == [1, 7, 7]
     }
 
     void "Function reference 1"() {
@@ -109,9 +109,9 @@ class ReferenceSpec extends Specification {
             'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
             'functions/two'   | new Position(158, 49) | "ReferenceFinder"   | 3
             'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
-            'functions/two'   | new Position(12, 21)  | "ReferenceStorage"  | 2
+            'functions/two'   | new Position(12, 21)  | "ReferenceStorage"  | 3
             'functions/two'   | new Position(61, 23)  | "ReferenceFinder"   | 1
-            'definition/1'    | new Position(1, 6)    | "Constructor"       | 1
+            'definition/1'    | new Position(1, 6)    | "Constructor"       | 2
             'small/attribute' | new Position(3, 22)   | "Attribute"         | 1
     }
 

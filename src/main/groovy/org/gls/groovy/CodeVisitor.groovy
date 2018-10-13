@@ -97,6 +97,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
         log.debug("Visiting class ${node.name}")
         currentClassNode = node
         finder.addClassDefinition(new ClassDefinition(node, sourceFileURI, fileContents))
+        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         super.visitClass(node)
     }
 
