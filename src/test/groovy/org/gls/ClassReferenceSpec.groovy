@@ -28,4 +28,15 @@ class ClassReferenceSpec extends Specification {
         expect:
             testReference(directory, file, position, expectedResultPositions)
     }
+
+    void "Multiple generic types should result in Class references"() {
+        given:
+            String directory = 'small/classref2/'
+            String file = 'MultipleClassRefInGenericTypes.groovy'
+            List<Integer> position = [3, 7]
+            List<List<Integer>> expectedResultPositions = [[7, 17]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
 }
