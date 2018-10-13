@@ -241,6 +241,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitConstructorCallExpression(ConstructorCallExpression expression) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
+        addGenericTypeClassUsages(expression.type.genericsTypes)
         super.visitConstructorCallExpression(expression)
     }
 
