@@ -143,11 +143,11 @@ class DefinitionSpec extends Specification {
         then:
             finder.storage.varReferences.every { it.location.uri.startsWith("/") }
             finder.storage.varDefinitions.every { it.location.uri.startsWith("/") }
-            definitions2.size() == 17
+            definitions2.size() == 18
             definitions2.first().uri.startsWith("/")
             Range range2 = definitions2.first().range
-            range2.start == new ImmutablePosition(15, 15)
-            range2.end.character == 21
+            range2.start == new ImmutablePosition(12, 21)
+            range2.end.character == 27
     }
 
     void "Test method argument"() {

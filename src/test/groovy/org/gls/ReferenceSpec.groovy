@@ -103,19 +103,20 @@ class ReferenceSpec extends Specification {
             references.size() == _expected
 
         where:
-            _dir            | _pos                  | _class              | _expected
-            'functions/1'   | new Position(16, 23)  | "MultipleFuncRefs1" | 4
-            'functions/two' | new Position(64, 25)  | "ReferenceFinder"   | 1
-            'functions/two' | new Position(158, 49) | "ReferenceFinder"   | 3
-            'functions/two' | new Position(64, 25)  | "ReferenceFinder"   | 1
-            'functions/two' | new Position(12, 21)  | "ReferenceStorage"  | 1
-            'functions/two' | new Position(61, 23)  | "ReferenceFinder"   | 1
-            'definition/1'  | new Position(1, 6)    | "Constructor"       | 1
+            _dir              | _pos                  | _class              | _expected
+            'functions/1'     | new Position(16, 23)  | "MultipleFuncRefs1" | 4
+            'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
+            'functions/two'   | new Position(158, 49) | "ReferenceFinder"   | 3
+            'functions/two'   | new Position(64, 25)  | "ReferenceFinder"   | 1
+            'functions/two'   | new Position(12, 21)  | "ReferenceStorage"  | 1
+            'functions/two'   | new Position(61, 23)  | "ReferenceFinder"   | 1
+            'definition/1'    | new Position(1, 6)    | "Constructor"       | 1
+            'small/attribute' | new Position(3, 22)   | "Attribute"         | 1
     }
 
     void "test VarRef indexing"() {
         LanguageService finder = new LanguageService()
-        String path = "./src/test/test-files/2"
+        String path = "./src/test/test-files/small/varrefindexing"
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(path), finder, new IndexerConfig())
         indexer.compile()
@@ -124,14 +125,14 @@ class ReferenceSpec extends Specification {
         VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
-            usages.size() == 2
+            usages.size() == 6
             reference.definitionLineNumber == 3
     }
 
     void "Test find references"() {
         setup:
             LanguageService finder = new LanguageService()
-            String dirPath = "src/test/test-files/6"
+            String dirPath = "src/test/test-files/small/varref"
 
             ReferenceParams params = new ReferenceParams()
             Position position = new Position(3, 16)
@@ -146,15 +147,16 @@ class ReferenceSpec extends Specification {
             List<Location> references = finder.getReferences(params)
 
         then:
-            references.size() == 2
+            references.size() == 3
+            references.find { it.range.start.line == 3 } != null
             references.find { it.range.start.line == 6 } != null
             references.find { it.range.start.line == 7 } != null
     }
 
-    void "Test find references2"() {
+    void "Test find references, #_class"() {
         setup:
             LanguageService finder = new LanguageService()
-            String dirPath = "src/test/test-files/6"
+            String dirPath = "src/test/test-files/small/"
 
             ReferenceParams params = new ReferenceParams()
             Position position = _position
@@ -169,13 +171,13 @@ class ReferenceSpec extends Specification {
             List<Location> references = finder.getReferences(params)
 
         then:
-            references.size() == 1
-            references.find { it.range.start.line == _expectedLine } != null
+            references.size() == 2
+            _expectedLines.each { line -> references.find { it.range.start.line == line } != null }
 
         where:
-            _class           | _position           | _expectedNbr | _expectedLine
-            "FindReference2" | new Position(3, 11) | 1            | 7
-            "FindReference3" | new Position(3, 11) | 1            | 8
+            _class                   | _position           | _expectedNbr | _expectedLines
+            "varref2/VarRefAssignment"       | new Position(3, 11) | 2            | [3, 7]
+            "varref3/VarRefWithFunctionCall" | new Position(3, 11) | 2            | [3, 8]
     }
 
 }

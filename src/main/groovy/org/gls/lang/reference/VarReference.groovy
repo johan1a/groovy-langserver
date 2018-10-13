@@ -7,6 +7,7 @@ import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.DynamicVariable
+import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
@@ -42,10 +43,30 @@ class VarReference implements Reference<VarDefinition> {
         }
     }
 
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, FieldNode node) {
+        initDeclarationReference(currentClass, node)
+        if (varName != null) {
+            this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
+        }
+    }
+
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
         initDeclarationReference(currentClass, expression)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
+        }
+    }
+
+    @SuppressWarnings(["UnusedMethodParameter"])
+    void initDeclarationReference(ClassNode currentClass, Variable expression) {
+        try {
+            // TODO Maybe shouldn't be a varusage?
+            varName = expression.name
+            typeName = expression.type.name
+            declaringClass = Optional.of(currentClass.text)
+            definitionLineNumber = expression.type.lineNumber - 1
+        } catch (Exception e) {
+            log.error(NO_VAR_DECL, e)
         }
     }
 

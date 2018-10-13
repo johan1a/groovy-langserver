@@ -115,6 +115,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitField(FieldNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
+        VarReference varReference = new VarReference(sourceFileURI, fileContents, currentClassNode, node)
+        finder.addVarUsage(varReference)
         super.visitField(node)
     }
 
