@@ -11,8 +11,6 @@ import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.DeclarationExpression
 import org.codehaus.groovy.ast.expr.Expression
-import org.codehaus.groovy.ast.expr.StaticMethodCallExpression
-import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.ClassDefinition
 import org.gls.lang.ImmutableLocation
@@ -61,11 +59,6 @@ class ClassReference implements Reference<ClassDefinition> {
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
-    ClassReference(String sourceFileURI, List<String> source, VariableExpression expression) {
-        this.type = new SimpleClass(name: expression.type.name)
-        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
-    }
-
     ClassReference(String sourceFileURI, List<String> source, DeclarationExpression expression) {
         this.type = new SimpleClass(name: expression.leftExpression.type.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
@@ -79,11 +72,6 @@ class ClassReference implements Reference<ClassDefinition> {
     ClassReference(String sourceFileURI, List<String> source, MethodNode node) {
         this.type = new SimpleClass(name: node.returnType.name)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
-    }
-
-    ClassReference(String sourceFileURI, List<String> source, StaticMethodCallExpression expression) {
-        this.type = new SimpleClass(name: expression.type.name)
-        this.location = LocationFinder.findLocation(sourceFileURI, source, expression, shortReferencedClassName)
     }
 
     @Override
