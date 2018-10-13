@@ -2,6 +2,7 @@ package org.gls
 
 import static org.gls.util.TestUtil.uri
 
+import groovy.util.logging.Slf4j
 import org.eclipse.lsp4j.Diagnostic
 import org.eclipse.lsp4j.Location
 import org.eclipse.lsp4j.Position
@@ -16,6 +17,7 @@ import org.gls.lang.reference.VarReference
 import spock.lang.Specification
 import spock.lang.Unroll
 
+@Slf4j
 @Unroll
 @SuppressWarnings(["DuplicateStringLiteral", "DuplicateNumberLiteral"])
 class ReferenceSpec extends Specification {
@@ -155,6 +157,7 @@ class ReferenceSpec extends Specification {
 
     void "Test find references, #_class"() {
         setup:
+            log.debug("Test find references #_class")
             LanguageService finder = new LanguageService()
             String dirPath = "src/test/test-files/small/"
 
@@ -169,13 +172,14 @@ class ReferenceSpec extends Specification {
             GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), finder, new IndexerConfig())
             indexer.compile()
             List<Location> references = finder.getReferences(params)
+            finder.storage.varReferences.each { log.debug(it.toString()) }
 
         then:
             references.size() == 2
             _expectedLines.each { line -> references.find { it.range.start.line == line } != null }
 
         where:
-            _class                   | _position           | _expectedNbr | _expectedLines
+            _class                           | _position           | _expectedNbr | _expectedLines
             "varref2/VarRefAssignment"       | new Position(3, 11) | 2            | [3, 7]
             "varref3/VarRefWithFunctionCall" | new Position(3, 11) | 2            | [3, 8]
     }
