@@ -6,6 +6,7 @@ import org.codehaus.groovy.ast.ClassCodeVisitorSupport
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.ConstructorNode
 import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.GenericsType
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.PropertyNode
@@ -114,6 +115,10 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitField(FieldNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+        node.type.genericsTypes.each { GenericsType genericsType ->
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, genericsType))
+        }
+
         finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
         VarReference varReference = new VarReference(sourceFileURI, fileContents, currentClassNode, node)
         finder.addVarUsage(varReference)

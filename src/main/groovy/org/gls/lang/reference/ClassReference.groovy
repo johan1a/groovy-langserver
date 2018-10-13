@@ -5,6 +5,7 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ConstructorNode
 import org.codehaus.groovy.ast.FieldNode
+import org.codehaus.groovy.ast.GenericsType
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.expr.DeclarationExpression
@@ -36,8 +37,16 @@ class ClassReference implements Reference<ClassDefinition> {
         this.location = LocationFinder.findLocation(sourceFileURI, source, parameter, shortReferencedClassName)
     }
 
+    ClassReference(String sourceFileURI, List<String> source, GenericsType genericsType) {
+        this.type = new SimpleClass(name: genericsType.type.name)
+        this.location = LocationFinder.findLocation(sourceFileURI, source, genericsType, shortReferencedClassName)
+    }
+
     ClassReference(String sourceFileURI, List<String> source, FieldNode node) {
-        this.type = new SimpleClass(name: node.type.name)
+        List<SimpleClass> genericTypes = node.type.genericsTypes.collect { GenericsType type ->
+            new SimpleClass(name: type.name)
+        }
+        this.type = new SimpleClass(name: node.type.name, genericTypes: genericTypes)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, shortReferencedClassName)
     }
 

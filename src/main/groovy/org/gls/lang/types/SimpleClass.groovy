@@ -5,7 +5,7 @@ import org.codehaus.groovy.ast.ClassNode
 class SimpleClass implements Type {
     String name
     ClassNode type
-    List<Type> genericTypes = []
+    List<SimpleClass> genericTypes = []
 
     @Override
     String toString() {
@@ -23,9 +23,8 @@ class SimpleClass implements Type {
     String getNameWithoutPackage() {
         if (name.contains(".")) {
             return toString().split("\\.").last()
-        } else {
-            return toString()
         }
+        return toString()
     }
 
     boolean equals(Object o) {
@@ -37,7 +36,9 @@ class SimpleClass implements Type {
         }
 
         SimpleClass that = (SimpleClass) o
-        if (genericTypes != that.genericTypes) return false
+        if (genericTypes != that.genericTypes) {
+            return false
+        }
 
         return name == that.name
     }

@@ -69,7 +69,6 @@ class FuncDefinition implements Definition<FuncDefinition, FuncReference> {
         this.references = references
     }
 
-
     @Override
     Set<FuncReference> getReferences() {
         return references

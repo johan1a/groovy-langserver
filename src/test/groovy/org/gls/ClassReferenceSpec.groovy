@@ -4,7 +4,7 @@ import static org.gls.util.TestUtil.testReference
 
 import spock.lang.Specification
 
-@SuppressWarnings(["DuplicateNumberLiteral"])
+@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateListLiteral"])
 class ClassReferenceSpec extends Specification {
 
     void "Instantiations should result in Class references"() {
@@ -22,8 +22,8 @@ class ClassReferenceSpec extends Specification {
         given:
             String directory = 'small/classref1/'
             String file = 'ClassRefInGenericTypes.groovy'
-            List<Integer> position = [5, 7]
-            List<List<Integer>> expectedResultPositions = [[4, 6], [6, 9]]
+            List<Integer> position = [4, 7]
+            List<List<Integer>> expectedResultPositions = [[6, 9]]
 
         expect:
             testReference(directory, file, position, expectedResultPositions)

@@ -44,7 +44,6 @@ class VarDefinition implements Definition<VarDefinition, VarReference> {
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
     }
 
-
     @Override
     void setReferences(Set<VarReference> references) {
         this.references = references
