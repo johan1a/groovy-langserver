@@ -115,14 +115,18 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitField(FieldNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
-        node.type.genericsTypes.each { GenericsType genericsType ->
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, genericsType))
-        }
+        addGenericTypeClassUsages(node.type.genericsTypes)
 
         finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
         VarReference varReference = new VarReference(sourceFileURI, fileContents, currentClassNode, node)
         finder.addVarUsage(varReference)
         super.visitField(node)
+    }
+
+    private GenericsType[] addGenericTypeClassUsages(GenericsType[] genericsTypes ) {
+        genericsTypes?.each { GenericsType genericsType ->
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, genericsType))
+        }
     }
 
     @Override
@@ -254,6 +258,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
             VariableExpression left = expression.variableExpression
             finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
+            addGenericTypeClassUsages(expression.leftExpression.type.genericsTypes)
         }
         super.visitDeclarationExpression(expression)
     }
