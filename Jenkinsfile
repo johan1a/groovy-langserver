@@ -17,7 +17,7 @@ volumes: [ ]) {
           """
         }
     } finally {
-        junit 'build/reports/**/*'
+        archiveArtifacts artifacts: 'build/reports/**/*', fingerprint: true
         junit 'build/test-results/**/*.xml'
     }
   }
