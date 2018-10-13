@@ -100,6 +100,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         node.interfaces.each { ClassNode interface1 ->
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, interface1))
+            addGenericTypeClassUsages(interface1.genericsTypes)
         }
         super.visitClass(node)
     }

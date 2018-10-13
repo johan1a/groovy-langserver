@@ -94,4 +94,15 @@ class ClassReferenceSpec extends Specification {
         expect:
             testReference(directory, file, position, expectedResultPositions)
     }
+
+    void "Implements with generic types should result in Class references"() {
+        given:
+            String directory = 'small/classref8/'
+            String file = 'ClassRefInGenericTypeInImplements.groovy'
+            List<Integer> position = [4, 6]
+            List<List<Integer>> expectedResultPositions = [[4, 6], [5, 24]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
 }
