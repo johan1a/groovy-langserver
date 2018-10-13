@@ -8,6 +8,7 @@ import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
 import org.gls.lang.ReferenceStorage
 import org.gls.lang.reference.ClassReference
+import org.gls.lang.types.SimpleClass
 
 @Slf4j
 @TypeChecked
@@ -18,6 +19,9 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
 
     private String packageName
     String className
+
+    SimpleClass type
+
     private Set<ClassReference> references
 
     List<String> memberFunctions = []
@@ -36,6 +40,8 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
 
         className = node.nameWithoutPackage
         packageName = node.packageName
+        String fullName = packageName ? "$packageName.$className" : className
+        type = new SimpleClass(name: fullName)
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, className)
     }
 
@@ -44,10 +50,6 @@ class ClassDefinition implements Definition<ClassDefinition, ClassReference> {
         this.references = references
     }
 
-    @Override
-    void setName(String name) {
-        this.className = name
-    }
 
     @Override
     Set<ClassReference> getReferences() {

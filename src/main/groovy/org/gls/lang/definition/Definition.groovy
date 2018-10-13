@@ -14,5 +14,4 @@ interface Definition<D, R> extends HasLocation {
 
     Set<R> getReferences()
 
-    void setName(String name)
 }
