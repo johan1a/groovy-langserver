@@ -13,7 +13,7 @@ volumes: [ ]) {
     try {
         stage('Run unit tests') {
           sh """
-            ./gradlew test
+            ./gradlew test --no-daemon
           """
         }
     } finally {
