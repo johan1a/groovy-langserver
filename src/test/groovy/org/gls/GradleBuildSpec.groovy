@@ -13,7 +13,7 @@ class GradleBuildSpec extends Specification {
     private static final String JAR_FILE_NAME = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/" +
             "org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
     private static final String DOES_NOT_EXIST = "/does/not/exist"
-    private static final String GROOVY_LANGSERVER = "groovy-langserver"
+    private static final String WORKDIR = System.getProperty("user.dir")
 
     void "find jar"() {
         given:
@@ -29,7 +29,7 @@ class GradleBuildSpec extends Specification {
             classPath.size() == 1
 
             String expected = JAR_FILE_NAME
-            classPath.first().split(GROOVY_LANGSERVER)[1] == expected
+            classPath.first().split(WORKDIR)[1] == expected
     }
 
     void "find jar without specifying version"() {
@@ -47,7 +47,7 @@ class GradleBuildSpec extends Specification {
             classPath.size() == 1
 
             String expected = JAR_FILE_NAME
-            classPath.first().split(GROOVY_LANGSERVER)[1] == expected
+            classPath.first().split(WORKDIR)[1] == expected
     }
 
     void "Make sure indexer classpath is updated"() {
