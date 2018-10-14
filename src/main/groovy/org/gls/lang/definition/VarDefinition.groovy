@@ -1,11 +1,11 @@
 package org.gls.lang.definition
 
+import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.Variable
-import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.exception.NotImplementedException
 import org.gls.lang.ImmutableLocation
@@ -15,6 +15,7 @@ import org.gls.lang.reference.VarReference
 
 @Slf4j
 @TypeChecked
+@ToString
 class VarDefinition implements Definition<VarDefinition, VarReference> {
 
     ImmutableLocation location
@@ -22,10 +23,6 @@ class VarDefinition implements Definition<VarDefinition, VarReference> {
     String typeName
     String varName
     private Set<VarReference> references
-
-    VarDefinition(String sourceFileURI, Expression node) {
-        throw new NotImplementedException(sourceFileURI + node.toString())
-    }
 
     VarDefinition(String sourceFileURI, List<String> source, Variable node) {
         throw new NotImplementedException(sourceFileURI + node.toString())
@@ -65,22 +62,8 @@ class VarDefinition implements Definition<VarDefinition, VarReference> {
         return varUsages.findAll {
             (it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&
-                    it.definitionLineNumber == lineNumber &&
-                    it.definitionStartColumn == location.range.start.character)
+                    it.definitionLocation == location)
         }
-    }
-
-    @Override
-    String toString() {
-        return """VarDefinition[
-                sourceFileURI=$sourceFileURI,
-                columnNumber=$columnNumber,
-                lastColumnNumber=$lastColumnNumber,
-                lineNumber=$lineNumber,
-                lastLineNumber=$lastLineNumber,
-                varName=$varName,
-                typeName=$typeName
-                ]"""
     }
 
 }

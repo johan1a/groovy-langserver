@@ -6,7 +6,6 @@ import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ASTNode
 import org.codehaus.groovy.ast.AnnotatedNode
 import org.codehaus.groovy.ast.ClassNode
-import org.codehaus.groovy.ast.DynamicVariable
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.Variable
@@ -22,16 +21,14 @@ import org.gls.lang.definition.VarDefinition
 @TypeChecked
 @ToString
 @SuppressWarnings(["UnusedMethodParameter", "Instanceof", "CatchException"])
-// TODO Remove
+// TODO Remove suppressions
 class VarReference implements Reference<VarDefinition> {
 
     ImmutableLocation location
+    ImmutableLocation definitionLocation
 
     String varName
     String typeName
-    // TODO use position
-    int definitionLineNumber
-    int definitionStartColumn
     Optional<String> declaringClass = Optional.empty()
     private VarDefinition definition
 
@@ -63,8 +60,7 @@ class VarReference implements Reference<VarDefinition> {
         initDeclarationReference(currentClass, sourceFileURI, source, node)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
-            definitionLineNumber = location.range.start.line
-            definitionStartColumn = location.range.start.character
+            definitionLocation = location
         }
     }
 
@@ -78,15 +74,10 @@ class VarReference implements Reference<VarDefinition> {
     void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, Parameter
             expression) {
         try {
-            // TODO Maybe shouldn't be a varusage?
             varName = expression.name
             typeName = expression.type.name
             declaringClass = Optional.of(currentClass.text)
-
-            ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, expression,
-                    varName)
-            this.definitionLineNumber = definitionLocation.range.start.line
-            definitionStartColumn = definitionLocation.range.start.character
+            definitionLocation = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
         } catch (Exception e) {
             log.error(NO_VAR_DECL, e)
         }
@@ -95,26 +86,9 @@ class VarReference implements Reference<VarDefinition> {
     void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, FieldNode
             expression) {
         try {
-            // TODO Maybe shouldn't be a varusage?
             varName = expression.name
             typeName = expression.type.name
             declaringClass = Optional.of(currentClass.text)
-            definitionLineNumber = expression.type.lineNumber - 1
-            definitionStartColumn = expression.type.columnNumber - 1
-        } catch (Exception e) {
-            log.error(NO_VAR_DECL, e)
-        }
-    }
-
-    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, Variable
-            expression) {
-        try {
-            // TODO Maybe shouldn't be a varusage?
-            varName = expression.name
-            typeName = expression.type.name
-            declaringClass = Optional.of(currentClass.text)
-            definitionLineNumber = expression.type.lineNumber - 1
-            definitionStartColumn = expression.type.columnNumber - 1
         } catch (Exception e) {
             log.error(NO_VAR_DECL, e)
         }
@@ -123,12 +97,10 @@ class VarReference implements Reference<VarDefinition> {
     void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, ClassExpression
             expression) {
         try {
-            // TODO Maybe shouldn't be a varusage?
             varName = expression.type.name
             typeName = expression.type.name
             declaringClass = Optional.of(typeName)
-            definitionLineNumber = expression.type.lineNumber - 1
-            definitionStartColumn = expression.type.columnNumber - 1
+            definitionLocation = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
         } catch (Exception e) {
             log.error(NO_VAR_DECL, e)
         }
@@ -146,22 +118,16 @@ class VarReference implements Reference<VarDefinition> {
                     initFieldNode(currentClass, sourceFileURI, source, accessed as FieldNode)
                 } else if (accessed instanceof AnnotatedNode) {
                     initAnnotatedNode(currentClass, sourceFileURI, source, accessed as AnnotatedNode)
-                } else if (accessed instanceof DynamicVariable) {
-                    initDynamicVariable(currentClass, sourceFileURI, source, accessed as DynamicVariable)
                 } else {
-                    log.error " cast: ${expression}"
-                    log.error " accessed: ${accessed}"
+                    log.error "Unknown type of accessed variable: ${expression}"
                 }
             } else if (expression.isThisExpression()) {
-                this.definitionLineNumber = expression.type.lineNumber - 1
-                definitionStartColumn = expression.type.columnNumber - 1
+                definitionLocation = LocationFinder.findLocation(sourceFileURI, source, expression.type, varName)
             } else if (expression.isSuperExpression()) {
                 ClassNode superClass = currentClass.superClass
-                this.definitionLineNumber = superClass.lineNumber - superClass.annotations.size()
-                definitionStartColumn = expression.type.columnNumber - 1
+                definitionLocation = LocationFinder.findLocation(sourceFileURI, source, superClass, varName)
             } else {
-                log.debug "No parentLineNumber: ${expression.name}"
-                log.debug("expression: ${expression}")
+                log.debug "Could not find position of definition for: ${expression.name}"
                 //TODO what then?
             }
         } catch (Exception e) {
@@ -170,25 +136,13 @@ class VarReference implements Reference<VarDefinition> {
     }
 
     void initFieldNode(ClassNode currentClass, String sourceFileURI, List<String> source, FieldNode fieldNode) {
-        ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, fieldNode, varName)
-        this.definitionLineNumber = definitionLocation.range.start.line
-        definitionStartColumn = definitionLocation.range.start.character
-        this.declaringClass = Optional.of(currentClass.name)
-    }
-
-    void initDynamicVariable(ClassNode currentClass, String sourceFileURI, List<String> source,
-                             DynamicVariable varDeclaration) {
-        this.definitionLineNumber = varDeclaration.type.lineNumber - 1
-        definitionStartColumn = varDeclaration.type.columnNumber - 1
+        definitionLocation = LocationFinder.findLocation(sourceFileURI, source, fieldNode, varName)
         this.declaringClass = Optional.of(currentClass.name)
     }
 
     void initAnnotatedNode(ClassNode currentClass, String sourceFileURI, List<String> source,
                            AnnotatedNode varDeclaration) {
-        ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, varDeclaration,
-                varName)
-        this.definitionLineNumber = definitionLocation.range.start.line
-        definitionStartColumn = definitionLocation.range.start.character
+        definitionLocation = LocationFinder.findLocation(sourceFileURI, source, varDeclaration, varName)
         if (varDeclaration.declaringClass != null) {
             this.declaringClass = Optional.of(varDeclaration.declaringClass.name)
         } else {
@@ -214,7 +168,7 @@ class VarReference implements Reference<VarDefinition> {
             it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&
                     it.varName == varName &&
-                    it.lineNumber == definitionLineNumber
+                    it.location == definitionLocation
         })
     }
 

@@ -125,7 +125,7 @@ class ReferenceSpec extends Specification {
         VarReference reference = usages.find { it.varName == 'theString' }
 
         expect:
-            reference.definitionLineNumber == 3
+            reference.definitionLocation.range.start.line == 3
     }
 
     void "Test find references"() {
