@@ -10,6 +10,7 @@ import org.codehaus.groovy.ast.GenericsType
 import org.codehaus.groovy.ast.MethodNode
 import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.PropertyNode
+import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
 import org.codehaus.groovy.ast.expr.ArrayExpression
 import org.codehaus.groovy.ast.expr.AttributeExpression
@@ -225,6 +226,9 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitClosureExpression(ClosureExpression expression) {
+        expression.variableScope.declaredVariables.entrySet().each { Map.Entry<String, Variable> entry ->
+            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, entry.value))
+        }
         super.visitClosureExpression(expression)
     }
 
