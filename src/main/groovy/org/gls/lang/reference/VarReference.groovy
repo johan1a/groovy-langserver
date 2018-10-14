@@ -21,14 +21,17 @@ import org.gls.lang.definition.VarDefinition
 @Slf4j
 @TypeChecked
 @ToString
-@SuppressWarnings(["UnusedMethodParameter", "Instanceof", "CatchException"]) // TODO Remove
+@SuppressWarnings(["UnusedMethodParameter", "Instanceof", "CatchException"])
+// TODO Remove
 class VarReference implements Reference<VarDefinition> {
 
     ImmutableLocation location
 
     String varName
     String typeName
+    // TODO use position
     int definitionLineNumber
+    int definitionStartColumn
     Optional<String> declaringClass = Optional.empty()
     private VarDefinition definition
 
@@ -40,9 +43,9 @@ class VarReference implements Reference<VarDefinition> {
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode node) {
         if (node instanceof ClassExpression) {
-            initDeclarationReference(currentClass, node as ClassExpression)
+            initDeclarationReference(currentClass, sourceFileURI, source, node as ClassExpression)
         } else if (node instanceof VariableExpression) {
-            initDeclarationReference(currentClass, node as VariableExpression)
+            initDeclarationReference(currentClass, sourceFileURI, source, node as VariableExpression)
         }
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
@@ -50,69 +53,112 @@ class VarReference implements Reference<VarDefinition> {
     }
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, Parameter parameter) {
-        initDeclarationReference(currentClass, parameter)
+        initDeclarationReference(currentClass, sourceFileURI, source, parameter)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, parameter, varName)
         }
     }
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, FieldNode node) {
-        initDeclarationReference(currentClass, node)
+        initDeclarationReference(currentClass, sourceFileURI, source, node)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
+            definitionLineNumber = location.range.start.line
+            definitionStartColumn = location.range.start.character
         }
     }
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, VariableExpression expression) {
-        initDeclarationReference(currentClass, expression)
+        initDeclarationReference(currentClass, sourceFileURI, source, expression)
         if (varName != null) {
             this.location = LocationFinder.findLocation(sourceFileURI, source, expression, varName)
         }
     }
 
-    void initDeclarationReference(ClassNode currentClass, Variable expression) {
+    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, Parameter
+            expression) {
+        try {
+            // TODO Maybe shouldn't be a varusage?
+            varName = expression.name
+            typeName = expression.type.name
+            declaringClass = Optional.of(currentClass.text)
+
+            ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, expression,
+                    varName)
+            this.definitionLineNumber = definitionLocation.range.start.line
+            definitionStartColumn = definitionLocation.range.start.character
+        } catch (Exception e) {
+            log.error(NO_VAR_DECL, e)
+        }
+    }
+
+    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, FieldNode
+            expression) {
         try {
             // TODO Maybe shouldn't be a varusage?
             varName = expression.name
             typeName = expression.type.name
             declaringClass = Optional.of(currentClass.text)
             definitionLineNumber = expression.type.lineNumber - 1
+            definitionStartColumn = expression.type.columnNumber - 1
         } catch (Exception e) {
             log.error(NO_VAR_DECL, e)
         }
     }
 
-    void initDeclarationReference(ClassNode currentClass, ClassExpression expression) {
+    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, Variable
+            expression) {
+        try {
+            // TODO Maybe shouldn't be a varusage?
+            varName = expression.name
+            typeName = expression.type.name
+            declaringClass = Optional.of(currentClass.text)
+            definitionLineNumber = expression.type.lineNumber - 1
+            definitionStartColumn = expression.type.columnNumber - 1
+        } catch (Exception e) {
+            log.error(NO_VAR_DECL, e)
+        }
+    }
+
+    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source, ClassExpression
+            expression) {
         try {
             // TODO Maybe shouldn't be a varusage?
             varName = expression.type.name
             typeName = expression.type.name
             declaringClass = Optional.of(typeName)
             definitionLineNumber = expression.type.lineNumber - 1
+            definitionStartColumn = expression.type.columnNumber - 1
         } catch (Exception e) {
             log.error(NO_VAR_DECL, e)
         }
     }
 
-    void initDeclarationReference(ClassNode currentClass, VariableExpression expression) {
+    @SuppressWarnings(["CouldBeSwitchStatement"])
+    void initDeclarationReference(ClassNode currentClass, String sourceFileURI, List<String> source,
+                                  VariableExpression expression) {
         try {
             typeName = expression.type.name
             varName = expression.name
             if (expression.accessedVariable != null) {
                 Variable accessed = expression.accessedVariable
-                if (accessed instanceof AnnotatedNode) {
-                    initAnnotatedNode(currentClass, accessed as AnnotatedNode)
+                if (accessed instanceof FieldNode) {
+                    initFieldNode(currentClass, sourceFileURI, source, accessed as FieldNode)
+                } else if (accessed instanceof AnnotatedNode) {
+                    initAnnotatedNode(currentClass, sourceFileURI, source, accessed as AnnotatedNode)
                 } else if (accessed instanceof DynamicVariable) {
-                    initDynamicVariable(currentClass, accessed as DynamicVariable)
+                    initDynamicVariable(currentClass, sourceFileURI, source, accessed as DynamicVariable)
                 } else {
                     log.error " cast: ${expression}"
                     log.error " accessed: ${accessed}"
                 }
             } else if (expression.isThisExpression()) {
                 this.definitionLineNumber = expression.type.lineNumber - 1
+                definitionStartColumn = expression.type.columnNumber - 1
             } else if (expression.isSuperExpression()) {
                 ClassNode superClass = currentClass.superClass
                 this.definitionLineNumber = superClass.lineNumber - superClass.annotations.size()
+                definitionStartColumn = expression.type.columnNumber - 1
             } else {
                 log.debug "No parentLineNumber: ${expression.name}"
                 log.debug("expression: ${expression}")
@@ -123,13 +169,26 @@ class VarReference implements Reference<VarDefinition> {
         }
     }
 
-    void initDynamicVariable(ClassNode currentClass, DynamicVariable varDeclaration) {
-        this.definitionLineNumber = varDeclaration.type.lineNumber - 1
+    void initFieldNode(ClassNode currentClass, String sourceFileURI, List<String> source, FieldNode fieldNode) {
+        ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, fieldNode, varName)
+        this.definitionLineNumber = definitionLocation.range.start.line
+        definitionStartColumn = definitionLocation.range.start.character
         this.declaringClass = Optional.of(currentClass.name)
     }
 
-    void initAnnotatedNode(ClassNode currentClass, AnnotatedNode varDeclaration) {
-        this.definitionLineNumber = varDeclaration.lineNumber - 1
+    void initDynamicVariable(ClassNode currentClass, String sourceFileURI, List<String> source,
+                             DynamicVariable varDeclaration) {
+        this.definitionLineNumber = varDeclaration.type.lineNumber - 1
+        definitionStartColumn = varDeclaration.type.columnNumber - 1
+        this.declaringClass = Optional.of(currentClass.name)
+    }
+
+    void initAnnotatedNode(ClassNode currentClass, String sourceFileURI, List<String> source,
+                           AnnotatedNode varDeclaration) {
+        ImmutableLocation definitionLocation = LocationFinder.findLocation(sourceFileURI, source, varDeclaration,
+                varName)
+        this.definitionLineNumber = definitionLocation.range.start.line
+        definitionStartColumn = definitionLocation.range.start.character
         if (varDeclaration.declaringClass != null) {
             this.declaringClass = Optional.of(varDeclaration.declaringClass.name)
         } else {
@@ -150,7 +209,7 @@ class VarReference implements Reference<VarDefinition> {
     }
 
     @Override
-    Optional<VarDefinition> findMatchingDefinition(ReferenceStorage storage, Set < VarDefinition > definitions) {
+    Optional<VarDefinition> findMatchingDefinition(ReferenceStorage storage, Set<VarDefinition> definitions) {
         return Optional.ofNullable(definitions.find {
             it.sourceFileURI == sourceFileURI &&
                     it.typeName == typeName &&

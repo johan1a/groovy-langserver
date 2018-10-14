@@ -9,10 +9,10 @@ class VarReferenceSpec extends Specification {
 
     void "Closure argument should result in Var reference"() {
         given:
-            String directory = 'small/varref5/'
-            String file = 'VarRefInClosureArgument.groovy'
-            List<Integer> position = [7, 19]
-            List<List<Integer>> expectedResultPositions = [[6, 42], [7, 19]]
+            String directory = 'small/vardecl0/'
+            String file = 'VarRefInClosureArgumentWithoutType.groovy'
+            List<Integer> position = [4, 36]
+            List<List<Integer>> expectedResultPositions = [[4, 36], [9, 19]]
 
         expect:
             testReference(directory, file, position, expectedResultPositions)

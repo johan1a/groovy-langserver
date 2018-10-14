@@ -9,10 +9,10 @@ class VarDeclSpec extends Specification {
 
     void "Closure argument should result in Var declaration"() {
         given:
-            String directory = 'small/varref5/'
-            String file = 'VarRefInClosureArgument.groovy'
-            List<Integer> position = [6, 42]
-            List<Integer> expectedResultPositions = [6, 42]
+            String directory = 'small/vardecl0/'
+            String file = 'VarRefInClosureArgumentWithoutType.groovy'
+            List<Integer> position = [4, 40]
+            List<Integer> expectedResultPositions = [4, 36]
 
         expect:
             testDeclaration(directory, file, position, expectedResultPositions)
