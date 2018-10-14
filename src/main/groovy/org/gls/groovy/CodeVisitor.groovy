@@ -228,6 +228,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitClosureExpression(ClosureExpression expression) {
         expression.variableScope.declaredVariables.entrySet().each { Map.Entry<String, Variable> entry ->
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, entry.value))
+            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, entry.value))
+            finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, entry.value))
         }
         super.visitClosureExpression(expression)
     }

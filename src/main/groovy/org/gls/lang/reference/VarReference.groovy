@@ -12,6 +12,7 @@ import org.codehaus.groovy.ast.Parameter
 import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.ClassExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
+import org.gls.exception.NotImplementedException
 import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
 import org.gls.lang.ReferenceStorage
@@ -32,6 +33,10 @@ class VarReference implements Reference<VarDefinition> {
     private VarDefinition definition
 
     private static final String NO_VAR_DECL = "no var decl"
+
+    VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, Variable variable) {
+        throw new NotImplementedException(variable.toString())
+    }
 
     VarReference(String sourceFileURI, List<String> source, ClassNode currentClass, ASTNode node) {
         if (node instanceof ClassExpression) {

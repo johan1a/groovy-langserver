@@ -4,6 +4,7 @@ import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.FieldNode
 import org.codehaus.groovy.ast.Parameter
+import org.codehaus.groovy.ast.Variable
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.VariableExpression
 import org.gls.exception.NotImplementedException
@@ -22,14 +23,18 @@ class VarDefinition implements Definition<VarDefinition, VarReference> {
     String varName
     private Set<VarReference> references
 
+    VarDefinition(String sourceFileURI, Expression node) {
+        throw new NotImplementedException(sourceFileURI + node.toString())
+    }
+
+    VarDefinition(String sourceFileURI, List<String> source, Variable node) {
+        throw new NotImplementedException(sourceFileURI + node.toString())
+    }
+
     VarDefinition(String sourceFileURI, List<String> source, Parameter node) {
         typeName = node.type.name
         varName = node.name
         this.location = LocationFinder.findLocation(sourceFileURI, source, node, varName)
-    }
-
-    VarDefinition(String sourceFileURI, Expression node) {
-        throw new NotImplementedException(sourceFileURI + node.toString())
     }
 
     VarDefinition(String sourceFileURI, List<String> source, VariableExpression node) {
