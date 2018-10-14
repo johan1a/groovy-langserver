@@ -31,12 +31,11 @@ class ReferenceSpec extends Specification {
         Set<ClassDefinition> definitions = finder.storage.classDefinitions.findAll {
             it.type.toString() == "Box"
         }
-        Set<ClassReference> usages = finder.classReferences
-        ClassReference usage = usages.find { it.type.toString() == "Box" }
+        Set<ClassReference> usages = finder.classReferences.findAll { it.type.toString() == "Box" }
 
         expect:
             definitions.first().lineNumber == 0
-            usage.lineNumber == 3
+            usages*.lineNumber.sort() == [0, 3, 4]
     }
 
     void "test Vardecl class usage"() {
