@@ -190,4 +190,15 @@ class ReferenceSpec extends Specification {
             testReference(directory, file, position, expectedResultPositions)
     }
 
+    void "Constructor arguments should result in variable references"() {
+        given:
+            String directory = 'small/varref6/'
+            String file = 'VarRefInConstructorArgument.groovy'
+            List<Integer> position = [3, 49]
+            List<List<Integer>> expectedResultPositions = [[3, 49], [5, 4]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
+
 }

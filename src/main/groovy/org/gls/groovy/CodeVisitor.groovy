@@ -113,6 +113,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
             finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
             node.parameters.each { Parameter it ->
                 finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
+                finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, it))
                 finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
             }
         }
@@ -122,11 +123,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitField(FieldNode node) {
         finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         addGenericTypeClassUsages(node.type.genericsTypes)
-
-        VarDefinition definition = new VarDefinition(sourceFileURI, fileContents, node)
-        finder.addVarDefinition(definition )
-        VarReference varReference = new VarReference(sourceFileURI, fileContents, currentClassNode, node)
-        finder.addVarUsage(varReference)
+        finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
+        finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, node))
         super.visitField(node)
     }
 
