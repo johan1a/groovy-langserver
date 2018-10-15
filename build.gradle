@@ -14,23 +14,25 @@ buildscript {
 
 
 repositories {
-   mavenCentral()
-   jcenter()
+    mavenCentral()
+    jcenter()
 }
 
 dependencies {
-   compile 'org.codehaus.groovy:groovy-all:2.4.14'
-   compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.4.0.M6'
-   compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.jsonrpc', version: '0.4.0.M6'
-   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile 'org.codehaus.groovy:groovy-all:2.4.14'
+    compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.4.0.M6'
+    compile group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.jsonrpc', version: '0.4.0.M6'
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     compile 'ch.qos.logback:logback-classic:1.2.3'
     compile 'ch.qos.logback:logback-core:1.2.3'
 
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
 
-   testCompile 'junit:junit:4.12'
-   testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-   testRuntime 'com.athaydes:spock-reports:1.2.7'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+    testRuntime 'com.athaydes:spock-reports:1.2.7'
 }
 
 codenarc {
@@ -40,6 +42,6 @@ codenarc {
 mainClassName = 'org.gls.LangServer'
 
 run {
-   standardInput = System.in
-   standardOutput = System.out
+    standardInput = System.in
+    standardOutput = System.out
 }

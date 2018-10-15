@@ -1,10 +1,15 @@
 package org.gls.lang.types
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.codehaus.groovy.ast.ClassNode
 
 class SimpleClass implements Type {
+
     String name
+
+    @JsonIgnore
     ClassNode type
+
     List<SimpleClass> genericTypes = []
 
     @Override

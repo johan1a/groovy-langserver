@@ -4,7 +4,7 @@ import static org.gls.util.TestUtil.testReference
 
 import spock.lang.Specification
 
-@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateListLiteral"])
+@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateStringLiteral", "DuplicateListLiteral"])
 class FuncRefSpec extends Specification {
 
     void "Method should result in func references"() {

@@ -58,7 +58,7 @@ class ConfigService {
         dependenciesStorage
     }
 
-    URI getConfigDir(URI rootUri) {
+    static URI getConfigDir(URI rootUri) {
         String stringPath
         if (rootUri.scheme) {
             stringPath = Paths.get(rootUri).toString()

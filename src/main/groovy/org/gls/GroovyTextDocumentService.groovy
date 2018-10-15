@@ -297,7 +297,7 @@ class GroovyTextDocumentService implements TextDocumentService, LanguageClientAw
             this.languageService = languageService
 
             if (indexerConfig.serializeLanguageService) {
-                serializationService.serialize(rootUri, languageService)
+                serializationService.serialize(ConfigService.getConfigDir(rootUri), languageService)
             }
 
             sendDiagnostics(diagnostics, client)

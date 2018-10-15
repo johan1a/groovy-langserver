@@ -1,6 +1,6 @@
 package org.gls
 
-import groovy.json.JsonOutput
+import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.util.logging.Slf4j
 import org.gls.lang.LanguageService
 
@@ -10,11 +10,12 @@ import org.gls.lang.LanguageService
 @Slf4j
 class SerializationService {
 
-    static void serialize(URI rootUri, LanguageService languageService) {
-        URI filePath = UriUtils.appendURI(ConfigService.getConfigDir(rootUri), "/references")
-        String output = JsonOutput.prettyPrint(JsonOutput.toJson(languageService))
-        File dependenciesFile = new File(filePath)
-        dependenciesFile.createNewFile()
-        dependenciesFile.text = output
+    static void serialize(URI directory, LanguageService languageService) {
+        URI filePath = UriUtils.appendURI(directory, "/references")
+        ObjectMapper mapper = new ObjectMapper()
+        String output = mapper.writeValueAsString(languageService.storage)
+        File file = new File(filePath)
+        file.createNewFile()
+        file.text = output
     }
 }

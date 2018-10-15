@@ -4,6 +4,7 @@ import static org.gls.util.TestUtil.testDeclaration
 
 import spock.lang.Specification
 
+@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateStringLiteral", "DuplicateListLiteral"])
 class FuncDeclSpec extends Specification {
 
     void "Method should result in func declaration"() {

@@ -1,5 +1,6 @@
 package org.gls.lang.reference
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
@@ -26,7 +27,9 @@ class ClassReference implements Reference<ClassDefinition> {
 
     ImmutableLocation location
 
+    @JsonIgnore
     SimpleClass type
+
     ClassDefinition definition
 
     String getShortReferencedClassName() {
