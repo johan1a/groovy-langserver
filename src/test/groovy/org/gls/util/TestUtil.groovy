@@ -11,12 +11,13 @@ import org.gls.lang.ImmutablePosition
 import org.gls.lang.LanguageService
 import java.nio.file.Paths
 
+@SuppressWarnings(["DuplicateNumberLiteral", "DuplicateListLiteral"])
 class TestUtil {
     static URI uri(String path) {
         return Paths.get(path).toUri()
     }
 
-    static boolean testDeclaration(String directory, String fileName, List<Integer> queryPosition,
+    static boolean testDeclaration(String directory, String queriedFile, List<Integer> queryPosition,
                                    List<Integer> expectedPosition) {
         LanguageService languageService = new LanguageService()
         String dirPath = "src/test/test-files/${directory}"
@@ -24,7 +25,7 @@ class TestUtil {
         TextDocumentPositionParams params = new TextDocumentPositionParams()
         params.position = new ImmutablePosition(queryPosition[0], queryPosition[1])
 
-        String filePath = new File(dirPath + "/${fileName}").canonicalPath
+        String filePath = new File(dirPath + "/${queriedFile}").canonicalPath
         params.textDocument = new TextDocumentIdentifier(filePath)
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), languageService, new IndexerConfig())
@@ -33,8 +34,10 @@ class TestUtil {
 
         errors.isEmpty()
         locations.find { location ->
+            String referenceFile = getReferenceFile(expectedPosition, dirPath, queriedFile)
             ImmutablePosition position = new ImmutablePosition(expectedPosition[0], expectedPosition[1])
-            location.range.start == position
+            location.range.start == position &&
+                    location.uri == referenceFile
         }
     }
 
@@ -55,19 +58,24 @@ class TestUtil {
 
         errors.isEmpty()
         expectedResultPositions.each { pos ->
-            String referenceFile
-            if (pos[2]) {
-                referenceFile = uri("${dirPath}/${pos[2]}")
-            } else {
-                referenceFile = uri("$dirPath/$queriedFile").toString()
-            }
+            String referenceFile = getReferenceFile(pos, dirPath, queriedFile)
 
             ImmutablePosition expectedPosition = new ImmutablePosition(pos[0], pos[1])
             assert locations.find { location ->
                 location.range.start == expectedPosition &&
-                        location.uri == referenceFile.replace("file://","")
+                        location.uri == referenceFile
             }
         }
+    }
+
+    private static String getReferenceFile(List expectedPos, String dirPath, String queriedFile) {
+        String referenceFile
+        if (expectedPos[2]) {
+            referenceFile = uri("${dirPath}/${expectedPos[2]}")
+        } else {
+            referenceFile = uri("$dirPath/$queriedFile").toString()
+        }
+        referenceFile.replace("file://", "")
     }
 
 }

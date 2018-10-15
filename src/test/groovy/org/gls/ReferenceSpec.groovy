@@ -18,7 +18,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 
 @Unroll
-@SuppressWarnings(["DuplicateStringLiteral", "DuplicateNumberLiteral"])
+@SuppressWarnings(["DuplicateStringLiteral", "DuplicateNumberLiteral", "DuplicateListLiteral"])
 class ReferenceSpec extends Specification {
 
     void "test function return type"() {
