@@ -1,5 +1,6 @@
 package org.gls.lang.types
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
@@ -16,6 +17,7 @@ class SimpleExpression {
 
     String containingClass
 
+    @JsonIgnore
     Expression expression
 
     Type type

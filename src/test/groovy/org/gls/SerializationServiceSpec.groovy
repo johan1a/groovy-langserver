@@ -6,7 +6,7 @@ import spock.lang.Specification
 import java.nio.file.Files
 import java.nio.file.Paths
 
-@SuppressWarnings(["LineLength"])
+@SuppressWarnings(["LineLength", "TrailingWhitespace"])
 class SerializationServiceSpec extends Specification {
 
     void "It should be able to serialize a LanguageService"() {
@@ -19,7 +19,26 @@ class SerializationServiceSpec extends Specification {
             File file = new File("${path}/references")
 
         expect:
-            file.text == """{"classDefinitions":[],"classReferences":[],"varDefinitions":[],"varReferences":[],"funcDefinitions":[],"funcReferences":[]}"""
+            file.text == """{
+    "classDefinitions": [
+        
+    ],
+    "classReferences": [
+        
+    ],
+    "varDefinitions": [
+        
+    ],
+    "varReferences": [
+        
+    ],
+    "funcDefinitions": [
+        
+    ],
+    "funcReferences": [
+        
+    ]
+}"""
     }
 
 }
