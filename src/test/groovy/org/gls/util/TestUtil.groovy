@@ -38,7 +38,7 @@ class TestUtil {
         }
     }
 
-    static boolean testReference(String directory, String fileName, List<Integer> queryPosition,
+    static boolean testReference(String directory, String queriedFile, List<Integer> queryPosition,
                                  List<List<Integer>> expectedResultPositions) {
         LanguageService languageService = new LanguageService()
         String dirPath = "src/test/test-files/${directory}"
@@ -46,7 +46,7 @@ class TestUtil {
         ReferenceParams params = new ReferenceParams()
         params.position = new ImmutablePosition(queryPosition[0], queryPosition[1])
 
-        String filePath = new File(dirPath + "/${fileName}").canonicalPath
+        String filePath = new File(dirPath + "/${queriedFile}").canonicalPath
         params.textDocument = new TextDocumentIdentifier(filePath)
 
         GroovyCompilerService indexer = new GroovyCompilerService(uri(dirPath), languageService, new IndexerConfig())
@@ -55,10 +55,19 @@ class TestUtil {
 
         errors.isEmpty()
         expectedResultPositions.each { pos ->
+            String referenceFile
+            if (pos[2]) {
+                referenceFile = uri("${dirPath}/${pos[2]}")
+            } else {
+                referenceFile = uri("$dirPath/$queriedFile").toString()
+            }
+
             ImmutablePosition expectedPosition = new ImmutablePosition(pos[0], pos[1])
             assert locations.find { location ->
-                location.range.start == expectedPosition
+                location.range.start == expectedPosition &&
+                        location.uri == referenceFile.replace("file://","")
             }
         }
     }
+
 }
