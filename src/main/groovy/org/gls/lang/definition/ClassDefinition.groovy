@@ -1,6 +1,5 @@
 package org.gls.lang.definition
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.transform.ToString
 import groovy.transform.TypeChecked
 import groovy.util.logging.Slf4j
