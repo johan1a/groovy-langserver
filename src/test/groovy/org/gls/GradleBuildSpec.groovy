@@ -73,7 +73,7 @@ class GradleBuildSpec extends Specification {
             List<Dependency> dependencies = gradleBuild.parseDependencies()
 
         then:
-            dependencies.size() == 212
+            dependencies.size() == 239
     }
 
 }
