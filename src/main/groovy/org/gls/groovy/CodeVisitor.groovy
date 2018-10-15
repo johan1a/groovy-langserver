@@ -77,13 +77,13 @@ import org.gls.lang.reference.VarReference
 @SuppressWarnings(["MethodCount", "UnnecessaryOverridingMethod"])
 class CodeVisitor extends ClassCodeVisitorSupport {
 
-    private final LanguageService finder
+    private final LanguageService languageService
     private final String sourceFileURI
     private ClassNode currentClassNode
     List<String> fileContents
 
-    CodeVisitor(LanguageService finder, String sourceFileURI, List<String> fileContents) {
-        this.finder = finder
+    CodeVisitor(LanguageService languageService, String sourceFileURI, List<String> fileContents) {
+        this.languageService = languageService
         this.sourceFileURI = sourceFileURI
         this.fileContents = fileContents
     }
@@ -97,10 +97,10 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitClass(ClassNode node) {
         log.debug("Visiting class ${node.name}")
         currentClassNode = node
-        finder.addClassDefinition(new ClassDefinition(node, sourceFileURI, fileContents))
-        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+        languageService.addClassDefinition(new ClassDefinition(node, sourceFileURI, fileContents))
+        languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         node.interfaces.each { ClassNode interface1 ->
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, interface1))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, interface1))
             addGenericTypeClassUsages(interface1.genericsTypes)
         }
         super.visitClass(node)
@@ -110,34 +110,34 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitConstructor(ConstructorNode node) {
         super.visitConstructor(node)
         if (!node.hasNoRealSourcePosition()) {
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
             node.parameters.each { Parameter it ->
-                finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
-                finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, it))
-                finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
+                languageService.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
+                languageService.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, it))
+                languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
             }
         }
     }
 
     @Override
     void visitField(FieldNode node) {
-        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+        languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
         addGenericTypeClassUsages(node.type.genericsTypes)
-        finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
-        finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, node))
+        languageService.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, node))
+        languageService.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, node))
         super.visitField(node)
     }
 
     @Override
     void visitMethod(MethodNode node) {
-        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
-        finder.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.name, node))
+        languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, node))
+        languageService.addFuncDefinition(new FuncDefinition(sourceFileURI, fileContents, currentClassNode.name, node))
         addGenericTypeClassUsages(node.returnType.genericsTypes)
         node.parameters.each { Parameter it ->
-            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
+            languageService.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, it))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, it))
             VarReference varReference = new VarReference(sourceFileURI, fileContents, currentClassNode, it)
-            finder.addVarUsage(varReference)
+            languageService.addVarUsage(varReference)
         }
         super.visitMethod(node)
     }
@@ -146,10 +146,10 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     void visitProperty(PropertyNode node) {
         FuncDefinition getter = FuncDefinition.makeGetter(sourceFileURI, fileContents, currentClassNode.name,
                 node.field)
-        finder.addFuncDefinition(getter)
+        languageService.addFuncDefinition(getter)
         FuncDefinition setter = FuncDefinition.makeSetter(sourceFileURI, fileContents, currentClassNode.name,
                 node.field)
-        finder.addFuncDefinition(setter)
+        languageService.addFuncDefinition(setter)
         super.visitProperty(node)
     }
 
@@ -226,9 +226,9 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitClosureExpression(ClosureExpression expression) {
         expression.variableScope.declaredVariables.entrySet().each { Map.Entry<String, Variable> entry ->
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, entry.value))
-            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, entry.value))
-            finder.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, entry.value))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, entry.value))
+            languageService.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, entry.value))
+            languageService.addVarUsage(new VarReference(sourceFileURI, fileContents, currentClassNode, entry.value))
         }
         super.visitClosureExpression(expression)
     }
@@ -245,7 +245,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitConstructorCallExpression(ConstructorCallExpression expression) {
-        finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
+        languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
         addGenericTypeClassUsages(expression.type.genericsTypes)
         super.visitConstructorCallExpression(expression)
     }
@@ -262,8 +262,8 @@ class CodeVisitor extends ClassCodeVisitorSupport {
             //TODO TupleExpression left = expression.getTupleExpression()
         } else {
             VariableExpression left = expression.variableExpression
-            finder.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
+            languageService.addVarDefinition(new VarDefinition(sourceFileURI, fileContents, left))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, expression))
             addGenericTypeClassUsages(expression.leftExpression.type.genericsTypes)
         }
         super.visitDeclarationExpression(expression)
@@ -319,7 +319,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
         VarReference usage = new VarReference(sourceFileURI, fileContents, currentClassNode, call.receiver)
 
         FuncReference funcCall = new FuncReference(sourceFileURI, fileContents, currentClassNode, call, usage)
-        finder.addFuncCall(funcCall)
+        languageService.addFuncCall(funcCall)
         super.visitMethodCallExpression(call)
     }
 
@@ -375,7 +375,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     @Override
     void visitStaticMethodCallExpression(StaticMethodCallExpression expression) {
-        finder.addFuncCall(new FuncReference(sourceFileURI, fileContents, currentClassNode, expression))
+        languageService.addFuncCall(new FuncReference(sourceFileURI, fileContents, currentClassNode, expression))
         super.visitStaticMethodCallExpression(expression)
     }
 
@@ -422,7 +422,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
     @Override
     void visitVariableExpression(VariableExpression expression) {
         VarReference reference = new VarReference(sourceFileURI, fileContents, currentClassNode, expression)
-        finder.addVarUsage(reference)
+        languageService.addVarUsage(reference)
         super.visitVariableExpression(expression)
     }
 
@@ -433,7 +433,7 @@ class CodeVisitor extends ClassCodeVisitorSupport {
 
     private GenericsType[] addGenericTypeClassUsages(GenericsType[] genericsTypes) {
         genericsTypes?.each { GenericsType genericsType ->
-            finder.addClassUsage(new ClassReference(sourceFileURI, fileContents, genericsType))
+            languageService.addClassUsage(new ClassReference(sourceFileURI, fileContents, genericsType))
         }
     }
 
