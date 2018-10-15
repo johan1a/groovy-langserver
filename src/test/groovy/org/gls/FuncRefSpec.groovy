@@ -17,4 +17,15 @@ class FuncRefSpec extends Specification {
         expect:
             testReference(directory, file, position, expectedResultPositions)
     }
+
+    void "Static method should result in func references"() {
+        given:
+            String directory = 'small/funcref/staticfuncref'
+            String file = 'Flabbergast.groovy'
+            List<Integer> position = [4, 16]
+            List<List<Object>> expectedResultPositions = [[5, 20, "StaticFuncRef.groovy"]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
 }

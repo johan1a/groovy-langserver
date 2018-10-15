@@ -18,7 +18,7 @@ class TestUtil {
     }
 
     static boolean testDeclaration(String directory, String queriedFile, List<Integer> queryPosition,
-                                   List<Integer> expectedPosition) {
+                                   List<Object> expectedPosition) {
         LanguageService languageService = new LanguageService()
         String dirPath = "src/test/test-files/${directory}"
 
