@@ -62,9 +62,10 @@ class FuncReference implements Reference<FuncDefinition> {
         return Optional.ofNullable(definition)
     }
 
+    @SuppressWarnings(["UnnecessaryCast"])
     List<Type> resolveArgumentTypes(ReferenceStorage referenceStorage) {
         ArgumentType arguments = argumentTypes.resolve(referenceStorage) as ArgumentType
-        arguments.types
+        arguments?.types ?: [] as List<Type>
     }
 
     @Override
