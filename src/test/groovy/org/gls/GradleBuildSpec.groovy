@@ -9,15 +9,20 @@ import spock.lang.Unroll
 
 @Unroll
 class GradleBuildSpec extends Specification {
-    private static final String GRADLE_HOME = "src/test/test-files/config/gradle_home"
-    private static final String JAR_FILE_NAME = "/src/test/test-files/config/gradle_home/caches/modules-2/files-2.1/" +
+
+    private static final String TEST_DIR = "src/test/test-files/config/"
+    private static final String GRADLE_HOME = "$TEST_DIR/gradle_home"
+    private static final String JAR_FILE_NAME = "/${TEST_DIR}gradle_home/caches/modules-2/files-2.1/" +
             "org.slf4j/slf4j-api/1.7.25/962153db4a9ea71b79d047dfd1b2a0d80d8f4739/slf4j-api-1.7.25.jar"
     private static final String DOES_NOT_EXIST = "/does/not/exist"
     private static final String WORKDIR = System.getProperty("user.dir")
 
     void "find jar"() {
         given:
-            String path = "src/test/test-files/config/build6.fakegradle"
+            GradleBuild.metaClass.callGradle = { ->
+                new File("$TEST_DIR/dependencies.txt").readLines()
+            }
+            String path = "$TEST_DIR/build6.fakegradle"
             GradleBuild gradleBuild = new GradleBuild(uri(path))
             gradleBuild.gradleHome = GRADLE_HOME
             gradleBuild.libraries = [DOES_NOT_EXIST, gradleBuild.gradleHome]
@@ -28,13 +33,15 @@ class GradleBuildSpec extends Specification {
         then:
             classPath.size() == 1
 
-            String expected = JAR_FILE_NAME
-            classPath.first().split(WORKDIR)[1] == expected
+            classPath.first().split(WORKDIR)[1] == JAR_FILE_NAME
     }
 
     void "find jar without specifying version"() {
         given:
-            String path = "src/test/test-files/config/build7.fakegradle"
+            GradleBuild.metaClass.callGradle = { ->
+                new File("$TEST_DIR/dependencies.txt").readLines()
+            }
+            String path = "$TEST_DIR/build7.fakegradle"
             GradleBuild gradleBuild = new GradleBuild(uri(path))
             gradleBuild.gradleHome = GRADLE_HOME
 
@@ -66,14 +73,18 @@ class GradleBuildSpec extends Specification {
     }
 
     void "Test dependency parsing"() {
-        String path = "."
-        GradleBuild gradleBuild = new GradleBuild(uri(path))
+        given:
+            GradleBuild.metaClass.callGradle = { ->
+                new File("$TEST_DIR/dependencies.txt").readLines()
+            }
+            String path = "."
+            GradleBuild gradleBuild = new GradleBuild(uri(path))
 
         when:
             List<Dependency> dependencies = gradleBuild.parseDependencies()
 
         then:
-            dependencies.size() == 239
+            dependencies.size() == 5809
     }
 
 }

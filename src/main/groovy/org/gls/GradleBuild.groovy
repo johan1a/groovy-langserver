@@ -64,7 +64,7 @@ class GradleBuild implements BuildType {
         }
     }
 
-    static List<Dependency> parseDependencies() {
+    List<Dependency> parseDependencies() {
         List<String> gradleOutput = callGradle()
         List<Dependency> dependencies = new LinkedList<>()
 
@@ -74,7 +74,7 @@ class GradleBuild implements BuildType {
         dependencies.unique()
     }
 
-    private static List<String> callGradle() {
+    List<String> callGradle() {
         StringBuilder sout = new StringBuilder(), serr = new StringBuilder()
         Process proc = './gradlew -q dependencies'.execute()
         proc.consumeProcessOutput(sout, serr)
