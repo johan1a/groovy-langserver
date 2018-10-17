@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import groovy.util.logging.Slf4j
 import org.codehaus.groovy.ast.ClassNode
 import org.codehaus.groovy.ast.expr.ArgumentListExpression
+import org.codehaus.groovy.ast.expr.ConstantExpression
 import org.codehaus.groovy.ast.expr.Expression
 import org.codehaus.groovy.ast.expr.MethodCallExpression
 import org.codehaus.groovy.ast.expr.VariableExpression
@@ -11,6 +12,8 @@ import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.FuncDefinition
 
 @Slf4j
+// TODO remove supress
+@SuppressWarnings("UnusedMethodParameter")
 class SimpleExpression {
 
     String name
@@ -26,10 +29,12 @@ class SimpleExpression {
         resolve(storage, expression)
     }
 
-    // TODO remove supress
-    @SuppressWarnings("UnusedMethodParameter")
     Type resolve(ReferenceStorage storage, Expression expression) {
         log.info "aa"
+    }
+
+    Type resolve(ReferenceStorage storage, ConstantExpression expression) {
+        new SimpleClass(name: expression.type.name)
     }
 
     ArgumentType resolve(ReferenceStorage storage, ArgumentListExpression expression) {

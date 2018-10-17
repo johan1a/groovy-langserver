@@ -9,7 +9,9 @@ import org.gls.lang.ImmutableLocation
 import org.gls.lang.LocationFinder
 import org.gls.lang.ReferenceStorage
 import org.gls.lang.definition.FuncDefinition
+import org.gls.lang.types.ArgumentType
 import org.gls.lang.types.SimpleExpression
+import org.gls.lang.types.Type
 
 @Slf4j
 @TypeChecked
@@ -60,8 +62,13 @@ class FuncReference implements Reference<FuncDefinition> {
         return Optional.ofNullable(definition)
     }
 
+    List<Type> resolveArgumentTypes(ReferenceStorage referenceStorage) {
+        ArgumentType arguments = argumentTypes.resolve(referenceStorage) as ArgumentType
+        arguments.types
+    }
+
     @Override
-    Optional<FuncDefinition> findMatchingDefinition(ReferenceStorage storage, Set < FuncDefinition > definitions) {
+    Optional<FuncDefinition> findMatchingDefinition(ReferenceStorage storage, Set<FuncDefinition> definitions) {
         return Optional.ofNullable(definitions.find {
             it.definingClass == definingClass &&
                     it.functionName == functionName &&

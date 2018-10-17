@@ -28,4 +28,15 @@ class FuncRefSpec extends Specification {
         expect:
             testReference(directory, file, position, expectedResultPositions)
     }
+
+    void "Method with arguments should result in func references"() {
+        given:
+            String directory = 'small/funcref/witharguments'
+            String file = 'Flabbergast.groovy'
+            List<Integer> position = [8, 9]
+            List<List<Object>> expectedResultPositions = [[9, 20, "BasicFuncRef.groovy"]]
+
+        expect:
+            testReference(directory, file, position, expectedResultPositions)
+    }
 }

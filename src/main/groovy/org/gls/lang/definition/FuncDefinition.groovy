@@ -85,8 +85,14 @@ class FuncDefinition implements Definition<FuncDefinition, FuncReference> {
     }
 
     boolean sameArgumentTypesAs(ReferenceStorage storage, FuncReference funcReference) {
-        List<Type> definitionParameterTypes = this.parameterTypes*.resolve(storage).types
-        List<Type> referenceParameterTypes = funcReference.argumentTypes*.resolve(storage).types
-        referenceParameterTypes == definitionParameterTypes
+        List<Type> definitionParameterTypes = this.parameterTypes.resolve(storage)?.types ?: []
+        List<Type> referenceParameterTypes = funcReference.resolveArgumentTypes(storage)
+        if (definitionParameterTypes.size() != referenceParameterTypes.size()) {
+            return false
+        }
+        if (definitionParameterTypes.isEmpty() && referenceParameterTypes.isEmpty()) {
+            return true
+        }
+        [referenceParameterTypes, definitionParameterTypes].transpose().collect { a, b -> a == b }
     }
 }
